@@ -5,25 +5,25 @@ const categories = [
     id: "1",
     name: "Subcategory 1",
     slug: "subcategory-1",
-    image: "https://via.placeholder.com/150",
+    image: "/images/1.png",
   },
   {
     id: "2",
     name: "Subcategory 2",
     slug: "subcategory-2",
-    image: "https://via.placeholder.com/150",
+    image: "/images/2.png",
   },
   {
     id: "3",
     name: "Subcategory 3",
     slug: "subcategory-3",
-    image: "https://via.placeholder.com/150",
+    image: "/images/3.png",
   },
   {
     id: "4",
     name: "Subcategory 4",
     slug: "subcategory-4",
-    image: "https://via.placeholder.com/150",
+    image: "/images/4.png",
   },
 ];
 

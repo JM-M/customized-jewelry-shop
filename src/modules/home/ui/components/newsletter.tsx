@@ -10,9 +10,15 @@ export const Newsletter = () => {
           Subscribe to our newsletter and get 10% off your first order, and
           inside information on our latest offers and new arrivals.
         </p>
-        <div className="relative mx-10">
-          <Input placeholder="Enter your email" className="h-12 pr-14" />
-          <Button size="icon" className="absolute top-0 right-0 h-12 w-12">
+        <div className="relative mx-10 rounded-full">
+          <Input
+            placeholder="Enter your email"
+            className="h-12 rounded-full pr-14"
+          />
+          <Button
+            size="icon"
+            className="absolute top-0 right-0 h-12 w-12 rounded-l-none"
+          >
             <ArrowRightIcon />
           </Button>
         </div>

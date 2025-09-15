@@ -40,7 +40,7 @@ export const Hero = () => {
 
   return (
     <header className="relative h-fit">
-      {/* <div className="absolute inset-0 z-[1] bg-black/30" /> */}
+      <div className="absolute inset-0 z-[1] bg-black/20" />
 
       <Carousel
         // setApi={setApi}
