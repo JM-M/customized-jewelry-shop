@@ -8,14 +8,10 @@ import { CategoryCard } from "./category-card";
 
 interface CategoryCarouselProps {
   categories: Category[];
-  title: string;
-  viewAllLink: string;
 }
 
 export const CategoryCarousel = ({
   categories,
-  title,
-  viewAllLink,
 }: CategoryCarouselProps) => {
   return (
     <div>

@@ -4,6 +4,7 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -52,7 +53,7 @@ const productImages = [
 ];
 
 export const ProductImageCarousel = () => {
-  const [api, setApi] = useState<any>();
+  const [api, setApi] = useState<CarouselApi | null>(null);
   const [current, setCurrent] = useState(0);
 
   // Track current slide

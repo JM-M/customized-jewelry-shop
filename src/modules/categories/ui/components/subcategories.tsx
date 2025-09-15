@@ -30,11 +30,7 @@ const categories = [
 export const Subcategories = () => {
   return (
     <div>
-      <CategoryCarousel
-        categories={categories}
-        title="Subcategories"
-        viewAllLink="/categories"
-      />
+      <CategoryCarousel categories={categories} />
     </div>
   );
 };
