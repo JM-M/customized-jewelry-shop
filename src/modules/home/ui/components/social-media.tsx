@@ -7,10 +7,17 @@ export const SocialMedia = () => {
       <div className="space-y-5 py-8 text-center">
         <p>
           We love to see all of you wearing and unwrapping ByNouck. Want to get
-          featured?Tag @_temmy_accessories on Instagram.
+          featured?Tag{" "}
+          <a
+            href="https://www.instagram.com/_temmyaccessories/"
+            className="text-primary font-medium"
+          >
+            @_temmyaccessories
+          </a>{" "}
+          on Instagram.
           {/* Link to the instagram page */}
         </p>
-        <Button className="mx-auto flex">
+        <Button className="mx-auto flex h-12 !px-5">
           <SiInstagram />
           Follow us on Instagram
         </Button>

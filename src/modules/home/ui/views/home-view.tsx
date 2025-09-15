@@ -7,13 +7,13 @@ import { SocialProof } from "../components/social-proof";
 
 export const HomeView = () => {
   return (
-    <>
+    <div className="space-y-5">
       <Hero />
       <Categories />
       <SocialProof />
       <Products />
       <SocialMedia />
       <Newsletter />
-    </>
+    </div>
   );
 };

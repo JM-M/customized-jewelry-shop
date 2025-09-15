@@ -11,8 +11,8 @@ export const Newsletter = () => {
           inside information on our latest offers and new arrivals.
         </p>
         <div className="relative mx-10">
-          <Input placeholder="Enter your email" className="pr-14" />
-          <Button size="icon" className="absolute top-0 right-0 h-full">
+          <Input placeholder="Enter your email" className="h-12 pr-14" />
+          <Button size="icon" className="absolute top-0 right-0 h-12 w-12">
             <ArrowRightIcon />
           </Button>
         </div>
