@@ -8,8 +8,10 @@ import { SocialProof } from "../components/social-proof";
 export const HomeView = () => {
   return (
     <div className="space-y-5">
-      <Hero />
-      <Categories />
+      <div>
+        <Hero />
+        <Categories />
+      </div>
       <SocialProof />
       <Products />
       <SocialMedia />
