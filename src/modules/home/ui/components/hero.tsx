@@ -3,37 +3,56 @@
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
+  CarouselApi,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
 import { ArrowRightIcon } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+
+import { useEffect } from "react";
 
 export const Hero = () => {
-  // const [api, setApi] = useState<any>();
-  // const [current, setCurrent] = useState(0);
+  const [api, setApi] = useState<CarouselApi | null>(null);
+  const [current, setCurrent] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
 
-  // // Auto-play functionality
-  // useEffect(() => {
-  //   if (!api) return;
+  // Auto-play functionality
+  useEffect(() => {
+    if (!api || !isPlaying) return;
 
-  //   const interval = setInterval(() => {
-  //     api.scrollNext();
-  //   }, 4000); // Change image every 4 seconds
+    let intervalId: NodeJS.Timeout;
 
-  //   return () => clearInterval(interval);
-  // }, [api]);
+    const startAutoPlay = () => {
+      intervalId = setInterval(() => {
+        if (api && isPlaying) {
+          api.scrollNext();
+        }
+      }, 4000); // Change image every 4 seconds
+    };
 
-  // // Track current slide
-  // useEffect(() => {
-  //   if (!api) return;
+    // Start auto-play
+    startAutoPlay();
 
-  //   setCurrent(api.selectedScrollSnap());
+    // Cleanup function
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [api, isPlaying]);
 
-  //   api.on("select", () => {
-  //     setCurrent(api.selectedScrollSnap());
-  //   });
-  // }, [api]);
+  // Track current slide
+  useEffect(() => {
+    if (!api) return;
+
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
 
   // Generate array of image paths
   const images = Array.from({ length: 10 }, (_, i) => `/images/${i + 1}.png`);
@@ -43,11 +62,13 @@ export const Hero = () => {
       <div className="absolute inset-0 z-[1] bg-black/20" />
 
       <Carousel
-        // setApi={setApi}
+        setApi={setApi}
         className=""
         opts={{
           loop: true,
         }}
+        onMouseEnter={() => setIsPlaying(false)}
+        onMouseLeave={() => setIsPlaying(true)}
       >
         <CarouselContent className="h-full">
           {images.map((src, index) => (
