@@ -1,7 +1,19 @@
+import { Categories } from "../components/categories";
+import { Hero } from "../components/hero";
+import { Newsletter } from "../components/newsletter";
+import { Products } from "../components/products";
+import { SocialMedia } from "../components/social-media";
+import { SocialProof } from "../components/social-proof";
+
 export const HomeView = () => {
-	return (
-		<div>
-			<h1>Home</h1>
-		</div>
-	);
+  return (
+    <>
+      <Hero />
+      <Categories />
+      <SocialProof />
+      <Products />
+      <SocialMedia />
+      <Newsletter />
+    </>
+  );
 };

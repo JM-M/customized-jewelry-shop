@@ -1,0 +1,20 @@
+import { Button } from "@/components/ui/button";
+import { SiInstagram } from "react-icons/si";
+
+export const SocialMedia = () => {
+  return (
+    <section className="p-3">
+      <div className="space-y-5 py-8 text-center">
+        <p>
+          We love to see all of you wearing and unwrapping ByNouck. Want to get
+          featured?Tag @_temmy_accessories on Instagram.
+          {/* Link to the instagram page */}
+        </p>
+        <Button className="mx-auto flex">
+          <SiInstagram />
+          Follow us on Instagram
+        </Button>
+      </div>
+    </section>
+  );
+};
