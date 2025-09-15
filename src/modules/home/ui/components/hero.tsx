@@ -8,33 +8,32 @@ import {
 } from "@/components/ui/carousel";
 import { ArrowRightIcon } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 
 export const Hero = () => {
-  const [api, setApi] = useState<any>();
-  const [current, setCurrent] = useState(0);
+  // const [api, setApi] = useState<any>();
+  // const [current, setCurrent] = useState(0);
 
-  // Auto-play functionality
-  useEffect(() => {
-    if (!api) return;
+  // // Auto-play functionality
+  // useEffect(() => {
+  //   if (!api) return;
 
-    const interval = setInterval(() => {
-      api.scrollNext();
-    }, 4000); // Change image every 4 seconds
+  //   const interval = setInterval(() => {
+  //     api.scrollNext();
+  //   }, 4000); // Change image every 4 seconds
 
-    return () => clearInterval(interval);
-  }, [api]);
+  //   return () => clearInterval(interval);
+  // }, [api]);
 
-  // Track current slide
-  useEffect(() => {
-    if (!api) return;
+  // // Track current slide
+  // useEffect(() => {
+  //   if (!api) return;
 
-    setCurrent(api.selectedScrollSnap());
+  //   setCurrent(api.selectedScrollSnap());
 
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
+  //   api.on("select", () => {
+  //     setCurrent(api.selectedScrollSnap());
+  //   });
+  // }, [api]);
 
   // Generate array of image paths
   const images = Array.from({ length: 10 }, (_, i) => `/images/${i + 1}.png`);
@@ -44,7 +43,7 @@ export const Hero = () => {
       {/* <div className="absolute inset-0 z-[1] bg-black/30" /> */}
 
       <Carousel
-        setApi={setApi}
+        // setApi={setApi}
         className=""
         opts={{
           loop: true,
