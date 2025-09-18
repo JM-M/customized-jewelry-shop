@@ -51,7 +51,7 @@ const categories = [
 export function MainSidebar() {
   return (
     <Sidebar side="right">
-      <SidebarHeader className="text-sidebar-accent-foreground">
+      <SidebarHeader className="text-sidebar-accent-foreground h-17 justify-center border-b">
         <Link
           href="/"
           className="font-niconne flex items-center gap-2 px-2 pt-2 text-2xl font-medium"
