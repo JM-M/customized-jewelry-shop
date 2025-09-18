@@ -26,7 +26,7 @@ const categories = [
 export const Categories = () => {
   return (
     <section className="p-3">
-      <div className="grid grid-cols-2 gap-x-2 gap-y-4">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         {categories.map((category) => (
           <CategoryCard key={category.name} {...category} />
         ))}

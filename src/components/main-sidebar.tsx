@@ -54,7 +54,7 @@ export function MainSidebar() {
       <SidebarHeader className="text-sidebar-accent-foreground">
         <Link
           href="/"
-          className="flex items-center gap-2 px-2 pt-2 font-serif text-2xl font-medium"
+          className="font-niconne flex items-center gap-2 px-2 pt-2 text-2xl font-medium"
         >
           Temmy Accessories
         </Link>

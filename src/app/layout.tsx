@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { EB_Garamond, Geist_Mono, Work_Sans } from "next/font/google";
+import { EB_Garamond, Geist_Mono, Niconne, Work_Sans } from "next/font/google";
 import "./globals.css";
+
+const niconne = Niconne({
+  variable: "--font-niconne",
+  subsets: ["latin"],
+  weight: "400",
+});
 
 const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
   subsets: ["latin"],
+  weight: "400",
 });
 
 const workSans = Work_Sans({
@@ -30,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${workSans.variable} ${geistMono.variable} ${ebGaramond.variable} flex min-h-screen flex-col font-sans antialiased`}
+        className={`${workSans.variable} ${geistMono.variable} ${niconne.variable} ${ebGaramond.variable} flex min-h-screen flex-col font-sans antialiased`}
       >
         {children}
       </body>

@@ -17,7 +17,7 @@ export const CategoryCard = ({ name, image, href }: CategoryCardProps) => {
             alt={name}
             width={500}
             height={600}
-            className="h-full w-full object-cover"
+            className="h-full w-full rounded-md object-cover"
           />
         </div>
         <div className="text-center">

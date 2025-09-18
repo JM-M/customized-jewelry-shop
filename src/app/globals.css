@@ -8,6 +8,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-work-sans);
   --font-serif: var(--font-eb-garamond);
+  --font-niconne: var(--font-niconne);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -38,14 +39,14 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
 }
 
 :root {
-  --radius: 0px;
+  --radius: 0;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -119,5 +120,27 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Embla Carousel Fade Plugin Styles */
+@layer components {
+  .embla {
+    overflow: hidden;
+  }
+
+  .embla__container {
+    display: grid;
+  }
+
+  .embla__slide {
+    grid-row: 1;
+    grid-column: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .embla__slide.is-selected {
+    opacity: 1;
   }
 }
