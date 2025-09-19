@@ -1,0 +1,235 @@
+import { db } from "@/db";
+import { categories } from "@/db/schema/products";
+
+export interface CategoryData {
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  parentId?: string;
+}
+
+export async function seedCategories() {
+  console.log("📁 Creating jewelry categories...");
+
+  const categoryData: CategoryData[] = [
+    // Parent Categories (Level 1)
+    {
+      name: "Rings",
+      slug: "rings",
+      description: "Beautiful rings for every occasion",
+      image:
+        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=300&fit=crop",
+    },
+    {
+      name: "Necklaces",
+      slug: "necklaces",
+      description: "Elegant necklaces to complement your style",
+      image:
+        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop",
+    },
+    {
+      name: "Earrings",
+      slug: "earrings",
+      description: "Stunning earrings for any outfit",
+      image:
+        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=300&fit=crop",
+    },
+    {
+      name: "Bracelets",
+      slug: "bracelets",
+      description: "Charming bracelets for your wrist",
+      image:
+        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=300&fit=crop",
+    },
+    {
+      name: "Watches",
+      slug: "watches",
+      description: "Luxury timepieces for every style",
+      image:
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
+    },
+  ];
+
+  // First, create parent categories
+  const createdCategories = [];
+  const parentCategoryMap = new Map<string, string>(); // slug -> id mapping
+
+  for (const categoryInfo of categoryData) {
+    try {
+      console.log(`Creating parent category: ${categoryInfo.name}`);
+
+      const [createdCategory] = await db
+        .insert(categories)
+        .values({
+          name: categoryInfo.name,
+          slug: categoryInfo.slug,
+          description: categoryInfo.description,
+          image: categoryInfo.image,
+          parentId: null,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      createdCategories.push(createdCategory);
+      parentCategoryMap.set(categoryInfo.slug, createdCategory.id);
+      console.log(`✅ Created parent category: ${categoryInfo.name}`);
+    } catch (error) {
+      console.warn(
+        `⚠️ Error creating parent category ${categoryInfo.name}:`,
+        error,
+      );
+    }
+  }
+
+  // Now create subcategories (Level 2)
+  const subcategoryData: CategoryData[] = [
+    // Ring subcategories
+    {
+      name: "Engagement Rings",
+      slug: "engagement-rings",
+      description: "Perfect engagement rings for your special moment",
+      parentId: parentCategoryMap.get("rings"),
+    },
+    {
+      name: "Wedding Bands",
+      slug: "wedding-bands",
+      description: "Classic and modern wedding bands",
+      parentId: parentCategoryMap.get("rings"),
+    },
+    {
+      name: "Fashion Rings",
+      slug: "fashion-rings",
+      description: "Trendy fashion rings for everyday wear",
+      parentId: parentCategoryMap.get("rings"),
+    },
+
+    // Necklace subcategories
+    {
+      name: "Pendants",
+      slug: "pendants",
+      description: "Elegant pendants to hang on chains",
+      parentId: parentCategoryMap.get("necklaces"),
+    },
+    {
+      name: "Chains",
+      slug: "chains",
+      description: "Beautiful chains for layering or solo wear",
+      parentId: parentCategoryMap.get("necklaces"),
+    },
+    {
+      name: "Statement Necklaces",
+      slug: "statement-necklaces",
+      description: "Bold statement necklaces for special occasions",
+      parentId: parentCategoryMap.get("necklaces"),
+    },
+
+    // Earring subcategories
+    {
+      name: "Stud Earrings",
+      slug: "stud-earrings",
+      description: "Classic stud earrings for any occasion",
+      parentId: parentCategoryMap.get("earrings"),
+    },
+    {
+      name: "Hoop Earrings",
+      slug: "hoop-earrings",
+      description: "Timeless hoop earrings in various sizes",
+      parentId: parentCategoryMap.get("earrings"),
+    },
+    {
+      name: "Drop Earrings",
+      slug: "drop-earrings",
+      description: "Elegant drop earrings for formal events",
+      parentId: parentCategoryMap.get("earrings"),
+    },
+
+    // Bracelet subcategories
+    {
+      name: "Chain Bracelets",
+      slug: "chain-bracelets",
+      description: "Sophisticated chain bracelets",
+      parentId: parentCategoryMap.get("bracelets"),
+    },
+    {
+      name: "Bangle Bracelets",
+      slug: "bangle-bracelets",
+      description: "Sleek bangle bracelets for stacking",
+      parentId: parentCategoryMap.get("bracelets"),
+    },
+    {
+      name: "Charm Bracelets",
+      slug: "charm-bracelets",
+      description: "Personalized charm bracelets",
+      parentId: parentCategoryMap.get("bracelets"),
+    },
+
+    // Watch subcategories
+    {
+      name: "Luxury Watches",
+      slug: "luxury-watches",
+      description: "High-end luxury timepieces",
+      parentId: parentCategoryMap.get("watches"),
+    },
+    {
+      name: "Smart Watches",
+      slug: "smart-watches",
+      description: "Modern smartwatches with technology features",
+      parentId: parentCategoryMap.get("watches"),
+    },
+    {
+      name: "Classic Watches",
+      slug: "classic-watches",
+      description: "Traditional classic timepieces",
+      parentId: parentCategoryMap.get("watches"),
+    },
+  ];
+
+  // Create subcategories
+  for (const subcategoryInfo of subcategoryData) {
+    try {
+      console.log(`Creating subcategory: ${subcategoryInfo.name}`);
+
+      const [createdSubcategory] = await db
+        .insert(categories)
+        .values({
+          name: subcategoryInfo.name,
+          slug: subcategoryInfo.slug,
+          description: subcategoryInfo.description,
+          image: subcategoryInfo.image,
+          parentId: subcategoryInfo.parentId,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      createdCategories.push(createdSubcategory);
+      console.log(`✅ Created subcategory: ${subcategoryInfo.name}`);
+    } catch (error) {
+      console.warn(
+        `⚠️ Error creating subcategory ${subcategoryInfo.name}:`,
+        error,
+      );
+    }
+  }
+
+  console.log(`✅ Created ${createdCategories.length} categories total`);
+  console.log("\n📁 Categories created:");
+
+  // Display parent categories
+  const parentCategories = createdCategories.filter((cat) => !cat.parentId);
+  const subcategories = createdCategories.filter((cat) => cat.parentId);
+
+  parentCategories.forEach((parent) => {
+    console.log(`📁 ${parent.name} (${parent.slug})`);
+    const children = subcategories.filter((sub) => sub.parentId === parent.id);
+    children.forEach((child) => {
+      console.log(`  └─ ${child.name} (${child.slug})`);
+    });
+  });
+
+  return createdCategories;
+}

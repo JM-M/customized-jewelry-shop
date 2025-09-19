@@ -1,4 +1,4 @@
-import { BuyButton } from "../components/buy-button";
+import { BuyProduct } from "../components/buy-product";
 import { ProductCustomization } from "../components/product-customization";
 import { ProductImageCarousel } from "../components/product-image-carousel";
 import { ProductInfo } from "../components/product-info";
@@ -9,7 +9,7 @@ export const ProductView = () => {
       <ProductImageCarousel />
       <ProductInfo />
       <ProductCustomization />
-      <BuyButton />
+      <BuyProduct />
     </div>
   );
 };
