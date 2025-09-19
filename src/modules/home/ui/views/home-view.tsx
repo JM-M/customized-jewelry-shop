@@ -1,3 +1,5 @@
+"use client";
+
 import { Categories } from "../components/categories";
 import { Hero } from "../components/hero";
 import { Newsletter } from "../components/newsletter";

@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+// TODO: Remove unused remote patterns
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
@@ -11,6 +12,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "via.placeholder.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
     ],
   },

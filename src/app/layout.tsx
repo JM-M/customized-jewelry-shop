@@ -1,5 +1,7 @@
+import { TRPCReactProvider } from "@/trpc/client";
 import type { Metadata } from "next";
 import { EB_Garamond, Geist_Mono, Niconne, Work_Sans } from "next/font/google";
+
 import "./globals.css";
 
 const niconne = Niconne({
@@ -35,12 +37,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${workSans.variable} ${geistMono.variable} ${niconne.variable} ${ebGaramond.variable} flex min-h-screen flex-col font-sans antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+    <TRPCReactProvider>
+      <html lang="en">
+        <body
+          className={`${workSans.variable} ${geistMono.variable} ${niconne.variable} ${ebGaramond.variable} flex min-h-screen flex-col font-sans antialiased`}
+        >
+          {children}
+        </body>
+      </html>
+    </TRPCReactProvider>
   );
 }
