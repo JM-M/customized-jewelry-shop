@@ -1,11 +1,19 @@
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+
 export const CategoryHeader = () => {
+  const { categorySlug } = useParams();
+  const trpc = useTRPC();
+  const { data: categories } = useSuspenseQuery(
+    trpc.categories.getAll.queryOptions(),
+  );
+  const category = categories.find((c) => c.slug === categorySlug);
+
   return (
     <div className="space-y-2">
-      <h2 className="font-serif text-2xl">Personalized Necklaces</h2>
-      <p className="text-sm">
-        Elevate your personal style with custom-designed necklaces, chains and
-        pendants.
-      </p>
+      <h2 className="font-serif text-2xl">{category?.name}</h2>
+      <p className="text-sm">{category?.description}</p>
     </div>
   );
 };

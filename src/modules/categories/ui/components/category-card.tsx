@@ -5,9 +5,14 @@ import { GetAllCategoriesOutput } from "../../types";
 interface CategoryCardProps {
   category: GetAllCategoriesOutput[number];
   onClick?: () => void;
+  hideName?: boolean;
 }
 
-export const CategoryCard = ({ category, onClick }: CategoryCardProps) => {
+export const CategoryCard = ({
+  category,
+  onClick,
+  hideName = false,
+}: CategoryCardProps) => {
   return (
     <div>
       <Card
@@ -25,11 +30,13 @@ export const CategoryCard = ({ category, onClick }: CategoryCardProps) => {
           )}
         </CardContent>
       </Card>
-      <div className="mt-2">
-        <span className="text-muted-foreground duration-300">
-          {category.name}
-        </span>
-      </div>
+      {!hideName && (
+        <div className="mt-2">
+          <span className="text-muted-foreground duration-300">
+            {category.name}
+          </span>
+        </div>
+      )}
     </div>
   );
 };

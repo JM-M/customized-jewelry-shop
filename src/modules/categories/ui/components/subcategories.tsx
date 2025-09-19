@@ -1,17 +1,11 @@
-import { useTRPC } from "@/trpc/client";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { GetAllCategoriesOutput } from "../../types";
 import { CategoryCarousel } from "./category-carousel";
 
-export const Subcategories = () => {
-  const { categorySlug } = useParams();
-  const trpc = useTRPC();
-  const { data: categories } = useSuspenseQuery(
-    trpc.categories.getAll.queryOptions(),
-  );
-  const category = categories.find((c) => c.slug === categorySlug);
-  const subcategories = categories.filter((c) => c.parentId === category?.id);
+interface SubcategoriesProps {
+  subcategories: GetAllCategoriesOutput[number][];
+}
 
+export const Subcategories = ({ subcategories }: SubcategoriesProps) => {
   if (subcategories.length === 0) return null;
 
   return (
