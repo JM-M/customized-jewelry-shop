@@ -16,7 +16,7 @@ export const Categories = () => {
         {topCategories.map((category) => (
           <CategoryCard
             key={category.name}
-            href={category.slug}
+            href={`/categories/${category.slug}`}
             name={category.name}
             image={category.image}
           />

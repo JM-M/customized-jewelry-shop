@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   decimal,
@@ -12,25 +12,41 @@ import {
 import { user } from "./auth";
 
 // Categories table
-export const categories = pgTable("categories", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  description: text("description"),
-  image: text("image"),
-  parentId: uuid("parent_id").references((): any => categories.id, {
-    onDelete: "cascade",
-  }),
-  isActive: boolean("is_active")
-    .$defaultFn(() => true)
-    .notNull(),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => new Date())
-    .notNull(),
-});
+export const categories = pgTable(
+  "categories",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull().unique(),
+    description: text("description"),
+    image: text("image"),
+    parentId: uuid("parent_id").references((): any => categories.id, {
+      onDelete: "cascade",
+    }),
+    isActive: boolean("is_active")
+      .$defaultFn(() => true)
+      .notNull(),
+    createdAt: timestamp("created_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  () => {
+    return [
+      // Enforce two-level hierarchy: if a category has a parent,
+      // that parent cannot itself have a parent
+      sql`CHECK (
+      parent_id IS NULL OR NOT EXISTS (
+        SELECT 1 FROM categories AS parent
+        WHERE parent.id = categories.parent_id 
+        AND parent.parent_id IS NOT NULL
+      )
+    )`,
+    ];
+  },
+);
 
 // Products table
 export const products = pgTable("products", {
