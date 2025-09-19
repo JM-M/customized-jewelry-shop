@@ -19,7 +19,7 @@ export const categories = pgTable(
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
     description: text("description"),
-    image: text("image"),
+    image: text("image").notNull(),
     parentId: uuid("parent_id").references((): any => categories.id, {
       onDelete: "cascade",
     }),

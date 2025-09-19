@@ -65,7 +65,7 @@ export async function seedCategories() {
           name: categoryInfo.name,
           slug: categoryInfo.slug,
           description: categoryInfo.description,
-          image: categoryInfo.image,
+          image: categoryInfo.image!,
           parentId: null,
           isActive: true,
           createdAt: new Date(),
@@ -91,18 +91,24 @@ export async function seedCategories() {
       name: "Engagement Rings",
       slug: "engagement-rings",
       description: "Perfect engagement rings for your special moment",
+      image:
+        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("rings"),
     },
     {
       name: "Wedding Bands",
       slug: "wedding-bands",
       description: "Classic and modern wedding bands",
+      image:
+        "https://images.unsplash.com/photo-1544376664-80b17f09d399?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("rings"),
     },
     {
       name: "Fashion Rings",
       slug: "fashion-rings",
       description: "Trendy fashion rings for everyday wear",
+      image:
+        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("rings"),
     },
 
@@ -111,18 +117,24 @@ export async function seedCategories() {
       name: "Pendants",
       slug: "pendants",
       description: "Elegant pendants to hang on chains",
+      image:
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("necklaces"),
     },
     {
       name: "Chains",
       slug: "chains",
       description: "Beautiful chains for layering or solo wear",
+      image:
+        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("necklaces"),
     },
     {
       name: "Statement Necklaces",
       slug: "statement-necklaces",
       description: "Bold statement necklaces for special occasions",
+      image:
+        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("necklaces"),
     },
 
@@ -131,18 +143,24 @@ export async function seedCategories() {
       name: "Stud Earrings",
       slug: "stud-earrings",
       description: "Classic stud earrings for any occasion",
+      image:
+        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("earrings"),
     },
     {
       name: "Hoop Earrings",
       slug: "hoop-earrings",
       description: "Timeless hoop earrings in various sizes",
+      image:
+        "https://images.unsplash.com/photo-1596944946107-d7ddbf4ba9a6?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("earrings"),
     },
     {
       name: "Drop Earrings",
       slug: "drop-earrings",
       description: "Elegant drop earrings for formal events",
+      image:
+        "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("earrings"),
     },
 
@@ -151,18 +169,24 @@ export async function seedCategories() {
       name: "Chain Bracelets",
       slug: "chain-bracelets",
       description: "Sophisticated chain bracelets",
+      image:
+        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("bracelets"),
     },
     {
       name: "Bangle Bracelets",
       slug: "bangle-bracelets",
       description: "Sleek bangle bracelets for stacking",
+      image:
+        "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("bracelets"),
     },
     {
       name: "Charm Bracelets",
       slug: "charm-bracelets",
       description: "Personalized charm bracelets",
+      image:
+        "https://images.unsplash.com/photo-1584302179602-e4ace3a0590b?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("bracelets"),
     },
 
@@ -171,18 +195,24 @@ export async function seedCategories() {
       name: "Luxury Watches",
       slug: "luxury-watches",
       description: "High-end luxury timepieces",
+      image:
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("watches"),
     },
     {
       name: "Smart Watches",
       slug: "smart-watches",
       description: "Modern smartwatches with technology features",
+      image:
+        "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("watches"),
     },
     {
       name: "Classic Watches",
       slug: "classic-watches",
       description: "Traditional classic timepieces",
+      image:
+        "https://images.unsplash.com/photo-1594534475808-b18fc33b045e?w=400&h=300&fit=crop&auto=format",
       parentId: parentCategoryMap.get("watches"),
     },
   ];
@@ -198,7 +228,7 @@ export async function seedCategories() {
           name: subcategoryInfo.name,
           slug: subcategoryInfo.slug,
           description: subcategoryInfo.description,
-          image: subcategoryInfo.image,
+          image: subcategoryInfo.image!,
           parentId: subcategoryInfo.parentId,
           isActive: true,
           createdAt: new Date(),
