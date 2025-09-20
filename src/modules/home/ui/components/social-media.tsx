@@ -17,9 +17,14 @@ export const SocialMedia = () => {
           on Instagram.
           {/* Link to the instagram page */}
         </p>
-        <Button className="mx-auto flex h-12 !px-5">
-          <SiInstagram />
-          Follow us on Instagram
+        <Button className="mx-auto flex h-12 !px-5" asChild>
+          <a
+            href="https://www.instagram.com/_temmyaccessories/"
+            className="text-primary font-medium"
+          >
+            <SiInstagram />
+            Follow us on Instagram
+          </a>
         </Button>
       </div>
     </section>
