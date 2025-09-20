@@ -6,3 +6,6 @@ export type GetProductByIdOutput =
 
 export type GetProductsByCategorySlugOutput =
   inferRouterOutputs<AppRouter>["products"]["getManyByCategorySlug"];
+
+export type GetNewArrivalsOutput =
+  inferRouterOutputs<AppRouter>["products"]["getNewArrivals"];

@@ -1,20 +1,21 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
-import { HomeView } from "@/modules/home/ui/views/home-view";
+import { NewArrivalsView } from "@/modules/products/ui/views/new-arrivals-view";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-export default function Home() {
-  prefetch(trpc.categories.getAll.queryOptions());
+export default function NewArrivals() {
   prefetch(
-    trpc.products.getNewArrivals.queryOptions({ limit: DEFAULT_PAGE_SIZE }),
+    trpc.products.getNewArrivalsInfinite.queryOptions({
+      limit: DEFAULT_PAGE_SIZE,
+    }),
   );
 
   return (
     <HydrateClient>
       <Suspense fallback="Loading...">
         <ErrorBoundary fallback="An error occurred">
-          <HomeView />
+          <NewArrivalsView />
         </ErrorBoundary>
       </Suspense>
     </HydrateClient>

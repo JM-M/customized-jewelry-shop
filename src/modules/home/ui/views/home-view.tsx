@@ -2,8 +2,8 @@
 
 import { Categories } from "../components/categories";
 import { Hero } from "../components/hero";
+import { HomeProducts } from "../components/home-products";
 import { Newsletter } from "../components/newsletter";
-import { Products } from "../components/products";
 import { SocialMedia } from "../components/social-media";
 import { SocialProof } from "../components/social-proof";
 
@@ -15,7 +15,7 @@ export const HomeView = () => {
         <Categories />
       </div>
       <SocialProof />
-      <Products />
+      <HomeProducts />
       <SocialMedia />
       <Newsletter />
     </div>

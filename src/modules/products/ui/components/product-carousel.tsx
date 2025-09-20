@@ -4,11 +4,12 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import Link from "next/link";
-import { Product } from "../../../home/types/product";
 import { ProductCard } from "./product-card";
 
+import { GetNewArrivalsOutput } from "../../types";
+
 interface ProductCarouselProps {
-  products: Product[];
+  products: GetNewArrivalsOutput["items"];
   title: string;
   viewAllLink: string;
 }
