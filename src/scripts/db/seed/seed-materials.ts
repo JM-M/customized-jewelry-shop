@@ -4,8 +4,8 @@ import { materials } from "@/db/schema/products";
 export interface MaterialData {
   name: string;
   displayName: string;
-  hexColor: string;
-  description: string;
+  hexColor: string | null;
+  description: string | null;
 }
 
 export async function seedMaterials(): Promise<MaterialData[]> {

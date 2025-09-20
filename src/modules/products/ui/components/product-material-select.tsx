@@ -1,30 +1,24 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
-
-const materials = [
-  {
-    name: "Gold",
-    hex: "#FFD700",
-  },
-  {
-    name: "Silver",
-    hex: "#C0C0C0",
-  },
-  {
-    name: "Rose Gold",
-    hex: "#D4AF36",
-  },
-];
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 
 export const ProductMaterialSelect = () => {
-  const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
+  const { productId } = useParams();
+
+  const trpc = useTRPC();
+  const { data: materials } = useSuspenseQuery(
+    trpc.products.getMaterialsByProductId.queryOptions({
+      productId: productId as string,
+    }),
+  );
+
+  console.log(materials);
 
   return (
     <div className="flex flex-wrap gap-2 p-3">
-      {materials.map((material) => (
+      {/* {materials.map((material) => (
         <Badge
           key={material.name}
           variant={selectedMaterial === material.name ? "default" : "outline"}
@@ -40,7 +34,7 @@ export const ProductMaterialSelect = () => {
           />
           {material.name}
         </Badge>
-      ))}
+      ))} */}
     </div>
   );
 };

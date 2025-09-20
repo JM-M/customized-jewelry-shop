@@ -24,7 +24,9 @@ export interface ProductData {
 }
 
 export async function seedProducts(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createdCategories: any[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createdMaterials: any[],
 ) {
   console.log("💍 Creating jewelry products...");
