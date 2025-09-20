@@ -4,7 +4,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import Link from "next/link";
-import { Product } from "../../types/product";
+import { Product } from "../../../home/types/product";
 import { ProductCard } from "./product-card";
 
 interface ProductCarouselProps {

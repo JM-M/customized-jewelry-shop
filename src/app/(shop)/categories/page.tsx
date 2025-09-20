@@ -1,4 +1,4 @@
-import { CategoriesView } from "@/modules/categories/ui/view/categories-view";
+import { CategoriesView } from "@/modules/categories/ui/views/categories-view";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";

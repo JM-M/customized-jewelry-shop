@@ -1,5 +1,5 @@
+import { ProductCarousel } from "../../../products/ui/components/product-carousel";
 import { Product } from "../../types/product";
-import { ProductCarousel } from "./product-carousel";
 
 // Sample product data
 const customerFavesProducts: Product[] = Array.from(

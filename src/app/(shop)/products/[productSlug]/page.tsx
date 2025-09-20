@@ -1,4 +1,4 @@
-import { ProductView } from "@/modules/products/ui/view/product-view";
+import { ProductView } from "@/modules/products/ui/views/product-view";
 
 const ProductPage = () => {
   return <ProductView />;

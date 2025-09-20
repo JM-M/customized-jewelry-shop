@@ -18,7 +18,7 @@ export const CategoryCarousel = ({ categories }: CategoryCarouselProps) => {
         <CarouselContent className="-ml-2 md:-ml-4">
           {categories.map((category) => (
             <CarouselItem key={category.id} className="basis-1/2 pl-2 md:pl-4">
-              <Link href={`/categories/${category.slug}`} className="block p-1">
+              <Link href={`/categories/${category.slug}`} className="block">
                 <CategoryCard category={category} />
               </Link>
             </CarouselItem>

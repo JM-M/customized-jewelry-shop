@@ -1,21 +1,31 @@
-import { CategoryView } from "@/modules/categories/ui/view/category-view";
-import { getQueryClient, trpc } from "@/trpc/server";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { CategoryView } from "@/modules/categories/ui/views/category-view";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-const CategoryPage = () => {
-  const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(trpc.categories.getAll.queryOptions());
+const CategoryPage = async ({
+  params,
+}: {
+  params: Promise<{ categorySlug: string }>;
+}) => {
+  const { categorySlug } = await params;
+
+  prefetch(trpc.categories.getAll.queryOptions());
+
+  prefetch(
+    trpc.products.getManyByCategorySlug.infiniteQueryOptions({
+      categorySlug,
+    }),
+  );
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <HydrateClient>
       <Suspense fallback="Loading category...">
         <ErrorBoundary fallback="An error occurred">
           <CategoryView />
         </ErrorBoundary>
       </Suspense>
-    </HydrationBoundary>
+    </HydrateClient>
   );
 };
 export default CategoryPage;
