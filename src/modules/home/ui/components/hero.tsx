@@ -131,9 +131,8 @@ export const Hero = () => {
         </CarouselContent>
       </Carousel>
 
-      <div className="absolute bottom-4 left-4 z-[2] w-40 space-y-4 text-white">
+      <div className="absolute right-4 bottom-4 z-[2] w-40 space-y-4 text-white">
         <div className="flex h-fit items-center">
-          {" "}
           {/* Fixed height container to prevent layout shift */}
           <AnimatePresence mode="wait">
             <motion.h1
@@ -146,7 +145,7 @@ export const Hero = () => {
                 ease: [0.25, 0.46, 0.45, 0.94], // Custom easing curve
                 scale: { duration: 0.3 },
               }}
-              className="font-serif text-xl font-medium"
+              className="text-right font-serif text-xl font-medium"
             >
               {slides[current]?.text.split(" ").map((word, index) => (
                 <motion.span
@@ -177,7 +176,7 @@ export const Hero = () => {
         >
           <Button
             variant="secondary"
-            className="bg-background text-foreground h-12 rounded-full !px-5 transition-transform hover:scale-105"
+            className="bg-background text-foreground ml-auto flex h-12 rounded-full !px-5 transition-transform hover:scale-105"
           >
             Shop Now <ArrowRightIcon />
           </Button>
