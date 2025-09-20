@@ -1,6 +1,6 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
-import { categories, products } from "@/db/schema/products";
+import { categories, productMaterials, products } from "@/db/schema/products";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { TRPCError } from "@trpc/server";
@@ -146,5 +146,15 @@ export const productsProcedure = createTRPCRouter({
         .from(products)
         .where(eq(products.slug, input.slug));
       return product;
+    }),
+
+  getMaterialsByProductId: baseProcedure
+    .input(z.object({ productId: z.string() }))
+    .query(async ({ input }) => {
+      const materials = await db
+        .select()
+        .from(productMaterials)
+        .where(eq(productMaterials.productId, input.productId));
+      return materials;
     }),
 });

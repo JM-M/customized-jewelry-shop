@@ -1,4 +1,5 @@
 import { seedCategories } from "./seed-categories";
+import { seedMaterials } from "./seed-materials";
 import { seedProducts } from "./seed-products";
 import { seedUsers } from "./seed-users";
 
@@ -8,7 +9,8 @@ async function seed() {
   try {
     await seedUsers();
     const createdCategories = await seedCategories();
-    await seedProducts(createdCategories);
+    const createdMaterials = await seedMaterials();
+    await seedProducts(createdCategories, createdMaterials);
     console.log("🎉 Database seeding completed!");
   } catch (error) {
     console.error("❌ Seeding failed:", error);

@@ -7,9 +7,55 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
+
+// Materials table
+export const materials = pgTable("materials", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  displayName: text("display_name").notNull(), // e.g., "14K Gold", "Sterling Silver"
+  hexColor: text("hex_color"), // For UI display
+  description: text("description"),
+  isActive: boolean("is_active")
+    .$defaultFn(() => true)
+    .notNull(),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
+// Junction table for many-to-many relationship between products and materials
+export const productMaterials = pgTable(
+  "product_materials",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id")
+      .references(() => products.id, { onDelete: "cascade" })
+      .notNull(),
+    materialId: uuid("material_id")
+      .references(() => materials.id, { onDelete: "cascade" })
+      .notNull(),
+    // Independent price for this specific product-material combination
+    price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+    // Whether this is the default material/price for the product
+    isDefault: boolean("is_default").$defaultFn(() => false),
+    // Stock quantity specific to this material variant
+    stockQuantity: integer("stock_quantity").$defaultFn(() => 0),
+    createdAt: timestamp("created_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    // Ensure unique product-material combinations
+    uniqueProductMaterial: unique().on(table.productId, table.materialId),
+  }),
+);
 
 // Categories table
 export const categories = pgTable(
@@ -205,6 +251,8 @@ export const productsRelations = relations(products, ({ one, many }) => ({
     references: [categories.id],
   }),
   reviews: many(productReviews),
+  // Many-to-many relationship with materials
+  materials: many(productMaterials),
 }));
 
 export const productReviewsRelations = relations(productReviews, ({ one }) => ({
@@ -217,3 +265,22 @@ export const productReviewsRelations = relations(productReviews, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+// New relations for materials
+export const materialsRelations = relations(materials, ({ many }) => ({
+  products: many(productMaterials),
+}));
+
+export const productMaterialsRelations = relations(
+  productMaterials,
+  ({ one }) => ({
+    product: one(products, {
+      fields: [productMaterials.productId],
+      references: [products.id],
+    }),
+    material: one(materials, {
+      fields: [productMaterials.materialId],
+      references: [materials.id],
+    }),
+  }),
+);

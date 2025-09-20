@@ -9,3 +9,6 @@ export type GetProductsByCategorySlugOutput =
 
 export type GetNewArrivalsOutput =
   inferRouterOutputs<AppRouter>["products"]["getNewArrivals"];
+
+export type GetMaterialsByProductIdOutput =
+  inferRouterOutputs<AppRouter>["products"]["getMaterialsByProductId"];

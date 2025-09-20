@@ -1,27 +1,44 @@
 import { db } from "@/db";
-import { products } from "@/db/schema/products";
+import { productMaterials, products } from "@/db/schema/products";
+
+export interface ProductMaterialVariant {
+  materialName: string; // e.g., "14k_yellow_gold"
+  price: string; // Price for this specific material variant
+  stockQuantity: number; // Stock for this material variant
+  isDefault: boolean; // Whether this is the default material
+}
 
 export interface ProductData {
   name: string;
   slug: string;
   description: string;
-  price: string;
+  price: string; // Fallback/base price
   sku: string;
   categoryId: string;
   primaryImage: string;
   images: string[];
-  stockQuantity: number;
+  stockQuantity: number; // Fallback stock quantity
   metaTitle?: string;
   metaDescription?: string;
+  materials?: ProductMaterialVariant[]; // Materials available for this product
 }
 
-export async function seedProducts(createdCategories: any[]) {
+export async function seedProducts(
+  createdCategories: any[],
+  createdMaterials: any[],
+) {
   console.log("💍 Creating jewelry products...");
 
   // Create a map of category slug to ID for easy lookup
   const categoryMap = new Map<string, string>();
   createdCategories.forEach((category) => {
     categoryMap.set(category.slug, category.id);
+  });
+
+  // Create a map of material name to ID for easy lookup
+  const materialMap = new Map<string, string>();
+  createdMaterials.forEach((material) => {
+    materialMap.set(material.name, material.id);
   });
 
   const productData: ProductData[] = [
@@ -44,6 +61,26 @@ export async function seedProducts(createdCategories: any[]) {
       metaTitle: "Classic Solitaire Diamond Ring - Premium Engagement Ring",
       metaDescription:
         "Stunning solitaire engagement ring with brilliant cut diamond in 18k white gold. Perfect for your special proposal moment.",
+      materials: [
+        {
+          materialName: "18k_white_gold",
+          price: "2999.99",
+          stockQuantity: 8,
+          isDefault: true,
+        },
+        {
+          materialName: "18k_yellow_gold",
+          price: "2899.99",
+          stockQuantity: 5,
+          isDefault: false,
+        },
+        {
+          materialName: "platinum",
+          price: "3999.99",
+          stockQuantity: 3,
+          isDefault: false,
+        },
+      ],
     },
     {
       name: "Vintage Halo Engagement Ring",
@@ -53,6 +90,26 @@ export async function seedProducts(createdCategories: any[]) {
       price: "3999.99",
       sku: "ENG-HAL-002",
       categoryId: categoryMap.get("engagement-rings") || "",
+      materials: [
+        {
+          materialName: "18k_rose_gold",
+          price: "3999.99",
+          stockQuantity: 6,
+          isDefault: true,
+        },
+        {
+          materialName: "14k_rose_gold",
+          price: "3299.99",
+          stockQuantity: 8,
+          isDefault: false,
+        },
+        {
+          materialName: "18k_white_gold",
+          price: "4199.99",
+          stockQuantity: 4,
+          isDefault: false,
+        },
+      ],
       primaryImage:
         "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&h=600&fit=crop",
       images: [
@@ -83,6 +140,20 @@ export async function seedProducts(createdCategories: any[]) {
       metaTitle: "Classic Gold Wedding Band - 14k Yellow Gold",
       metaDescription:
         "Traditional 14k yellow gold wedding band with comfort fit. A symbol of eternal love and commitment.",
+      materials: [
+        {
+          materialName: "14k_yellow_gold",
+          price: "899.99",
+          stockQuantity: 15,
+          isDefault: true,
+        },
+        {
+          materialName: "18k_yellow_gold",
+          price: "1199.99",
+          stockQuantity: 10,
+          isDefault: false,
+        },
+      ],
     },
 
     // Fashion Rings
@@ -251,6 +322,50 @@ export async function seedProducts(createdCategories: any[]) {
           updatedAt: new Date(),
         })
         .returning();
+
+      // Create material relationships for this product
+      if (productInfo.materials && productInfo.materials.length > 0) {
+        const materialRelations = productInfo.materials.map(
+          (materialVariant) => {
+            const materialId = materialMap.get(materialVariant.materialName);
+            if (!materialId) {
+              throw new Error(
+                `Material ${materialVariant.materialName} not found`,
+              );
+            }
+
+            return {
+              productId: createdProduct.id,
+              materialId: materialId,
+              price: materialVariant.price,
+              isDefault: materialVariant.isDefault,
+              stockQuantity: materialVariant.stockQuantity,
+              createdAt: new Date(),
+            };
+          },
+        );
+
+        await db.insert(productMaterials).values(materialRelations);
+        console.log(
+          `✅ Created ${materialRelations.length} material variants for: ${productInfo.name}`,
+        );
+      } else {
+        // Fallback: Create a default material relationship if none specified
+        const defaultMaterialId = materialMap.get("sterling_silver"); // Use sterling silver as default
+        if (defaultMaterialId) {
+          await db.insert(productMaterials).values({
+            productId: createdProduct.id,
+            materialId: defaultMaterialId,
+            price: productInfo.price,
+            isDefault: true,
+            stockQuantity: productInfo.stockQuantity,
+            createdAt: new Date(),
+          });
+          console.log(
+            `✅ Created default material (Sterling Silver) for: ${productInfo.name}`,
+          );
+        }
+      }
 
       createdProducts.push(createdProduct);
       console.log(`✅ Created product: ${productInfo.name}`);
