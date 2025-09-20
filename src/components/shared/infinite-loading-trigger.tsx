@@ -51,7 +51,7 @@ export const InfiniteLoadingTrigger = ({
             )
           : endContent || (
               <div className="text-sm text-gray-500">
-                You've reached the end
+                You{"'"}ve reached the end
               </div>
             )}
       {children}

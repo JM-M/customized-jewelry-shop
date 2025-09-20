@@ -66,6 +66,7 @@ export const categories = pgTable(
     slug: text("slug").notNull().unique(),
     description: text("description"),
     image: text("image").notNull(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     parentId: uuid("parent_id").references((): any => categories.id, {
       onDelete: "cascade",
     }),

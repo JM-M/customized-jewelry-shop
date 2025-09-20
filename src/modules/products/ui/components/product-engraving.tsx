@@ -119,7 +119,7 @@ export const ProductEngraving = () => {
                   <div key={part.id} className="flex justify-between">
                     <span>{part.name}:</span>
                     <span className="text-foreground font-medium">
-                      "{engravings[part.id]}"
+                      &quot;{engravings[part.id]}&quot;
                     </span>
                   </div>
                 ),
