@@ -74,7 +74,8 @@ export const products = pgTable("products", {
   primaryImage: text("primary_image").notNull(),
   images: json("images")
     .$type<string[]>()
-    .$defaultFn(() => []),
+    .$defaultFn(() => [])
+    .notNull(),
 
   // // Availability
   // isActive: boolean("is_active")

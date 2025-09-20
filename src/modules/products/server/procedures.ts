@@ -137,4 +137,14 @@ export const productsProcedure = createTRPCRouter({
         .where(eq(products.id, input.id));
       return product;
     }),
+
+  getBySlug: baseProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const [product] = await db
+        .select()
+        .from(products)
+        .where(eq(products.slug, input.slug));
+      return product;
+    }),
 });
