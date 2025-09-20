@@ -53,51 +53,6 @@ export const productsProcedure = createTRPCRouter({
       return response;
     }),
 
-  getNewArrivalsInfinite: baseProcedure
-    .input(
-      z.object({
-        cursor: z.number().default(0),
-        limit: z.number().min(1).max(20).default(DEFAULT_PAGE_SIZE),
-      }),
-    )
-    .query(async ({ input }) => {
-      // Get total count for pagination
-      const [{ count: totalCount }] = await db
-        .select({
-          count: sql<number>`count(*)`.as("count"),
-        })
-        .from(products)
-        .innerJoin(categories, eq(products.categoryId, categories.id));
-
-      // Get products with cursor-based pagination
-      // Get one extra item to check if there are more items
-      const newArrivals = await db
-        .select({
-          // Product fields
-          ...getTableColumns(products),
-          // Category info (aliased to avoid conflicts)
-          categoryName: categories.name,
-          categorySlug: categories.slug,
-        })
-        .from(products)
-        .innerJoin(categories, eq(products.categoryId, categories.id))
-        .orderBy(desc(products.createdAt))
-        .offset(input.cursor)
-        .limit(input.limit + 1);
-
-      // Check if there are more items
-      const hasMore = newArrivals.length > input.limit;
-      const items = hasMore ? newArrivals.slice(0, -1) : newArrivals;
-
-      const response: CursorPaginatedResponse<(typeof items)[0]> = {
-        items,
-        nextCursor: hasMore ? input.cursor + input.limit : undefined,
-        totalCount,
-      };
-
-      return response;
-    }),
-
   getManyByCategorySlug: baseProcedure
     .input(
       z.object({

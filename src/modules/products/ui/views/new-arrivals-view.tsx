@@ -18,7 +18,7 @@ export const NewArrivalsView = () => {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(
-      trpc.products.getNewArrivalsInfinite.infiniteQueryOptions(
+      trpc.products.getNewArrivals.infiniteQueryOptions(
         {
           limit: 10,
         },

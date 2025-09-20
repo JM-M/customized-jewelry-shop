@@ -6,7 +6,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 export default function NewArrivals() {
   prefetch(
-    trpc.products.getNewArrivalsInfinite.queryOptions({
+    trpc.products.getNewArrivals.queryOptions({
       limit: DEFAULT_PAGE_SIZE,
     }),
   );
