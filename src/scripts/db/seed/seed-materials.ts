@@ -4,7 +4,7 @@ import { materials } from "@/db/schema/products";
 export interface MaterialData {
   name: string;
   displayName: string;
-  hexColor: string | null;
+  hexColor: string;
   description: string | null;
 }
 
