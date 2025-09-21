@@ -1,13 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/modules/cart/contexts";
 import { HiShoppingBag } from "react-icons/hi2";
 
 export const CartButton = () => {
+  const { setIsOpen } = useCart();
   // TODO: Replace with actual cart state
   const cartItemsCount = 3;
 
   return (
-    <Button variant="ghost" size="icon" className="relative">
+    <Button
+      variant="ghost"
+      size="icon"
+      className="relative"
+      onClick={() => setIsOpen(true)}
+    >
       <HiShoppingBag className="size-4.5" />
       {cartItemsCount > 0 && (
         <Badge className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full p-0 text-xs">

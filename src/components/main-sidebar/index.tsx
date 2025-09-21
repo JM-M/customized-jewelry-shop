@@ -1,6 +1,6 @@
 "use client";
 
-import { HandbagIcon, HistoryIcon } from "lucide-react";
+import { HistoryIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { useCart } from "@/modules/cart/contexts";
+import { HiShoppingBag } from "react-icons/hi2";
+import { Badge } from "../ui/badge";
 import { AuthButton } from "./auth-button";
 
 const productGroups = [
@@ -57,6 +60,8 @@ export function MainSidebar() {
   const session = authClient.useSession();
 
   const { isMobile, setOpenMobile, setOpen } = useSidebar();
+  const { setIsOpen: setCartOpen } = useCart();
+  const cartItemsCount = 3;
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -96,7 +101,7 @@ export function MainSidebar() {
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel className="text-muted-foreground">
-            CATEGORIES
+            Categories
           </SidebarGroupLabel>
           <SidebarGroupContent className="pl-3">
             <SidebarMenu>
@@ -117,10 +122,20 @@ export function MainSidebar() {
         <Button
           variant="ghost"
           className="flex w-full justify-start"
-          onClick={handleLinkClick}
+          onClick={() => {
+            handleLinkClick();
+            setCartOpen(true);
+          }}
         >
-          <HandbagIcon />
-          Cart
+          <HiShoppingBag className="size-4.5" />
+          <span className="relative inline-block h-fit w-fit">
+            Cart
+            {cartItemsCount > 0 && (
+              <Badge className="absolute -top-1 -right-5 flex h-4 w-4 items-center justify-center rounded-full p-0 text-xs">
+                {cartItemsCount > 99 ? "99+" : cartItemsCount}
+              </Badge>
+            )}
+          </span>
         </Button>
         <Button
           variant="ghost"
