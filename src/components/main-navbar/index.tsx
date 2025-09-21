@@ -2,9 +2,9 @@
 
 import { MenuIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
-import { HiShoppingBag } from "react-icons/hi2";
-import { Button } from "./ui/button";
-import { useSidebar } from "./ui/sidebar";
+import { Button } from "../ui/button";
+import { useSidebar } from "../ui/sidebar";
+import { CartButton } from "./cart-button";
 
 export const MainNavbar = () => {
   const { toggleSidebar } = useSidebar();
@@ -20,9 +20,7 @@ export const MainNavbar = () => {
         <Button variant="ghost" size="icon">
           <SearchIcon strokeWidth={1.2} />
         </Button>
-        <Button variant="ghost" size="icon">
-          <HiShoppingBag className="size-4.5" />
-        </Button>
+        <CartButton />
         <Button variant="ghost" size="icon" onClick={toggleSidebar}>
           <MenuIcon className="size-5" strokeWidth={1.2} />
         </Button>

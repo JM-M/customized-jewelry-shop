@@ -17,6 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { authClient } from "@/lib/auth-client";
 import { AuthButton } from "./auth-button";
 
 const productGroups = [
@@ -53,6 +54,8 @@ const categories = [
   },
 ];
 export function MainSidebar() {
+  const session = authClient.useSession();
+
   const { isMobile, setOpenMobile, setOpen } = useSidebar();
 
   const handleLinkClick = () => {
@@ -127,7 +130,8 @@ export function MainSidebar() {
           <HistoryIcon />
           History
         </Button>
-        <AuthButton onClick={handleLinkClick} />
+        {/* Add logout button if not logged in */}
+        {session?.data && <AuthButton onClick={handleLinkClick} />}
       </SidebarFooter>
     </Sidebar>
   );

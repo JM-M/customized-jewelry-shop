@@ -36,7 +36,7 @@ export const ProductView = () => {
         productMaterials={productMaterials}
         productEngravingAreas={productEngravingAreas}
       />
-      <BuyProduct />
+      <BuyProduct product={product} />
     </div>
   );
 };
