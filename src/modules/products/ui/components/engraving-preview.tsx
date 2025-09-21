@@ -45,7 +45,11 @@ export const EngravingPreview = ({ content, type }: EngravingPreviewProps) => {
 
         {type === "text" && content.textContent && (
           <div className="space-y-1">
-            <p className="text-sm font-medium">"{content.textContent}"</p>
+            <p className="text-sm font-medium">
+              {'"'}
+              {content.textContent}
+              {'"'}
+            </p>
             <p className="text-muted-foreground text-xs">
               {content.textContent.length} characters
             </p>
