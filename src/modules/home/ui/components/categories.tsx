@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { CategoryCard } from "./category-card";
 
@@ -26,8 +27,14 @@ export const Categories = () => {
         ))}
       </div>
       <div>
-        <Button className="mx-auto flex h-12 w-fit !px-6" asChild>
-          <Link href="/categories">See All Categories</Link>
+        <Button
+          variant="outline"
+          className="mx-auto flex h-12 w-fit !px-6"
+          asChild
+        >
+          <Link href="/categories">
+            See All Categories <ArrowRightIcon />
+          </Link>
         </Button>
       </div>
     </section>
