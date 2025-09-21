@@ -18,10 +18,16 @@ const ProductPage = async ({
     .from(products)
     .where(eq(products.slug, productSlug));
   const productId = product.id;
-  console.log({ productId });
 
   prefetch(trpc.products.getBySlug.queryOptions({ slug: productSlug }));
-  prefetch(trpc.products.getMaterialsByProductId.queryOptions({ productId }));
+  prefetch(
+    trpc.products.getProductMaterialsByProductId.queryOptions({ productId }),
+  );
+  prefetch(
+    trpc.products.getProductEngravingAreasByProductId.queryOptions({
+      productId,
+    }),
+  );
 
   return (
     <HydrateClient>

@@ -17,7 +17,13 @@ export const ProductView = () => {
   );
 
   const { data: productMaterials } = useSuspenseQuery(
-    trpc.products.getMaterialsByProductId.queryOptions({
+    trpc.products.getProductMaterialsByProductId.queryOptions({
+      productId: product.id,
+    }),
+  );
+
+  const { data: productEngravingAreas } = useSuspenseQuery(
+    trpc.products.getProductEngravingAreasByProductId.queryOptions({
       productId: product.id,
     }),
   );
@@ -26,7 +32,10 @@ export const ProductView = () => {
     <div className="space-y-3">
       <ProductImageCarousel images={product.images} />
       <ProductInfo product={product} />
-      <ProductCustomization productMaterials={productMaterials} />
+      <ProductCustomization
+        productMaterials={productMaterials}
+        productEngravingAreas={productEngravingAreas}
+      />
       <BuyProduct />
     </div>
   );

@@ -2,7 +2,9 @@ import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
 import {
   categories,
+  engravingAreas,
   materials,
+  productEngravingAreas,
   productMaterials,
   products,
 } from "@/db/schema/products";
@@ -153,7 +155,7 @@ export const productsProcedure = createTRPCRouter({
       return product;
     }),
 
-  getMaterialsByProductId: baseProcedure
+  getProductMaterialsByProductId: baseProcedure
     .input(z.object({ productId: z.string() }))
     .query(async ({ input }) => {
       return await db
@@ -164,5 +166,23 @@ export const productsProcedure = createTRPCRouter({
         .from(productMaterials)
         .innerJoin(materials, eq(productMaterials.materialId, materials.id))
         .where(eq(productMaterials.productId, input.productId));
+    }),
+
+  getProductEngravingAreasByProductId: baseProcedure
+    .input(z.object({ productId: z.string() }))
+    .query(async ({ input }) => {
+      const result = await db
+        .select({
+          ...getTableColumns(productEngravingAreas),
+          engravingArea: { ...getTableColumns(engravingAreas) },
+        })
+        .from(productEngravingAreas)
+        .innerJoin(
+          engravingAreas,
+          eq(productEngravingAreas.engravingAreaId, engravingAreas.id),
+        )
+        .where(eq(productEngravingAreas.productId, input.productId));
+
+      return result;
     }),
 });

@@ -1,3 +1,5 @@
+// TODO: Rename to page.tsx
+
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { NewArrivalsView } from "@/modules/products/ui/views/new-arrivals-view";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";

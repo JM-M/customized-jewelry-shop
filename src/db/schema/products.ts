@@ -138,27 +138,6 @@ export const products = pgTable("products", {
   metaTitle: text("meta_title"),
   metaDescription: text("meta_description"),
 
-  // Customization options
-  // availableMaterials: json("available_materials")
-  //   .$type<string[]>()
-  //   .$defaultFn(() => ["Gold", "Silver", "Rose Gold"]),
-  // allowsEngraving: boolean("allows_engraving")
-  //   .$defaultFn(() => true)
-  //   .notNull(),
-  // engravingOptions: json("engraving_options")
-  //   .$type<{
-  //     front?: boolean;
-  //     back?: boolean;
-  //     inside?: boolean;
-  //     maxLength?: number;
-  //   }>()
-  //   .$defaultFn(() => ({
-  //     front: true,
-  //     back: true,
-  //     inside: true,
-  //     maxLength: 20,
-  //   })),
-
   // Timestamps
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
@@ -233,6 +212,59 @@ export const productReviews = pgTable("product_reviews", {
 //     .notNull(),
 // });
 
+// Engraving areas table - defines different areas where products can be engraved
+export const engravingAreas = pgTable("engraving_areas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(), // e.g., "Front", "Back", "Inside Band", "Clasp"
+  description: text("description"), // Optional description of the area
+  isActive: boolean("is_active")
+    .$defaultFn(() => true)
+    .notNull(),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
+// Junction table for products and their available engraving areas
+export const productEngravingAreas = pgTable(
+  "product_engraving_areas",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id")
+      .references(() => products.id, { onDelete: "cascade" })
+      .notNull(),
+    engravingAreaId: uuid("engraving_area_id")
+      .references(() => engravingAreas.id, { onDelete: "cascade" })
+      .notNull(),
+    // Optional: Different price for engraving in this specific area
+    // engravingPrice: decimal("engraving_price", { precision: 10, scale: 2 })
+    //   .$defaultFn(() => sql`0`)
+    //   .notNull(),
+    // Optional: Maximum characters allowed for this area
+    maxCharacters: integer("max_characters"),
+    // Optional: Product-specific reference image (overrides the general area image)
+    referenceImage: text("product_specific_image"),
+    // Display order for this engraving area on the product
+    displayOrder: integer("display_order").$defaultFn(() => 0),
+    isActive: boolean("is_active")
+      .$defaultFn(() => true)
+      .notNull(),
+    createdAt: timestamp("created_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    // Ensure unique product-engraving area combinations
+    uniqueProductEngravingArea: unique().on(
+      table.productId,
+      table.engravingAreaId,
+    ),
+  }),
+);
+
 // Relations
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
   parent: one(categories, {
@@ -254,6 +286,8 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   reviews: many(productReviews),
   // Many-to-many relationship with materials
   materials: many(productMaterials),
+  // Many-to-many relationship with engraving areas
+  engravingAreas: many(productEngravingAreas),
 }));
 
 export const productReviewsRelations = relations(productReviews, ({ one }) => ({
@@ -282,6 +316,28 @@ export const productMaterialsRelations = relations(
     material: one(materials, {
       fields: [productMaterials.materialId],
       references: [materials.id],
+    }),
+  }),
+);
+
+// New relations for engraving areas
+export const engravingAreasRelations = relations(
+  engravingAreas,
+  ({ many }) => ({
+    products: many(productEngravingAreas),
+  }),
+);
+
+export const productEngravingAreasRelations = relations(
+  productEngravingAreas,
+  ({ one }) => ({
+    product: one(products, {
+      fields: [productEngravingAreas.productId],
+      references: [products.id],
+    }),
+    engravingArea: one(engravingAreas, {
+      fields: [productEngravingAreas.engravingAreaId],
+      references: [engravingAreas.id],
     }),
   }),
 );

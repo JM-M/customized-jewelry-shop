@@ -2,106 +2,105 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Eye, EyeOff } from "lucide-react";
-import Image from "next/image";
+import { GetEngravingAreasByProductIdOutput } from "@/modules/products/types";
 import { useState } from "react";
 
-interface EngravingPart {
-  id: string;
-  name: string;
-  image: string;
+interface ProductEngravingProps {
+  productEngravingAreas: GetEngravingAreasByProductIdOutput;
 }
 
-const engravingParts: EngravingPart[] = [
-  {
-    id: "front",
-    name: "Front",
-    image: "/images/1.png", // Using existing images from the project
-  },
-  {
-    id: "back",
-    name: "Back",
-    image: "/images/2.png",
-  },
-  {
-    id: "inside",
-    name: "Inside Band",
-    image: "/images/3.png",
-  },
-];
-
-export const ProductEngraving = () => {
+export const ProductEngraving = ({
+  productEngravingAreas,
+}: ProductEngravingProps) => {
   const [engravings, setEngravings] = useState<Record<string, string>>({});
-  const [showImages, setShowImages] = useState(false);
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
 
-  const handleEngravingChange = (partId: string, text: string) => {
+  const handleEngravingChange = (areaId: string, value: string) => {
     setEngravings((prev) => ({
       ...prev,
-      [partId]: text,
+      [areaId]: value,
     }));
   };
 
   return (
     <div className="space-y-4">
-      {/* Toggle Button */}
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowImages(!showImages)}
-          className="gap-2"
-        >
-          {showImages ? (
-            <EyeOff className="h-4 w-4" />
-          ) : (
-            <Eye className="h-4 w-4" />
-          )}
-          {showImages ? "Hide" : "Show"} Images
-        </Button>
-      </div>
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {engravingParts.map((part) => (
+        {productEngravingAreas.map((area) => (
           <Card
-            key={part.id}
+            key={area.engravingArea.id}
             className={cn(
               "p-4 shadow-none transition-all",
-              engravings[part.id] && "ring-primary/20 ring-1",
+              engravings[area.engravingArea.id] && "ring-primary/20 ring-1",
             )}
           >
             <div className="space-y-3">
-              {/* Part Image - Conditionally rendered */}
-              {showImages && (
-                <div className="relative aspect-square overflow-hidden rounded-md bg-gray-50">
-                  <Image
-                    src={part.image}
-                    alt={`${part.name} engraving area`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
-
               {/* Part Name and Input */}
               <div className="space-y-2">
-                <Label
-                  htmlFor={`engraving-${part.id}`}
-                  className="text-sm font-medium"
-                >
-                  {part.name}
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor={`engraving-${area.engravingArea.id}`}
+                    className="text-sm font-medium"
+                  >
+                    {area.engravingArea.name}
+                  </Label>
+                  {area.referenceImage && (
+                    <Dialog
+                      open={openDialog === area.engravingArea.id}
+                      onOpenChange={(open) =>
+                        setOpenDialog(open ? area.engravingArea.id : null)
+                      }
+                    >
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          See example
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>
+                            {area.engravingArea.name} - Engraving Example
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="flex justify-center">
+                          <img
+                            src={area.referenceImage}
+                            alt={`${area.engravingArea.name} engraving example`}
+                            className="max-h-96 w-auto rounded-lg object-contain"
+                          />
+                        </div>
+                        {area.engravingArea.description && (
+                          <p className="text-muted-foreground text-center text-sm">
+                            {area.engravingArea.description}
+                          </p>
+                        )}
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </div>
                 <Input
-                  id={`engraving-${part.id}`}
-                  placeholder={`Enter text for ${part.name.toLowerCase()}`}
-                  value={engravings[part.id] || ""}
-                  onChange={(e) =>
-                    handleEngravingChange(part.id, e.target.value)
-                  }
+                  id={`engraving-${area.engravingArea.id}`}
+                  placeholder={`Enter text for ${area.engravingArea.name.toLowerCase()}`}
                   className="text-sm"
+                  value={engravings[area.engravingArea.id] || ""}
+                  onChange={(e) =>
+                    handleEngravingChange(area.engravingArea.id, e.target.value)
+                  }
                 />
+                {area.engravingArea.description && (
+                  <p className="text-muted-foreground text-xs">
+                    {area.engravingArea.description}
+                  </p>
+                )}
               </div>
             </div>
           </Card>
@@ -113,13 +112,16 @@ export const ProductEngraving = () => {
         <Card className="bg-muted/30 p-4">
           <h4 className="mb-2 text-sm font-medium">Engraving Summary</h4>
           <div className="text-muted-foreground space-y-1 text-sm">
-            {engravingParts.map(
-              (part) =>
-                engravings[part.id] && (
-                  <div key={part.id} className="flex justify-between">
-                    <span>{part.name}:</span>
+            {productEngravingAreas.map(
+              (area) =>
+                engravings[area.engravingArea.id] && (
+                  <div
+                    key={area.engravingArea.id}
+                    className="flex justify-between"
+                  >
+                    <span>{area.engravingArea.name}:</span>
                     <span className="text-foreground font-medium">
-                      &quot;{engravings[part.id]}&quot;
+                      &quot;{engravings[area.engravingArea.id]}&quot;
                     </span>
                   </div>
                 ),

@@ -11,4 +11,7 @@ export type GetNewArrivalsOutput =
   inferRouterOutputs<AppRouter>["products"]["getNewArrivals"];
 
 export type GetMaterialsByProductIdOutput =
-  inferRouterOutputs<AppRouter>["products"]["getMaterialsByProductId"];
+  inferRouterOutputs<AppRouter>["products"]["getProductMaterialsByProductId"];
+
+export type GetEngravingAreasByProductIdOutput =
+  inferRouterOutputs<AppRouter>["products"]["getProductEngravingAreasByProductId"];

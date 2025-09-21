@@ -25,8 +25,8 @@ export const ProductMaterialSelect = ({
             key={material.name}
             variant="outline"
             className={cn(
-              "flex cursor-pointer items-center gap-1.5 px-3 py-2 transition-colors hover:opacity-80",
-              { "border-primary border-2": selectedMaterial === material.name },
+              "flex cursor-pointer items-center gap-1.5 border-2 px-3 py-2 transition-colors hover:opacity-80",
+              { "border-": selectedMaterial === material.name },
             )}
             onClick={() => setSelectedMaterial(productMaterial.material.name)}
           >

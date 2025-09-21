@@ -1,4 +1,5 @@
 import { seedCategories } from "./seed-categories";
+import { seedEngravingAreas } from "./seed-engraving-areas";
 import { seedMaterials } from "./seed-materials";
 import { seedProducts } from "./seed-products";
 import { seedUsers } from "./seed-users";
@@ -10,7 +11,11 @@ async function seed() {
     await seedUsers();
     const createdCategories = await seedCategories();
     const createdMaterials = await seedMaterials();
-    await seedProducts(createdCategories, createdMaterials);
+    const createdProducts = await seedProducts(
+      createdCategories,
+      createdMaterials,
+    );
+    await seedEngravingAreas(createdProducts);
     console.log("🎉 Database seeding completed!");
   } catch (error) {
     console.error("❌ Seeding failed:", error);

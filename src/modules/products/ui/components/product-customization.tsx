@@ -5,7 +5,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { GetMaterialsByProductIdOutput } from "@/modules/products/types";
+import {
+  GetEngravingAreasByProductIdOutput,
+  GetMaterialsByProductIdOutput,
+} from "@/modules/products/types";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import { ProductEngraving } from "./product-engraving";
@@ -13,10 +16,12 @@ import { ProductMaterialSelect } from "./product-material-select";
 
 interface ProductCustomizationProps {
   productMaterials: GetMaterialsByProductIdOutput;
+  productEngravingAreas: GetEngravingAreasByProductIdOutput;
 }
 
 export const ProductCustomization = ({
   productMaterials,
+  productEngravingAreas,
 }: ProductCustomizationProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -44,7 +49,7 @@ export const ProductCustomization = ({
               <h4 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Engraving
               </h4>
-              <ProductEngraving />
+              <ProductEngraving productEngravingAreas={productEngravingAreas} />
             </div>
           </div>
         </div>
