@@ -17,7 +17,7 @@ export const materials = pgTable("materials", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   displayName: text("display_name").notNull(), // e.g., "14K Gold", "Sterling Silver"
-  hexColor: text("hex_color"), // For UI display
+  hexColor: text("hex_color").notNull(), // For UI display
   description: text("description"),
   isActive: boolean("is_active")
     .$defaultFn(() => true)

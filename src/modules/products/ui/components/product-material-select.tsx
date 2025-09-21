@@ -1,40 +1,41 @@
 "use client";
 
-import { useTRPC } from "@/trpc/client";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { GetMaterialsByProductIdOutput } from "@/modules/products/types";
+import { useState } from "react";
 
-export const ProductMaterialSelect = () => {
-  const { productId } = useParams();
+interface ProductMaterialSelectProps {
+  productMaterials: GetMaterialsByProductIdOutput;
+}
 
-  const trpc = useTRPC();
-  const { data: materials } = useSuspenseQuery(
-    trpc.products.getMaterialsByProductId.queryOptions({
-      productId: productId as string,
-    }),
-  );
-
-  console.log(materials);
+export const ProductMaterialSelect = ({
+  productMaterials,
+}: ProductMaterialSelectProps) => {
+  const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
 
   return (
     <div className="flex flex-wrap gap-2 p-3">
-      {/* {materials.map((material) => (
-        <Badge
-          key={material.name}
-          variant={selectedMaterial === material.name ? "default" : "outline"}
-          className={cn(
-            "cursor-pointer transition-colors hover:opacity-80",
-            "flex items-center gap-1.5 px-3 py-2",
-          )}
-          onClick={() => setSelectedMaterial(material.name)}
-        >
-          <div
-            className="h-3 w-3 rounded-full border border-white/20"
-            style={{ backgroundColor: material.hex }}
-          />
-          {material.name}
-        </Badge>
-      ))} */}
+      {productMaterials.map((productMaterial) => {
+        const { material } = productMaterial;
+        return (
+          <Badge
+            key={material.name}
+            variant="outline"
+            className={cn(
+              "flex cursor-pointer items-center gap-1.5 px-3 py-2 transition-colors hover:opacity-80",
+              { "border-primary border-2": selectedMaterial === material.name },
+            )}
+            onClick={() => setSelectedMaterial(productMaterial.material.name)}
+          >
+            <div
+              className="h-4 w-4 rounded-full border border-white/20"
+              style={{ backgroundColor: material.hexColor }}
+            />
+            {material.name}
+          </Badge>
+        );
+      })}
     </div>
   );
 };

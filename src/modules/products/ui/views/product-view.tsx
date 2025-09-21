@@ -16,11 +16,17 @@ export const ProductView = () => {
     trpc.products.getBySlug.queryOptions({ slug: productSlug as string }),
   );
 
+  const { data: productMaterials } = useSuspenseQuery(
+    trpc.products.getMaterialsByProductId.queryOptions({
+      productId: product.id,
+    }),
+  );
+
   return (
     <div className="space-y-3">
       <ProductImageCarousel images={product.images} />
       <ProductInfo product={product} />
-      <ProductCustomization />
+      <ProductCustomization productMaterials={productMaterials} />
       <BuyProduct />
     </div>
   );

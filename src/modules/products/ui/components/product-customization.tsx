@@ -5,12 +5,19 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { GetMaterialsByProductIdOutput } from "@/modules/products/types";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import { ProductEngraving } from "./product-engraving";
 import { ProductMaterialSelect } from "./product-material-select";
 
-export const ProductCustomization = () => {
+interface ProductCustomizationProps {
+  productMaterials: GetMaterialsByProductIdOutput;
+}
+
+export const ProductCustomization = ({
+  productMaterials,
+}: ProductCustomizationProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -30,7 +37,7 @@ export const ProductCustomization = () => {
               <h4 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Material
               </h4>
-              <ProductMaterialSelect />
+              <ProductMaterialSelect productMaterials={productMaterials} />
             </div>
 
             <div>
