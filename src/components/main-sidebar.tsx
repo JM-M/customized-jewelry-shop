@@ -77,7 +77,9 @@ export function MainSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>CATEGORIES</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground">
+            CATEGORIES
+          </SidebarGroupLabel>
           <SidebarGroupContent className="pl-3">
             <SidebarMenu>
               {categories.map((item) => (
