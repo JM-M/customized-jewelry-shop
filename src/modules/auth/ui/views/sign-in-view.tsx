@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { Spinner2 } from "@/components/shared/spinner-2";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -127,11 +128,8 @@ export const SignInView = () => {
                   </Alert>
                 )}
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  //  isLoading={pending}
-                >
+                <Button type="submit" className="w-full" disabled={pending}>
+                  {pending && <Spinner2 />}
                   Sign in
                 </Button>
 

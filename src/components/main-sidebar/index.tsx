@@ -1,6 +1,9 @@
-import { HandbagIcon, HistoryIcon, UserIcon } from "lucide-react";
+"use client";
+
+import { HandbagIcon, HistoryIcon } from "lucide-react";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -12,8 +15,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "./ui/button";
+import { AuthButton } from "./auth-button";
 
 const productGroups = [
   {
@@ -49,12 +53,23 @@ const categories = [
   },
 ];
 export function MainSidebar() {
+  const { isMobile, setOpenMobile, setOpen } = useSidebar();
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+  };
+
   return (
     <Sidebar side="right">
       <SidebarHeader className="text-sidebar-accent-foreground h-17 justify-center border-b">
         <Link
           href="/"
           className="font-niconne flex items-center gap-2 px-2 pt-2 text-2xl font-medium"
+          onClick={handleLinkClick}
         >
           Temmy Accessories
         </Link>
@@ -67,7 +82,7 @@ export function MainSidebar() {
               {productGroups.map((group) => (
                 <SidebarMenuItem key={group.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={group.href}>
+                    <Link href={group.href} onClick={handleLinkClick}>
                       <span className="uppercase">{group.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -85,7 +100,7 @@ export function MainSidebar() {
               {categories.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.href}>
+                    <Link href={item.href} onClick={handleLinkClick}>
                       <span className="uppercase">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -96,18 +111,23 @@ export function MainSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <Button variant="ghost" className="flex w-full justify-start">
+        <Button
+          variant="ghost"
+          className="flex w-full justify-start"
+          onClick={handleLinkClick}
+        >
           <HandbagIcon />
           Cart
         </Button>
-        <Button variant="ghost" className="flex w-full justify-start">
+        <Button
+          variant="ghost"
+          className="flex w-full justify-start"
+          onClick={handleLinkClick}
+        >
           <HistoryIcon />
           History
         </Button>
-        <Button variant="ghost" className="flex w-full justify-start">
-          <UserIcon />
-          Sign In | Create Account
-        </Button>
+        <AuthButton onClick={handleLinkClick} />
       </SidebarFooter>
     </Sidebar>
   );
