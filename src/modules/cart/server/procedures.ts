@@ -178,6 +178,7 @@ export const cartRouter = createTRPCRouter({
           )
           .optional(),
         notes: z.string().optional(),
+        itemId: z.string().optional(), // Allow client to specify the item ID for optimistic updates
       }),
     )
     .mutation(async ({ input }) => {
@@ -260,17 +261,24 @@ export const cartRouter = createTRPCRouter({
         return updatedItem;
       } else {
         // Add new item
+        const insertValues: any = {
+          cartId: cart.id,
+          productId: input.productId,
+          materialId: input.materialId,
+          quantity: input.quantity,
+          price: price.toString(),
+          engravings: input.engravings || {},
+          notes: input.notes,
+        };
+
+        // Use provided itemId if available (for optimistic updates)
+        if (input.itemId) {
+          insertValues.id = input.itemId;
+        }
+
         const [newItem] = await db
           .insert(cartItems)
-          .values({
-            cartId: cart.id,
-            productId: input.productId,
-            materialId: input.materialId,
-            quantity: input.quantity,
-            price: price.toString(),
-            engravings: input.engravings || {},
-            notes: input.notes,
-          })
+          .values(insertValues)
           .returning();
 
         return newItem;

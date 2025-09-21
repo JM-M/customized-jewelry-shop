@@ -2,45 +2,20 @@
 
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { GetCartOutput } from "../types";
 
 // TODO: Verify that engravings implementation work for all types of engravings
 
-interface CartItem {
-  id: string;
-  productId: string;
-  materialId?: string;
-  quantity: number;
-  price: string;
-  engravings?: Record<
-    string,
-    {
-      type: "text" | "image" | "qr_code";
-      content: string;
-      additionalPrice?: number;
-    }
-  >;
-  notes?: string;
-  product: {
-    id: string;
-    name: string;
-    slug: string;
-    primaryImage: string;
-  };
-  material?: {
-    id: string;
-    name: string;
-    displayName: string;
-    hexColor: string;
-  };
-}
-
-interface Cart {
-  id: string;
-  items: CartItem[];
-  status: "active" | "abandoned" | "completed";
-}
+type OptimisticUpdater = (
+  oldData: GetCartOutput | null | undefined,
+) => GetCartOutput | null;
 
 interface CartContextType {
   // UI State
@@ -61,21 +36,26 @@ interface CartContextType {
   removeItemMutation: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clearCartMutation: any;
+
+  updateCartOptimistically: (updater: OptimisticUpdater) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-interface CartProviderProps {
-  children: ReactNode;
-}
-
-export function CartProvider({ children }: CartProviderProps) {
+export function CartProvider({ children }: PropsWithChildren) {
   const [isOpen, setIsOpen] = useState(false);
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
   // Query cart data (auth is handled in the procedure)
   const { data: cart, isLoading } = useQuery(trpc.cart.getCart.queryOptions());
+  // Get the query key for cart data
+  const cartQueryKey = trpc.cart.getCart.queryOptions().queryKey;
+
+  // Helper function to update cart data optimistically
+  const updateCartOptimistically = (updater: OptimisticUpdater) => {
+    queryClient.setQueryData(cartQueryKey, updater);
+  };
 
   // Mutations with query invalidation
   const addItemMutation = useMutation(
@@ -140,6 +120,7 @@ export function CartProvider({ children }: CartProviderProps) {
         updateQuantityMutation,
         removeItemMutation,
         clearCartMutation,
+        updateCartOptimistically,
       }}
     >
       {children}

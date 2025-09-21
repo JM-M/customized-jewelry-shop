@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, X } from "lucide-react";
+import { UploadIcon, X } from "lucide-react";
 import { useState } from "react";
 
 interface ImageEngravingInputProps {
@@ -87,7 +87,10 @@ export const ImageEngravingInput = ({
               className="border-muted-foreground/25 hover:bg-muted/50 flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors"
             >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <Upload className="text-muted-foreground mb-2 h-8 w-8" />
+                <UploadIcon
+                  className="text-muted-foreground mb-2 h-8 w-8"
+                  strokeWidth={1.2}
+                />
                 <p className="text-muted-foreground mb-2 text-sm">
                   <span className="font-semibold">Click to upload</span> or drag
                   and drop

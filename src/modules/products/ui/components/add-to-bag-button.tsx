@@ -3,28 +3,50 @@
 import { Spinner2 } from "@/components/shared/spinner-2";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/modules/cart/contexts";
+import { useCartOptimisticUpdates } from "@/modules/cart/hooks/use-cart-optimistic-updates";
 import { useProduct } from "../../contexts/product";
 
 interface AddToBagButtonProps {
-  disabled?: boolean;
   className?: string;
 }
 
-export function AddToBagButton({
-  disabled = false,
-  className,
-}: AddToBagButtonProps) {
-  const { product, selectedMaterial } = useProduct();
+export function AddToBagButton({ className }: AddToBagButtonProps) {
+  const { addItemMutation, updateCartOptimistically } = useCart();
+  const { product, selectedMaterial, productMaterials, engravings } =
+    useProduct();
   const productId = product.id;
   const materialId = selectedMaterial;
-  const { addItemMutation } = useCart();
+
+  const { optimisticallyAddToCart, rollbackCart } = useCartOptimisticUpdates();
 
   const handleAddToBag = () => {
-    addItemMutation.mutate({
-      productId,
+    if (!materialId) return;
+
+    // Perform optimistic update and capture previous state
+    const { previousCartState, generatedItemId } = optimisticallyAddToCart({
+      product,
       materialId,
-      quantity: 1,
+      engravings,
+      productMaterials,
     });
+
+    addItemMutation.mutate(
+      {
+        productId,
+        materialId,
+        quantity: 1,
+        itemId: generatedItemId, // Pass the generated item ID to maintain consistency
+      },
+      {
+        onError: () => {
+          // Rollback the optimistic update on failure
+          rollbackCart(previousCartState);
+          console.error(
+            "Failed to add item to cart. Changes have been reverted.",
+          );
+        },
+      },
+    );
   };
 
   const isAdding = addItemMutation.isPending;
@@ -32,7 +54,7 @@ export function AddToBagButton({
   return (
     <Button
       onClick={handleAddToBag}
-      disabled={disabled || isAdding}
+      disabled={isAdding || !materialId}
       className={className}
     >
       {isAdding ? (

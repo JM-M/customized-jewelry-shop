@@ -20,10 +20,7 @@ export const BuyProduct = () => {
       {cartItem ? (
         <AddToBagCounter cartItem={cartItem} />
       ) : (
-        <AddToBagButton
-          className="flex h-12 w-full rounded-full"
-          disabled={!selectedMaterial}
-        />
+        <AddToBagButton className="flex h-12 w-full rounded-full" />
       )}
       <Button className="flex h-12 w-full rounded-full bg-[#1DAD52] text-white">
         <SiWhatsapp className="size-5" />
