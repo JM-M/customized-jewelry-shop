@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { GetMaterialsByProductIdOutput } from "@/modules/products/types";
+import { capitalize } from "lodash-es";
 import { useState } from "react";
 
 interface ProductMaterialSelectProps {
@@ -18,6 +19,7 @@ export const ProductMaterialSelect = ({
     <div className="flex flex-wrap gap-2 p-3">
       {productMaterials.map((productMaterial) => {
         const { material } = productMaterial;
+        const formattedName = capitalize(material.name.replace("_", " "));
         return (
           <Badge
             key={material.name}
@@ -32,7 +34,7 @@ export const ProductMaterialSelect = ({
               className="h-4 w-4 rounded-full border border-white/20"
               style={{ backgroundColor: material.hexColor }}
             />
-            {material.name}
+            {formattedName}
           </Badge>
         );
       })}
