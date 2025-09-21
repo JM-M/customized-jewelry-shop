@@ -1,5 +1,6 @@
 "use client";
 
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -8,22 +9,37 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useCart } from "@/modules/cart/contexts";
+import { CartItems } from "@/modules/cart/ui/components/cart-items";
+import { ArrowRightIcon } from "lucide-react";
 import { Button } from "../ui/button";
 
 export const CartSheet = () => {
-  const { isOpen, setIsOpen } = useCart();
+  const { isOpen, setIsOpen, cartSummary } = useCart();
+  const itemCount = cartSummary.itemCount;
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="w-full sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+      <SheetContent className="w-full gap-0 sm:max-w-lg md:max-w-xl lg:max-w-2xl">
         <SheetHeader>
           <SheetTitle className="font-serif text-2xl font-medium">
-            Your Shopping Bag
+            Your Shopping {itemCount && `(${itemCount})`}
           </SheetTitle>
         </SheetHeader>
-        <div className="p-4">Content</div>
+        <ScrollArea className="h-[calc(100vh-13rem)] flex-1">
+          <div className="flex-1 p-4">
+            <CartItems />
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
         <SheetFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+          <Button className="h-12">
+            Continue to Checkout <ArrowRightIcon />
+          </Button>
+          <Button
+            variant="outline"
+            className="h-12"
+            onClick={() => setIsOpen(false)}
+          >
             Continue Shopping
           </Button>
         </SheetFooter>
