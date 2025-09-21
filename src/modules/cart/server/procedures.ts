@@ -14,6 +14,7 @@ import {
   eq,
   getTableColumns,
   inArray,
+  InferInsertModel,
   InferSelectModel,
 } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -261,7 +262,7 @@ export const cartRouter = createTRPCRouter({
         return updatedItem;
       } else {
         // Add new item
-        const insertValues: any = {
+        const insertValues: InferInsertModel<typeof cartItems> = {
           cartId: cart.id,
           productId: input.productId,
           materialId: input.materialId,
