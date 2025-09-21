@@ -17,9 +17,13 @@ import { QREngravingInput } from "./engraving-inputs/qr-engraving-input";
 import { TextEngravingInput } from "./engraving-inputs/text-engraving-input";
 import { EngravingPreview } from "./engraving-preview";
 
+// TODO: Tailor this to fit the business need
+
 interface EngravingAreaCardProps {
   area: GetEngravingAreasByProductIdOutput[0];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content?: any; // You can type this properly based on your needs
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange: (content: any) => void;
   openDialog: string | null;
   setOpenDialog: (id: string | null) => void;

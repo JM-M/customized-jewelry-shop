@@ -46,7 +46,6 @@ export const ProductEngraving = ({
         {productEngravingAreas.map((area) => {
           const currentEngraving = engravings[area.engravingArea.id];
           const engravingType = area.engravingType;
-          console.log({ engravingType });
 
           return (
             <Card
