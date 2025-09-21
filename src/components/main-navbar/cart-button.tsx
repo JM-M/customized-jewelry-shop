@@ -16,7 +16,7 @@ export const CartButton = () => {
     >
       <HiShoppingBag className="size-4.5" />
       {cartItemsCount > 0 && (
-        <Badge className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full p-0 text-xs">
+        <Badge className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full p-0 text-[11px]">
           {cartItemsCount > 99 ? "99+" : cartItemsCount}
         </Badge>
       )}

@@ -60,8 +60,8 @@ export function MainSidebar() {
   const session = authClient.useSession();
 
   const { isMobile, setOpenMobile, setOpen } = useSidebar();
-  const { setIsOpen: setCartOpen } = useCart();
-  const cartItemsCount = 3;
+  const { setIsOpen: setCartOpen, cartSummary } = useCart();
+  const cartItemsCount = cartSummary.itemCount;
 
   const handleLinkClick = () => {
     if (isMobile) {

@@ -22,7 +22,7 @@ export const CartSheet = () => {
       <SheetContent className="w-full gap-0 sm:max-w-lg md:max-w-xl lg:max-w-2xl">
         <SheetHeader>
           <SheetTitle className="font-serif text-2xl font-medium">
-            Your Shopping {itemCount && `(${itemCount})`}
+            Your Shopping Bag {itemCount && `(${itemCount})`}
           </SheetTitle>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-13rem)] flex-1">
