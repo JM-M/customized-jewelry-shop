@@ -271,6 +271,72 @@ export const productEngravingAreas = pgTable(
   ],
 );
 
+// Shopping cart table
+export const carts = pgTable(
+  "carts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .references(() => user.id, { onDelete: "cascade" })
+      .notNull(),
+    status: text("status", { enum: ["active", "abandoned", "completed"] })
+      .$defaultFn(() => "active")
+      .notNull(),
+    createdAt: timestamp("created_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Ensure one active cart per user
+    unique().on(table.userId, table.status),
+  ],
+);
+
+// Cart items table
+export const cartItems = pgTable(
+  "cart_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    cartId: uuid("cart_id")
+      .references(() => carts.id, { onDelete: "cascade" })
+      .notNull(),
+    productId: uuid("product_id")
+      .references(() => products.id, { onDelete: "cascade" })
+      .notNull(),
+    materialId: uuid("material_id").references(() => materials.id, {
+      onDelete: "cascade",
+    }),
+    quantity: integer("quantity")
+      .$defaultFn(() => 1)
+      .notNull(),
+    price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+    // Customization options
+    engravings: json("engravings")
+      .$type<{
+        [engravingAreaId: string]: {
+          type: "text" | "image" | "qr_code";
+          content: string;
+          additionalPrice?: number;
+        };
+      }>()
+      .$defaultFn(() => ({})),
+    notes: text("notes"), // Special requests
+    createdAt: timestamp("created_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Prevent duplicate items with same configuration
+    unique().on(table.cartId, table.productId, table.materialId),
+  ],
+);
+
 // Relations
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
   parent: one(categories, {
@@ -347,3 +413,27 @@ export const productEngravingAreasRelations = relations(
     }),
   }),
 );
+
+// Cart relations
+export const cartsRelations = relations(carts, ({ one, many }) => ({
+  user: one(user, {
+    fields: [carts.userId],
+    references: [user.id],
+  }),
+  items: many(cartItems),
+}));
+
+export const cartItemsRelations = relations(cartItems, ({ one }) => ({
+  cart: one(carts, {
+    fields: [cartItems.cartId],
+    references: [carts.id],
+  }),
+  product: one(products, {
+    fields: [cartItems.productId],
+    references: [products.id],
+  }),
+  material: one(materials, {
+    fields: [cartItems.materialId],
+    references: [materials.id],
+  }),
+}));

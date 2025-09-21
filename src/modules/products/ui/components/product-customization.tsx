@@ -5,24 +5,21 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  GetEngravingAreasByProductIdOutput,
-  GetMaterialsByProductIdOutput,
-} from "@/modules/products/types";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
+import { useProduct } from "../../contexts/product";
 import { ProductEngraving } from "./product-engraving";
 import { ProductMaterialSelect } from "./product-material-select";
 
-interface ProductCustomizationProps {
-  productMaterials: GetMaterialsByProductIdOutput;
-  productEngravingAreas: GetEngravingAreasByProductIdOutput;
-}
-
-export const ProductCustomization = ({
-  productMaterials,
-  productEngravingAreas,
-}: ProductCustomizationProps) => {
+export const ProductCustomization = () => {
+  const {
+    productMaterials,
+    productEngravingAreas,
+    selectedMaterial,
+    engravings,
+    setSelectedMaterial,
+    updateEngraving,
+  } = useProduct();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -42,14 +39,22 @@ export const ProductCustomization = ({
               <h4 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Material
               </h4>
-              <ProductMaterialSelect productMaterials={productMaterials} />
+              <ProductMaterialSelect
+                productMaterials={productMaterials}
+                selectedMaterial={selectedMaterial}
+                onMaterialChange={setSelectedMaterial}
+              />
             </div>
 
             <div>
               <h4 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Engraving
               </h4>
-              <ProductEngraving productEngravingAreas={productEngravingAreas} />
+              <ProductEngraving
+                productEngravingAreas={productEngravingAreas}
+                engravings={engravings}
+                onEngravingChange={updateEngraving}
+              />
             </div>
           </div>
         </div>

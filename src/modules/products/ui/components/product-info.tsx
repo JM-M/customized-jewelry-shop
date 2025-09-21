@@ -1,12 +1,9 @@
 import { formatNaira } from "@/lib/utils";
-import { GetProductByIdOutput } from "../../types";
+import { useProduct } from "../../contexts/product";
 import { ProductReviews } from "./product-reviews";
 
-interface ProductInfoProps {
-  product: GetProductByIdOutput;
-}
-
-export const ProductInfo = ({ product }: ProductInfoProps) => {
+export const ProductInfo = () => {
+  const { product } = useProduct();
   const { name, price } = product;
 
   return (

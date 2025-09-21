@@ -23,22 +23,16 @@ import { EngravingPreview } from "./engraving-preview";
 
 interface ProductEngravingProps {
   productEngravingAreas: GetEngravingAreasByProductIdOutput;
+  engravings: Record<string, EngravingContent>;
+  onEngravingChange: (areaId: string, content: EngravingContent) => void;
 }
 
 export const ProductEngraving = ({
   productEngravingAreas,
+  engravings,
+  onEngravingChange,
 }: ProductEngravingProps) => {
-  const [engravings, setEngravings] = useState<
-    Record<string, EngravingContent>
-  >({});
   const [openDialog, setOpenDialog] = useState<string | null>(null);
-
-  const handleEngravingChange = (areaId: string, content: EngravingContent) => {
-    setEngravings((prev) => ({
-      ...prev,
-      [areaId]: content,
-    }));
-  };
 
   return (
     <div className="space-y-4">
@@ -109,7 +103,7 @@ export const ProductEngraving = ({
                     maxCharacters={area.maxCharacters ?? undefined}
                     value={currentEngraving?.textContent || ""}
                     onChange={(textContent) =>
-                      handleEngravingChange(area.engravingArea.id, {
+                      onEngravingChange(area.engravingArea.id, {
                         id: area.engravingArea.id,
                         type: "text",
                         textContent,
@@ -123,7 +117,7 @@ export const ProductEngraving = ({
                   <ImageEngravingInput
                     value={currentEngraving?.imageUrl}
                     onChange={(imageData) =>
-                      handleEngravingChange(area.engravingArea.id, {
+                      onEngravingChange(area.engravingArea.id, {
                         id: area.engravingArea.id,
                         type: "image",
                         ...imageData,
@@ -137,7 +131,7 @@ export const ProductEngraving = ({
                     value={currentEngraving?.qrData || ""}
                     qrSize={currentEngraving?.qrSize || 200}
                     onChange={(qrData, qrSize) =>
-                      handleEngravingChange(area.engravingArea.id, {
+                      onEngravingChange(area.engravingArea.id, {
                         id: area.engravingArea.id,
                         type: "qr_code",
                         qrData,

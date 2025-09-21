@@ -8,8 +8,12 @@ import {
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useProduct } from "../../contexts/product";
 
-export const ProductImageCarousel = ({ images }: { images: string[] }) => {
+export const ProductImageCarousel = () => {
+  const { product } = useProduct();
+  const images = product.images;
+
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [current, setCurrent] = useState(0);
 
