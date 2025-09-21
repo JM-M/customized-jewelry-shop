@@ -10,6 +10,7 @@ export interface ProductEngravingAssociation {
   productSlug: string;
   engravingAreas: Array<{
     name: string;
+    engravingType: "text" | "image" | "qr_code";
     maxCharacters?: number;
     displayOrder?: number;
     referenceImage?: string;
@@ -87,14 +88,15 @@ export async function seedEngravingAreas(
     }
   }
 
-  // Define which products can have which engraving areas
+  // Define which products can have which engraving areas with different types
   const productEngravingAssociations: ProductEngravingAssociation[] = [
-    // Engagement Rings
+    // Engagement Rings - Text engravings for traditional personalization
     {
       productSlug: "classic-solitaire-diamond-ring",
       engravingAreas: [
         {
           name: "Inside Band",
+          engravingType: "text",
           maxCharacters: 50,
           displayOrder: 1,
           referenceImage:
@@ -102,6 +104,7 @@ export async function seedEngravingAreas(
         },
         {
           name: "Side Edge",
+          engravingType: "text",
           maxCharacters: 30,
           displayOrder: 2,
           referenceImage:
@@ -114,6 +117,7 @@ export async function seedEngravingAreas(
       engravingAreas: [
         {
           name: "Inside Band",
+          engravingType: "text",
           maxCharacters: 50,
           displayOrder: 1,
           referenceImage:
@@ -121,7 +125,7 @@ export async function seedEngravingAreas(
         },
         {
           name: "Side Edge",
-          maxCharacters: 30,
+          engravingType: "qr_code", // QR code for modern couples (wedding website, etc.)
           displayOrder: 2,
           referenceImage:
             "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=300&fit=crop",
@@ -129,12 +133,13 @@ export async function seedEngravingAreas(
       ],
     },
 
-    // Wedding Bands
+    // Wedding Bands - Mix of text and QR codes
     {
       productSlug: "classic-gold-wedding-band",
       engravingAreas: [
         {
           name: "Inside Band",
+          engravingType: "text",
           maxCharacters: 75,
           displayOrder: 1,
           referenceImage:
@@ -142,7 +147,7 @@ export async function seedEngravingAreas(
         },
         {
           name: "Side Edge",
-          maxCharacters: 40,
+          engravingType: "qr_code", // QR code linking to wedding photos/memories
           displayOrder: 2,
           referenceImage:
             "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=300&fit=crop",
@@ -150,12 +155,13 @@ export async function seedEngravingAreas(
       ],
     },
 
-    // Fashion Rings
+    // Fashion Rings - Text and small images
     {
       productSlug: "art-deco-emerald-ring",
       engravingAreas: [
         {
           name: "Inside Band",
+          engravingType: "text",
           maxCharacters: 40,
           displayOrder: 1,
           referenceImage:
@@ -163,7 +169,7 @@ export async function seedEngravingAreas(
         },
         {
           name: "Back",
-          maxCharacters: 25,
+          engravingType: "image", // Small decorative images or symbols
           displayOrder: 2,
           referenceImage:
             "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=300&fit=crop",
@@ -171,19 +177,20 @@ export async function seedEngravingAreas(
       ],
     },
 
-    // Pendants
+    // Pendants - All three types for maximum customization
     {
       productSlug: "heart-locket-pendant",
       engravingAreas: [
         {
           name: "Front",
-          maxCharacters: 30,
+          engravingType: "image", // Photos, portraits, or decorative images
           displayOrder: 1,
           referenceImage:
             "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop",
         },
         {
           name: "Back",
+          engravingType: "text", // Names, dates, or messages
           maxCharacters: 30,
           displayOrder: 2,
           referenceImage:
@@ -191,7 +198,7 @@ export async function seedEngravingAreas(
         },
         {
           name: "Pendant Back",
-          maxCharacters: 20,
+          engravingType: "qr_code", // QR code for digital memories or messages
           displayOrder: 3,
           referenceImage:
             "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&h=300&fit=crop",
@@ -199,13 +206,13 @@ export async function seedEngravingAreas(
       ],
     },
 
-    // Chains
+    // Chains - QR codes for modern functionality
     {
       productSlug: "box-chain-necklace",
       engravingAreas: [
         {
           name: "Clasp",
-          maxCharacters: 20,
+          engravingType: "qr_code", // QR code for contact info or emergency details
           displayOrder: 1,
           referenceImage:
             "https://images.unsplash.com/photo-1583292650898-7d22cd27ca6f?w=400&h=300&fit=crop",
@@ -213,13 +220,13 @@ export async function seedEngravingAreas(
       ],
     },
 
-    // Stud Earrings
+    // Stud Earrings - Small images or symbols
     {
       productSlug: "diamond-stud-earrings",
       engravingAreas: [
         {
           name: "Back",
-          maxCharacters: 15,
+          engravingType: "image", // Small symbols, initials as images, or decorative patterns
           displayOrder: 1,
           referenceImage:
             "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=400&h=300&fit=crop",
@@ -227,12 +234,13 @@ export async function seedEngravingAreas(
       ],
     },
 
-    // Hoop Earrings
+    // Hoop Earrings - Text and images
     {
       productSlug: "gold-hoop-earrings",
       engravingAreas: [
         {
           name: "Side Edge",
+          engravingType: "text", // Text around the hoop
           maxCharacters: 25,
           displayOrder: 1,
           referenceImage:
@@ -240,7 +248,7 @@ export async function seedEngravingAreas(
         },
         {
           name: "Back",
-          maxCharacters: 20,
+          engravingType: "image", // Small decorative images
           displayOrder: 2,
           referenceImage:
             "https://images.unsplash.com/photo-1625652567408-4b9bb4a2a0d6?w=400&h=300&fit=crop",
@@ -248,12 +256,13 @@ export async function seedEngravingAreas(
       ],
     },
 
-    // Bracelets
+    // Bracelets - Mix of text and QR codes
     {
       productSlug: "tennis-bracelet",
       engravingAreas: [
         {
           name: "Clasp",
+          engravingType: "text", // Traditional text engraving
           maxCharacters: 30,
           displayOrder: 1,
           referenceImage:
@@ -261,7 +270,7 @@ export async function seedEngravingAreas(
         },
         {
           name: "Side Edge",
-          maxCharacters: 25,
+          engravingType: "qr_code", // QR code for modern functionality
           displayOrder: 2,
           referenceImage:
             "https://images.unsplash.com/photo-1622434641406-a158123450f9?w=400&h=300&fit=crop",
@@ -269,13 +278,13 @@ export async function seedEngravingAreas(
       ],
     },
 
-    // Watches
+    // Watches - All three types for comprehensive customization
     {
       productSlug: "swiss-luxury-watch",
       engravingAreas: [
         {
           name: "Watch Case Back",
-          maxCharacters: 100,
+          engravingType: "image", // Photos, logos, or detailed engravings
           displayOrder: 1,
           referenceImage:
             "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=400&h=300&fit=crop",
@@ -305,7 +314,7 @@ export async function seedEngravingAreas(
 
       try {
         console.log(
-          `Associating ${association.productSlug} with ${engravingArea.name}`,
+          `Associating ${association.productSlug} with ${engravingArea.name} (${engravingArea.engravingType})`,
         );
 
         const [createdAssociation] = await db
@@ -313,6 +322,7 @@ export async function seedEngravingAreas(
           .values({
             productId: productId,
             engravingAreaId: engravingAreaId,
+            engravingType: engravingArea.engravingType,
             maxCharacters: engravingArea.maxCharacters,
             referenceImage: engravingArea.referenceImage,
             displayOrder: engravingArea.displayOrder || 1,
@@ -323,7 +333,7 @@ export async function seedEngravingAreas(
 
         createdAssociations.push(createdAssociation);
         console.log(
-          `✅ Associated ${association.productSlug} with ${engravingArea.name}`,
+          `✅ Associated ${association.productSlug} with ${engravingArea.name} (${engravingArea.engravingType})`,
         );
       } catch (error) {
         console.warn(

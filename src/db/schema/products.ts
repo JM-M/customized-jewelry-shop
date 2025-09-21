@@ -1,9 +1,11 @@
+import { ENGRAVING_TYPES } from "@/constants/db";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   decimal,
   integer,
   json,
+  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -51,10 +53,10 @@ export const productMaterials = pgTable(
       .$defaultFn(() => new Date())
       .notNull(),
   },
-  (table) => ({
+  (table) => [
     // Ensure unique product-material combinations
-    uniqueProductMaterial: unique().on(table.productId, table.materialId),
-  }),
+    unique().on(table.productId, table.materialId),
+  ],
 );
 
 // Categories table
@@ -228,6 +230,8 @@ export const engravingAreas = pgTable("engraving_areas", {
     .notNull(),
 });
 
+export const engravingTypeEnum = pgEnum("engraving_type", ENGRAVING_TYPES);
+
 // Junction table for products and their available engraving areas
 export const productEngravingAreas = pgTable(
   "product_engraving_areas",
@@ -239,6 +243,11 @@ export const productEngravingAreas = pgTable(
     engravingAreaId: uuid("engraving_area_id")
       .references(() => engravingAreas.id, { onDelete: "cascade" })
       .notNull(),
+    engravingType: engravingTypeEnum("engraving_type")
+      .notNull()
+      .default("text"),
+    //   .notNull()
+    //   .default("text"),
     // Optional: Different price for engraving in this specific area
     // engravingPrice: decimal("engraving_price", { precision: 10, scale: 2 })
     //   .$defaultFn(() => sql`0`)
@@ -256,13 +265,10 @@ export const productEngravingAreas = pgTable(
       .$defaultFn(() => new Date())
       .notNull(),
   },
-  (table) => ({
+  (table) => [
     // Ensure unique product-engraving area combinations
-    uniqueProductEngravingArea: unique().on(
-      table.productId,
-      table.engravingAreaId,
-    ),
-  }),
+    unique().on(table.productId, table.engravingAreaId),
+  ],
 );
 
 // Relations
