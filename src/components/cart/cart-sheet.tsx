@@ -11,10 +11,12 @@ import {
 import { useCart } from "@/modules/cart/contexts";
 import { CartItems } from "@/modules/cart/ui/components/cart-items";
 import { ArrowRightIcon } from "lucide-react";
+import Link from "next/link";
 import { Button } from "../ui/button";
 
 export const CartSheet = () => {
   const { isOpen, setIsOpen, cartSummary } = useCart();
+  const closeCart = () => setIsOpen(false);
   const itemCount = cartSummary.itemCount;
 
   return (
@@ -25,21 +27,19 @@ export const CartSheet = () => {
             Your Shopping Bag {itemCount && `(${itemCount})`}
           </SheetTitle>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-13rem)] flex-1">
+        <ScrollArea className="h-[calc(100vh-13rem)]">
           <div className="flex-1 p-4">
             <CartItems />
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
         <SheetFooter>
-          <Button className="h-12">
-            Continue to Checkout <ArrowRightIcon />
+          <Button className="h-12" onClick={closeCart} asChild>
+            <Link href="/checkout">
+              Continue to Checkout <ArrowRightIcon />
+            </Link>
           </Button>
-          <Button
-            variant="outline"
-            className="h-12"
-            onClick={() => setIsOpen(false)}
-          >
+          <Button variant="outline" className="h-12" onClick={closeCart}>
             Continue Shopping
           </Button>
         </SheetFooter>

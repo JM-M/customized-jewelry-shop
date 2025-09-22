@@ -18,7 +18,7 @@ export const CartItemCard = ({ item }: CartItemCardProps) => {
         <Image src={primaryImage} alt={name} height={128} width={128} />
       </div>
       <div className="flex-1 self-stretch px-3 py-2">
-        <h3 className="text-lg font-medium">{name}</h3>
+        <h3 className="font-medium">{name}</h3>
         <p className="text-sm text-gray-500">{formatNaira(Number(price))}</p>
         <div className="flex items-center gap-1 text-sm text-gray-500">
           <XIcon className="size-3" strokeWidth={1.2} />

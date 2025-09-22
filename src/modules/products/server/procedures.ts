@@ -14,7 +14,7 @@ import { TRPCError } from "@trpc/server";
 import { desc, eq, getTableColumns, sql } from "drizzle-orm";
 import z from "zod";
 
-export const productsProcedure = createTRPCRouter({
+export const productsRouter = createTRPCRouter({
   getNewArrivals: baseProcedure
     .input(
       z.object({
