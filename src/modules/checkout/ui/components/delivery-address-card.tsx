@@ -81,6 +81,7 @@ export const DeliveryAddressCard = ({
             </div>
           )}
           <div className="flex items-center justify-end gap-2">
+            {/* TODO: Add edit address functionality */}
             <Button size="sm" variant="ghost">
               <EditIcon />
               Edit

@@ -204,10 +204,54 @@ export const terminalRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { addressId, ...updateData } = input;
 
-      return makeTerminalRequest(
+      // Terminal API call - no try-catch needed, tRPC handles errors
+      const result = await makeTerminalRequest(
         () => terminalClient.put(`/addresses/${addressId}`, updateData),
         "Failed to update address",
       );
+
+      // Database sync - try-catch needed to handle gracefully
+      try {
+        // Update the terminalAddresses table with the new data
+        await db
+          .update(terminalAddresses)
+          .set({
+            city: updateData.city,
+            country: updateData.country,
+            state: updateData.state,
+            email: updateData.email,
+            first_name: updateData.first_name,
+            last_name: updateData.last_name,
+            name: updateData.name,
+            phone: updateData.phone,
+            line1: updateData.line1,
+            line2: updateData.line2,
+            zip: updateData.zip,
+            is_residential: updateData.is_residential,
+            metadata: updateData.metadata,
+            updated_at: new Date().toISOString(),
+          })
+          .where(eq(terminalAddresses.address_id, addressId));
+
+        // Update the updatedAt field in userTerminalAddresses table
+        await db
+          .update(userTerminalAddresses)
+          .set({
+            updatedAt: new Date(),
+          })
+          .where(eq(userTerminalAddresses.terminalAddressId, addressId));
+      } catch (error) {
+        console.error(
+          "Failed to sync address update to local database:",
+          error,
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to sync address update to local database",
+        });
+      }
+
+      return result;
     }),
 
   validateAddress: baseProcedure

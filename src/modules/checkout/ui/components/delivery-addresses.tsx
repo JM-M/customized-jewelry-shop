@@ -12,10 +12,15 @@ import {
 } from "@/components/ui/carousel";
 import { useTRPC } from "@/trpc/client";
 import { ArrowRightIcon } from "lucide-react";
+import { useCheckout } from "../../contexts/checkout";
 import { DeliveryAddressCard } from "./delivery-address-card";
 
-export const DeliveryAddresses = () => {
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+interface DeliveryAddressesProps {
+  onProceed: () => void;
+}
+
+export const DeliveryAddresses = ({ onProceed }: DeliveryAddressesProps) => {
+  const { selectedAddressId, setSelectedAddressId } = useCheckout();
 
   const trpc = useTRPC();
   const [api, setApi] = useState<CarouselApi | null>(null);
@@ -49,10 +54,10 @@ export const DeliveryAddresses = () => {
             <CarouselItem key={address.id} className="pl-2 md:pl-4">
               <DeliveryAddressCard
                 address={address}
-                isSelected={selectedAddress === address.id}
+                isSelected={selectedAddressId === address.id}
                 onSelect={() =>
-                  setSelectedAddress(
-                    selectedAddress === address.id ? null : address.id,
+                  setSelectedAddressId(
+                    selectedAddressId === address.id ? null : address.id,
                   )
                 }
               />
@@ -61,12 +66,13 @@ export const DeliveryAddresses = () => {
         </CarouselContent>
       </Carousel>
       <CarouselIndicators api={api} count={addresses?.length ?? 0} />
-      {selectedAddress && (
+      {selectedAddressId && (
         <div className="flex justify-end pt-4">
           <Button
             variant="secondary"
             disabled={isLoading}
             className="h-12 w-full md:w-auto"
+            onClick={onProceed}
           >
             {isLoading ? (
               <>

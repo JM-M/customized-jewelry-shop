@@ -25,6 +25,7 @@ import * as z from "zod";
 import { Spinner2 } from "@/components/shared/spinner-2";
 import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "lucide-react";
+import { useCheckout } from "../../contexts/checkout";
 import { CountriesSelect } from "./countries-select";
 
 // Delivery form validation schema
@@ -84,6 +85,7 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
   const email = session.data?.user?.email;
   const userId = session.data?.user?.id;
 
+  const { setSelectedAddressId } = useCheckout();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const createAddressMutation = useMutation(
@@ -119,6 +121,8 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
     createAddressMutation.mutate(addressData, {
       onSuccess: (data) => {
         form.reset();
+        // Set the newly created address as selected in the checkout context
+        setSelectedAddressId(data.data.id);
         onSubmit?.(data.data);
         queryClient.invalidateQueries(
           trpc.terminal.getUserAddresses.queryOptions(),

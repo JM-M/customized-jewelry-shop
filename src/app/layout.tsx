@@ -1,6 +1,7 @@
 import { TRPCReactProvider } from "@/trpc/client";
 import type { Metadata } from "next";
 import { EB_Garamond, Geist_Mono, Niconne, Work_Sans } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "./globals.css";
 
@@ -42,7 +43,7 @@ export default function RootLayout({
         <body
           className={`${workSans.variable} ${geistMono.variable} ${niconne.variable} ${ebGaramond.variable} flex min-h-screen flex-col font-sans antialiased`}
         >
-          {children}
+          <NuqsAdapter>{children}</NuqsAdapter>
         </body>
       </html>
     </TRPCReactProvider>
