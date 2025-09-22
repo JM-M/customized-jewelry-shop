@@ -15,6 +15,7 @@ import {
   TerminalCreateAddressResponse,
   TerminalGetAddressResponse,
   TerminalGetCountriesResponse,
+  TerminalGetPackagingsResponse,
 } from "../types";
 
 // Schema for creating an address
@@ -76,6 +77,13 @@ const validateAddressSchema = z.object({
 // Schema for setting default sender address
 const setDefaultSenderAddressSchema = z.object({
   addressId: z.string().min(1, "Address ID is required"),
+});
+
+// Schema for getting packagings with pagination and filtering
+const getPackagingsSchema = z.object({
+  type: z.string().optional(),
+  perPage: z.number().min(1).max(100).default(100).optional(),
+  page: z.number().min(1).default(1).optional(),
 });
 
 export const terminalRouter = createTRPCRouter({
@@ -288,4 +296,28 @@ export const terminalRouter = createTRPCRouter({
       "Failed to get countries",
     );
   }),
+
+  getPackagings: baseProcedure
+    .input(getPackagingsSchema)
+    .query(async ({ input }) => {
+      const params = new URLSearchParams();
+
+      if (input.type) {
+        params.append("type", input.type);
+      }
+      if (input.perPage) {
+        params.append("perPage", input.perPage.toString());
+      }
+      if (input.page) {
+        params.append("page", input.page.toString());
+      }
+
+      const queryString = params.toString();
+      const url = `/packaging${queryString ? `?${queryString}` : ""}`;
+
+      return makeTerminalRequest<TerminalGetPackagingsResponse>(
+        () => terminalClient.get(url),
+        "Failed to get packagings",
+      );
+    }),
 });

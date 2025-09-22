@@ -79,5 +79,39 @@ export interface TerminalGetCountriesResponse {
   data: TerminalCountry[];
 }
 
+export interface TerminalPackaging {
+  height: number;
+  id: string;
+  length: number;
+  name: string;
+  packaging_id: string;
+  size_unit: string;
+  type: string;
+  weight: number;
+  weight_unit: string;
+  width: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TerminalGetPackagingsResponse {
+  status: boolean;
+  message: string;
+  data: {
+    packaging: TerminalPackaging[];
+    pagination: {
+      perPage: number;
+      prevPage: number | null;
+      nextPage: number | null;
+      currentPage: number;
+      total: number;
+      pageCount: number;
+      pagingCounter: number;
+      hasPrevPage: boolean;
+      hasNextPage: boolean;
+    };
+  };
+}
+
 export type GetUserAddressesOutput =
   inferRouterOutputs<AppRouter>["terminal"]["getUserAddresses"];
