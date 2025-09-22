@@ -1,3 +1,4 @@
+import { adminProductsRouter } from "@/modules/admin/admin-products/server/procedures";
 import { cartRouter } from "@/modules/cart/server/procedures";
 import { categoriesRouter } from "@/modules/categories/server/procedures";
 import { homeRouter } from "@/modules/home/server/procedures";
@@ -11,6 +12,7 @@ export const appRouter = createTRPCRouter({
   products: productsRouter,
   cart: cartRouter,
   terminal: terminalRouter,
+  adminProducts: adminProductsRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;

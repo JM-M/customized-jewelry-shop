@@ -5,16 +5,16 @@ import { useQuery } from "@tanstack/react-query";
 
 import { columns } from "./columns";
 
-export const PackagingTable = () => {
+export const AdminProductsTable = () => {
   const trpc = useTRPC();
   const {
-    data: packagingsData,
+    data: productsData,
     isLoading,
     error,
   } = useQuery(
-    trpc.terminal.getPackaging.queryOptions({
-      perPage: 100, // Get more data for the table
-      page: 1,
+    trpc.adminProducts.getProducts.queryOptions({
+      cursor: 0,
+      limit: 20,
     }),
   );
 
@@ -28,18 +28,18 @@ export const PackagingTable = () => {
   if (error) {
     return (
       <div className="flex items-center justify-center gap-2 text-red-600">
-        Error loading packaging data: {error.message}
+        Error loading products data: {error.message}
       </div>
     );
   }
 
-  const packagings = packagingsData?.data?.packaging || [];
+  const products = productsData?.items || [];
 
   return (
     <div>
       <DataTable
         columns={columns}
-        data={packagings}
+        data={products}
         searchKey="name"
         searchPlaceholder="Filter by name..."
         pageSize={10}
