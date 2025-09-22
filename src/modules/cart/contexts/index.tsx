@@ -24,7 +24,7 @@ interface CartContextType {
 
   // Cart Data
   cart: GetCartOutput | null;
-  cartSummary: { itemCount: number; totalAmount: number };
+  cartSummary: { itemCount: number; totalAmount: number; subtotal: number };
   isLoading: boolean;
 
   // Cart Mutations - TypeScript will infer the correct types
@@ -105,6 +105,11 @@ export function CartProvider({ children }: PropsWithChildren) {
         cart?.items.reduce((acc, item) => acc + Number(item.quantity), 0) ?? 0,
       totalAmount:
         cart?.items.reduce((acc, item) => acc + Number(item.price), 0) ?? 0,
+      subtotal:
+        cart?.items.reduce(
+          (acc, item) => acc + Number(item.price) * item.quantity,
+          0,
+        ) ?? 0,
     };
   }, [cart]);
 

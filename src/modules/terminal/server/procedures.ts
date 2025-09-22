@@ -13,7 +13,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import {
   TerminalCreateAddressResponse,
-  TerminalGetAddressesResponse,
+  TerminalGetAddressResponse,
   TerminalGetCountriesResponse,
 } from "../types";
 
@@ -110,7 +110,7 @@ export const terminalRouter = createTRPCRouter({
   getAddress: baseProcedure.input(getAddressSchema).query(async ({ input }) => {
     return makeTerminalRequest(
       () =>
-        terminalClient.get<TerminalGetAddressesResponse>(
+        terminalClient.get<TerminalGetAddressResponse>(
           `/addresses/${input.addressId}`,
         ),
       "Failed to get address",
@@ -132,7 +132,7 @@ export const terminalRouter = createTRPCRouter({
     return await db
       .select({
         ...getTableColumns(userTerminalAddresses),
-        terminalAddresses: getTableColumns(terminalAddresses),
+        terminalAddress: getTableColumns(terminalAddresses),
       })
       .from(userTerminalAddresses)
       .innerJoin(

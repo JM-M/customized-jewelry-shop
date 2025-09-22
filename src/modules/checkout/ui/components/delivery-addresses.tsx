@@ -10,6 +10,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { TerminalGetAddressResponse } from "@/modules/terminal/types";
 import { useTRPC } from "@/trpc/client";
 import { ArrowRightIcon } from "lucide-react";
 import { useCheckout } from "../../contexts/checkout";
@@ -50,19 +51,23 @@ export const DeliveryAddresses = ({ onProceed }: DeliveryAddressesProps) => {
         className="w-full"
       >
         <CarouselContent className="-ml-2 md:-ml-4">
-          {addresses?.map((address) => (
-            <CarouselItem key={address.id} className="pl-2 md:pl-4">
-              <DeliveryAddressCard
-                address={address}
-                isSelected={selectedAddressId === address.id}
-                onSelect={() =>
-                  setSelectedAddressId(
-                    selectedAddressId === address.id ? null : address.id,
-                  )
-                }
-              />
-            </CarouselItem>
-          ))}
+          {addresses?.map((address) => {
+            const terminalAddressId = address.terminalAddress.address_id;
+            const isSelected = selectedAddressId === terminalAddressId;
+            return (
+              <CarouselItem key={address.id} className="pl-2 md:pl-4">
+                <DeliveryAddressCard
+                  address={
+                    address.terminalAddress as TerminalGetAddressResponse["data"]
+                  }
+                  isSelected={isSelected}
+                  onSelect={() =>
+                    setSelectedAddressId(isSelected ? null : terminalAddressId)
+                  }
+                />
+              </CarouselItem>
+            );
+          })}
         </CarouselContent>
       </Carousel>
       <CarouselIndicators api={api} count={addresses?.length ?? 0} />

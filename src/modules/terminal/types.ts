@@ -50,6 +50,12 @@ export interface TerminalGetAddressesResponse {
   };
 }
 
+export interface TerminalGetAddressResponse {
+  status: boolean;
+  message: string;
+  data: TerminalAddress;
+}
+
 export interface TerminalCountry {
   isoCode: string;
   name: string;

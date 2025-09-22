@@ -3,10 +3,10 @@ import { Building, EditIcon, Home, MapPin, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GetUserAddressesOutput } from "@/modules/terminal/types";
+import { TerminalGetAddressResponse } from "@/modules/terminal/types";
 
 interface DeliveryAddressCardProps {
-  address: GetUserAddressesOutput[number];
+  address: TerminalGetAddressResponse["data"];
   isSelected?: boolean;
   onSelect?: () => void;
 }
@@ -28,7 +28,7 @@ export const DeliveryAddressCard = ({
     zip,
     phone,
     is_residential,
-  } = address.terminalAddresses;
+  } = address;
 
   const displayName = name || `${first_name || ""} ${last_name || ""}`.trim();
   const fullAddress = [line1, line2, city, state, country, zip]
