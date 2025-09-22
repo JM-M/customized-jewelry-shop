@@ -1,3 +1,6 @@
+import { AppRouter } from "@/trpc/routers/_app";
+import { inferRouterOutputs } from "@trpc/server";
+
 export interface TerminalAddress {
   address_id: string;
   city: string;
@@ -69,3 +72,6 @@ export interface TerminalGetCountriesResponse {
   message: string;
   data: TerminalCountry[];
 }
+
+export type GetUserAddressesOutput =
+  inferRouterOutputs<AppRouter>["terminal"]["getUserAddresses"];

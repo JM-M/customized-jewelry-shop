@@ -1,8 +1,6 @@
 "use client";
 
 import { PhoneInput } from "@/components/shared/phone-input";
-import { Spinner2 } from "@/components/shared/spinner-2";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -19,12 +17,14 @@ import { authClient } from "@/lib/auth-client";
 import { TerminalAddress } from "@/modules/terminal/types";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { ArrowRightIcon } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import { Spinner2 } from "@/components/shared/spinner-2";
+import { Button } from "@/components/ui/button";
+import { ArrowRightIcon } from "lucide-react";
 import { CountriesSelect } from "./countries-select";
 
 // Delivery form validation schema
@@ -85,6 +85,7 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
   const userId = session.data?.user?.id;
 
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const createAddressMutation = useMutation(
     trpc.terminal.createAddress.mutationOptions(),
   );
@@ -119,6 +120,9 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
       onSuccess: (data) => {
         form.reset();
         onSubmit?.(data.data);
+        queryClient.invalidateQueries(
+          trpc.terminal.getUserAddresses.queryOptions(),
+        );
       },
       onError: (error) => {
         console.error(error);
@@ -308,7 +312,6 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
             )}
           />
         </div>
-
         {/* Submit Button */}
         <div className="flex justify-end pt-4">
           <Button
@@ -323,7 +326,7 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
               </>
             ) : (
               <>
-                Continue to Payment
+                Create Address and Continue
                 <ArrowRightIcon />
               </>
             )}

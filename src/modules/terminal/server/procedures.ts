@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { terminalAddresses, userTerminalAddresses } from "@/db/schema/terminal";
+import { auth } from "@/lib/auth";
 import {
   makeTerminalRequest,
   terminalClient,
@@ -7,6 +8,8 @@ import {
 } from "@/lib/terminal-client";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
+import { desc, eq, getTableColumns } from "drizzle-orm";
+import { headers } from "next/headers";
 import { z } from "zod";
 import {
   TerminalCreateAddressResponse,
@@ -112,6 +115,35 @@ export const terminalRouter = createTRPCRouter({
         ),
       "Failed to get address",
     );
+  }),
+
+  getUserAddresses: baseProcedure.query(async () => {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Unauthorized",
+      });
+    }
+
+    return await db
+      .select({
+        ...getTableColumns(userTerminalAddresses),
+        terminalAddresses: getTableColumns(terminalAddresses),
+      })
+      .from(userTerminalAddresses)
+      .innerJoin(
+        terminalAddresses,
+        eq(
+          userTerminalAddresses.terminalAddressId,
+          terminalAddresses.address_id,
+        ),
+      )
+      .where(eq(userTerminalAddresses.userId, session.user.id))
+      .orderBy(desc(userTerminalAddresses.updatedAt));
   }),
 
   createAddress: baseProcedure

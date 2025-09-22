@@ -1,5 +1,6 @@
 "use client";
 
+import { CarouselIndicators } from "@/components/shared/carousel-indicators";
 import {
   Carousel,
   CarouselContent,
@@ -7,7 +8,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useProduct } from "../../contexts/product";
 
 export const ProductImageCarousel = () => {
@@ -15,18 +16,6 @@ export const ProductImageCarousel = () => {
   const images = product.images;
 
   const [api, setApi] = useState<CarouselApi | null>(null);
-  const [current, setCurrent] = useState(0);
-
-  // Track current slide
-  useEffect(() => {
-    if (!api) return;
-
-    setCurrent(api.selectedScrollSnap());
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
 
   return (
     <div className="space-y-4">
@@ -52,19 +41,7 @@ export const ProductImageCarousel = () => {
         </CarouselContent>
       </Carousel>
 
-      {/* Indicator dots */}
-      <div className="flex justify-center gap-2">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            className={`h-2 w-1 rounded-full transition-all ${
-              current === index ? "bg-foreground" : "bg-muted-foreground/50"
-            }`}
-            onClick={() => api?.scrollTo(index)}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
+      <CarouselIndicators api={api} count={images.length} />
     </div>
   );
 };

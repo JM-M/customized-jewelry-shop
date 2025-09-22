@@ -1,27 +1,87 @@
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+
+import { CarouselIndicators } from "@/components/shared/carousel-indicators";
+import { Spinner2 } from "@/components/shared/spinner-2";
 import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 import { useTRPC } from "@/trpc/client";
-import { PlusIcon } from "lucide-react";
+import { ArrowRightIcon } from "lucide-react";
+import { DeliveryAddressCard } from "./delivery-address-card";
 
 export const DeliveryAddresses = () => {
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+
   const trpc = useTRPC();
+  const [api, setApi] = useState<CarouselApi | null>(null);
 
-  const noAddresses = true;
+  const { data: addresses, isLoading } = useQuery(
+    trpc.terminal.getUserAddresses.queryOptions(),
+  );
 
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <Spinner2 />
+        <span>Loading...</span>
+      </div>
+    );
+
+  const noAddresses = (addresses?.length ?? 0) === 0;
   if (noAddresses) return null;
 
   return (
     <div className="space-y-3 py-4">
-      <div>
-        <p className="text-muted-foreground text-center text-sm">
-          You don{"'"}t have any delivery addresses yet.
-        </p>
-      </div>
-      <div className="flex justify-end">
-        <Button variant="outline" className="rounded-none">
-          <PlusIcon />
-          Add Delivery Address
-        </Button>
-      </div>
+      <Carousel
+        setApi={setApi}
+        opts={{
+          align: "start",
+        }}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-2 md:-ml-4">
+          {addresses?.map((address) => (
+            <CarouselItem key={address.id} className="pl-2 md:pl-4">
+              <DeliveryAddressCard
+                address={address}
+                isSelected={selectedAddress === address.id}
+                onSelect={() =>
+                  setSelectedAddress(
+                    selectedAddress === address.id ? null : address.id,
+                  )
+                }
+              />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+      <CarouselIndicators api={api} count={addresses?.length ?? 0} />
+      {selectedAddress && (
+        <div className="flex justify-end pt-4">
+          <Button
+            variant="secondary"
+            disabled={isLoading}
+            className="h-12 w-full md:w-auto"
+          >
+            {isLoading ? (
+              <>
+                Processing...
+                <Spinner2 />
+              </>
+            ) : (
+              <>
+                Continue with Selected Address
+                <ArrowRightIcon />
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
