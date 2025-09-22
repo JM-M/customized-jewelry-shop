@@ -1,15 +1,18 @@
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
 import { terminalAddresses, userTerminalAddresses } from "@/db/schema/terminal";
-import { auth } from "@/lib/auth";
 import {
   makeTerminalRequest,
   terminalClient,
   terminalSandboxClient,
 } from "@/lib/terminal-client";
-import { baseProcedure, createTRPCRouter } from "@/trpc/init";
+import {
+  baseProcedure,
+  createTRPCRouter,
+  protectedProcedure,
+} from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { desc, eq, getTableColumns } from "drizzle-orm";
-import { headers } from "next/headers";
 import { z } from "zod";
 import {
   TerminalCreateAddressResponse,
@@ -37,8 +40,8 @@ const createAddressSchema = z.object({
 
 // Schema for getting addresses with pagination
 const getAddressesSchema = z.object({
-  perPage: z.number().min(1).max(100).default(100).optional(),
-  page: z.number().min(1).default(1).optional(),
+  perPage: z.number().min(1).max(100).default(DEFAULT_PAGE_SIZE).optional(),
+  page: z.number().min(1).default(DEFAULT_PAGE).optional(),
 });
 
 // Schema for getting a single address
@@ -80,7 +83,7 @@ const setDefaultSenderAddressSchema = z.object({
 });
 
 // Schema for getting packagings with pagination and filtering
-const getPackagingsSchema = z.object({
+const getPackagingSchema = z.object({
   type: z.string().optional(),
   perPage: z.number().min(1).max(100).default(100).optional(),
   page: z.number().min(1).default(1).optional(),
@@ -125,18 +128,7 @@ export const terminalRouter = createTRPCRouter({
     );
   }),
 
-  getUserAddresses: baseProcedure.query(async () => {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Unauthorized",
-      });
-    }
-
+  getUserAddresses: protectedProcedure.query(async ({ ctx }) => {
     return await db
       .select({
         ...getTableColumns(userTerminalAddresses),
@@ -150,13 +142,13 @@ export const terminalRouter = createTRPCRouter({
           terminalAddresses.address_id,
         ),
       )
-      .where(eq(userTerminalAddresses.userId, session.user.id))
+      .where(eq(userTerminalAddresses.userId, ctx.auth.user.id))
       .orderBy(desc(userTerminalAddresses.updatedAt));
   }),
 
-  createAddress: baseProcedure
+  createAddress: protectedProcedure
     .input(createAddressSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       // Terminal API call - no try-catch needed, tRPC handles errors
       const result = await makeTerminalRequest<TerminalCreateAddressResponse>(
         () => terminalClient.post("/addresses", input),
@@ -164,7 +156,7 @@ export const terminalRouter = createTRPCRouter({
       );
 
       // Database sync - try-catch needed to handle gracefully
-      if (result.status && result.data.metadata?.user_id) {
+      if (result.status) {
         try {
           // Insert into terminalAddresses table
           await db.insert(terminalAddresses).values({
@@ -190,10 +182,10 @@ export const terminalRouter = createTRPCRouter({
 
           // Insert into userTerminalAddresses junction table
           await db.insert(userTerminalAddresses).values({
-            userId: result.data.metadata.user_id,
+            userId: ctx.auth.user.id,
             terminalAddressId: result.data.address_id,
-            nickname: result.data.metadata.nickname || null,
-            isDefault: result.data.metadata.is_default || false,
+            nickname: result.data.metadata?.nickname || null,
+            isDefault: result.data.metadata?.is_default || false,
           });
         } catch (error) {
           console.error("Failed to sync address to local database:", error);
@@ -207,9 +199,9 @@ export const terminalRouter = createTRPCRouter({
       return result;
     }),
 
-  updateAddress: baseProcedure
+  updateAddress: protectedProcedure
     .input(updateAddressSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { addressId, ...updateData } = input;
 
       // Terminal API call - no try-catch needed, tRPC handles errors
@@ -297,8 +289,8 @@ export const terminalRouter = createTRPCRouter({
     );
   }),
 
-  getPackagings: baseProcedure
-    .input(getPackagingsSchema)
+  getPackaging: baseProcedure
+    .input(getPackagingSchema)
     .query(async ({ input }) => {
       const params = new URLSearchParams();
 

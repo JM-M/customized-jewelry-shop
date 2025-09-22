@@ -22,6 +22,7 @@ import { useCart } from "@/modules/cart/contexts";
 import { HiShoppingBag } from "react-icons/hi2";
 import { Badge } from "../ui/badge";
 import { AuthButton } from "./auth-button";
+import { LogoutButton } from "./logout-button";
 
 const productGroups = [
   {
@@ -146,7 +147,11 @@ export function MainSidebar() {
           History
         </Button>
         {/* Add logout button if not logged in */}
-        {session?.data && <AuthButton onClick={handleLinkClick} />}
+        {session?.data ? (
+          <LogoutButton onClick={handleLinkClick} />
+        ) : (
+          <AuthButton onClick={handleLinkClick} />
+        )}
       </SidebarFooter>
     </Sidebar>
   );

@@ -6,8 +6,7 @@ import {
   productMaterials,
   products,
 } from "@/db/schema/products";
-import { auth } from "@/lib/auth";
-import { baseProcedure, createTRPCRouter } from "@/trpc/init";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import {
   and,
@@ -17,57 +16,31 @@ import {
   InferInsertModel,
   InferSelectModel,
 } from "drizzle-orm";
-import { headers } from "next/headers";
 import { z } from "zod";
 
-// Helper function to verify user authentication and cart ownership
-async function verifyUserAndCart(cartId?: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+// Helper function to verify cart ownership (user is already authenticated via protectedProcedure)
+async function verifyCartOwnership(cartId: string, userId: string) {
+  const [cart] = await db.select().from(carts).where(eq(carts.id, cartId));
 
-  if (!session?.user?.id) {
+  if (!cart) {
     throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "You must be logged in to access cart",
+      code: "NOT_FOUND",
+      message: "Cart not found",
     });
   }
 
-  // If cartId is provided, verify the cart belongs to the user
-  if (cartId) {
-    const [cart] = await db.select().from(carts).where(eq(carts.id, cartId));
-
-    if (!cart) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Cart not found",
-      });
-    }
-
-    if (cart.userId !== session.user.id) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "You can only access your own cart",
-      });
-    }
+  if (cart.userId !== userId) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You can only access your own cart",
+    });
   }
 
-  return session.user.id;
+  return cart;
 }
 
-// Helper function to verify cart item ownership
-async function verifyCartItemOwnership(itemId: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user?.id) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "You must be logged in to modify cart items",
-    });
-  }
-
+// Helper function to verify cart item ownership (user is already authenticated via protectedProcedure)
+async function verifyCartItemOwnership(itemId: string, userId: string) {
   // Get cart item with cart info to verify ownership
   const [cartItem] = await db
     .select({
@@ -86,20 +59,20 @@ async function verifyCartItemOwnership(itemId: string) {
     });
   }
 
-  if (cartItem.cart.userId !== session.user.id) {
+  if (cartItem.cart.userId !== userId) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "You can only modify your own cart items",
     });
   }
 
-  return session.user.id;
+  return cartItem;
 }
 
 export const cartRouter = createTRPCRouter({
   // Get user's active cart
-  getCart: baseProcedure.query(async () => {
-    const userId = await verifyUserAndCart();
+  getCart: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.auth.user.id;
 
     const [cart] = await db
       .select(getTableColumns(carts))
@@ -162,7 +135,7 @@ export const cartRouter = createTRPCRouter({
   }),
 
   // Add item to cart
-  addItem: baseProcedure
+  addItem: protectedProcedure
     .input(
       z.object({
         productId: z.string(),
@@ -182,8 +155,8 @@ export const cartRouter = createTRPCRouter({
         itemId: z.string().optional(), // Allow client to specify the item ID for optimistic updates
       }),
     )
-    .mutation(async ({ input }) => {
-      const userId = await verifyUserAndCart();
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.auth.user.id;
 
       // Get or create cart
       let [cart] = await db
@@ -287,15 +260,16 @@ export const cartRouter = createTRPCRouter({
     }),
 
   // Update item quantity
-  updateQuantity: baseProcedure
+  updateQuantity: protectedProcedure
     .input(
       z.object({
         itemId: z.string(),
         quantity: z.number().min(0),
       }),
     )
-    .mutation(async ({ input }) => {
-      const userId = await verifyCartItemOwnership(input.itemId);
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.auth.user.id;
+      await verifyCartItemOwnership(input.itemId, userId);
 
       if (input.quantity === 0) {
         // Remove item if quantity is 0
@@ -316,28 +290,30 @@ export const cartRouter = createTRPCRouter({
     }),
 
   // Remove item from cart
-  removeItem: baseProcedure
+  removeItem: protectedProcedure
     .input(
       z.object({
         itemId: z.string(),
       }),
     )
-    .mutation(async ({ input }) => {
-      const userId = await verifyCartItemOwnership(input.itemId);
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.auth.user.id;
+      await verifyCartItemOwnership(input.itemId, userId);
 
       await db.delete(cartItems).where(eq(cartItems.id, input.itemId));
       return { success: true };
     }),
 
   // Clear cart
-  clearCart: baseProcedure
+  clearCart: protectedProcedure
     .input(
       z.object({
         cartId: z.string(),
       }),
     )
-    .mutation(async ({ input }) => {
-      const userId = await verifyUserAndCart(input.cartId);
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.auth.user.id;
+      await verifyCartOwnership(input.cartId, userId);
 
       await db.delete(cartItems).where(eq(cartItems.cartId, input.cartId));
       return { success: true };
