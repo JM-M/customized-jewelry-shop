@@ -6,6 +6,8 @@ import { CheckoutProvider } from "../../contexts/checkout";
 import { CheckoutBreadcrumb } from "../components/checkout-breadcrumb";
 import { CheckoutStep } from "../components/checkout-step";
 
+// TODO: Sync with checkout session table
+
 export const CheckoutView = () => {
   const session = authClient.useSession();
 

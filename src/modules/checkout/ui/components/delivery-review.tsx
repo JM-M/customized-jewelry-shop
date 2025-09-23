@@ -22,9 +22,17 @@ export const DeliveryReview = () => {
       </div>
     );
 
-  if (!selectedAddressId) return "No address selected";
+  if (!selectedAddressId)
+    return (
+      <div className="text-muted-foreground text-sm">No address selected</div>
+    );
 
-  if (!addressData) return "Unable to fetch address";
+  if (!addressData)
+    return (
+      <div className="text-muted-foreground text-sm">
+        Unable to fetch address
+      </div>
+    );
 
   const { line1, line2, city, state, country, zip, phone } = addressData.data;
   const fullAddress = [line1, line2, city, state, country, zip]
