@@ -3,7 +3,14 @@
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   EngravingContent,
   GetEngravingAreasByProductIdOutput,
@@ -71,6 +78,17 @@ export function ProductProvider({ children }: ProductProviderProps) {
         productId: product.id,
       }),
     );
+
+  // Auto-select first material if available and none selected
+  useEffect(() => {
+    if (
+      productMaterials.length > 0 &&
+      selectedMaterial === null &&
+      !materialsLoading
+    ) {
+      setSelectedMaterial(productMaterials[0].material.id);
+    }
+  }, [productMaterials, selectedMaterial, materialsLoading]);
 
   // Action handlers
   const updateEngraving = (areaId: string, content: EngravingContent) => {
