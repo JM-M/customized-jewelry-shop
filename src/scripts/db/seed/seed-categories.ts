@@ -30,7 +30,7 @@ export async function seedCategories() {
       name: "Earrings",
       slug: "earrings",
       description: "Stunning earrings for any outfit",
-      image: "images/categories/4.jpg",
+      image: "/images/categories/4.jpg",
     },
     {
       name: "Bracelets",
