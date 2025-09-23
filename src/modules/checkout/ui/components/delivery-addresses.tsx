@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { CarouselIndicators } from "@/components/shared/carousel-indicators";
@@ -11,9 +10,9 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { TerminalGetAddressResponse } from "@/modules/terminal/types";
-import { useTRPC } from "@/trpc/client";
 import { ArrowRightIcon } from "lucide-react";
 import { useCheckout } from "../../contexts/checkout";
+import { useCheckoutQueries } from "../../hooks/use-checkout-queries";
 import { DeliveryAddressCard } from "./delivery-address-card";
 
 interface DeliveryAddressesProps {
@@ -21,16 +20,15 @@ interface DeliveryAddressesProps {
 }
 
 export const DeliveryAddresses = ({ onProceed }: DeliveryAddressesProps) => {
-  const { selectedAddressId, setSelectedAddressId } = useCheckout();
+  const { selectedAddressId, setSelectedAddressId, isLoadingSession } =
+    useCheckout();
+  const { addressesQuery } = useCheckoutQueries();
 
-  const trpc = useTRPC();
   const [api, setApi] = useState<CarouselApi | null>(null);
 
-  const { data: addresses, isLoading } = useQuery(
-    trpc.terminal.getUserAddresses.queryOptions(),
-  );
+  const { data: addresses, isLoading } = addressesQuery;
 
-  if (isLoading)
+  if (isLoading || isLoadingSession)
     return (
       <div className="flex items-center justify-center gap-2">
         <Spinner2 />

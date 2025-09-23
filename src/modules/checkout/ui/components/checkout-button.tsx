@@ -1,12 +1,28 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
-import { PaystackButton } from "react-paystack";
+import dynamic from "next/dynamic";
 
 import { useCart } from "@/modules/cart/contexts";
 import { useTRPC } from "@/trpc/client";
 import { useCheckout } from "../../contexts/checkout";
 import { useCheckoutFees } from "../../hooks/use-checkout-fees";
+
+// Dynamically import PaystackButton to avoid SSR issues
+const PaystackButton = dynamic(
+  () =>
+    import("react-paystack").then((mod) => ({ default: mod.PaystackButton })),
+  {
+    ssr: false,
+    loading: () => (
+      <Button className="flex h-12 w-full" disabled>
+        Loading payment...
+      </Button>
+    ),
+  },
+);
 
 export const CheckoutButton = () => {
   const {

@@ -5,7 +5,7 @@ import { useCheckoutQueries } from "../../hooks/use-checkout-queries";
 import { DeliveryRates } from "./delivery-rates";
 
 export const DeliveryReview = () => {
-  const { selectedAddressId, selectedRateId } = useCheckout();
+  const { selectedAddressId, selectedRateId, isLoadingSession } = useCheckout();
 
   const { addressQuery, ratesQuery } = useCheckoutQueries();
 
@@ -15,7 +15,7 @@ export const DeliveryReview = () => {
   // Get delivery rates
   const { data: ratesData, isLoading: ratesLoading } = ratesQuery;
 
-  if (addressLoading || ratesLoading)
+  if (addressLoading || ratesLoading || isLoadingSession)
     return (
       <div className="flex items-center justify-center gap-2">
         <Spinner2 /> Loading...

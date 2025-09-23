@@ -1,11 +1,21 @@
 "use client";
 
-import { createContext, ReactNode, useContext, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import { useTRPC } from "@/trpc/client";
 
 interface CheckoutContextType {
   // State
   selectedAddressId: string | null;
   selectedRateId: string | null;
+  isLoadingSession: boolean;
 
   // Actions
   setSelectedAddressId: (addressId: string | null) => void;
@@ -27,6 +37,39 @@ export function CheckoutProvider({ children }: CheckoutProviderProps) {
   );
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
 
+  const trpc = useTRPC();
+
+  // Load existing checkout session
+  const { data: checkoutSession, isLoading: isLoadingSession } = useQuery(
+    trpc.checkout.getCheckoutSession.queryOptions(),
+  );
+
+  const { mutate: upsertCheckoutSession } = useMutation(
+    trpc.checkout.upsertCheckoutSession.mutationOptions(),
+  );
+
+  // Initialize state from existing session
+  useEffect(() => {
+    if (checkoutSession && !isLoadingSession) {
+      if (checkoutSession.selectedAddressId) {
+        setSelectedAddressId(checkoutSession.selectedAddressId);
+      }
+      if (checkoutSession.rateId) {
+        setSelectedRateId(checkoutSession.rateId);
+      }
+    }
+  }, [checkoutSession, isLoadingSession]);
+
+  // Sync with database when address or rate changes
+  useEffect(() => {
+    if (selectedAddressId !== null || selectedRateId !== null) {
+      upsertCheckoutSession({
+        selectedAddressId,
+        rateId: selectedRateId,
+      });
+    }
+  }, [selectedAddressId, selectedRateId, upsertCheckoutSession]);
+
   const clearSelectedAddress = () => {
     setSelectedAddressId(null);
     setSelectedRateId(null);
@@ -36,6 +79,7 @@ export function CheckoutProvider({ children }: CheckoutProviderProps) {
     // State
     selectedAddressId,
     selectedRateId,
+    isLoadingSession,
     // Actions
     setSelectedAddressId,
     setSelectedRateId,

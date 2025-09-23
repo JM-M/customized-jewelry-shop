@@ -1,11 +1,21 @@
+import { authClient } from "@/lib/auth-client";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import { useCheckout } from "../contexts/checkout";
 
 export const useCheckoutQueries = () => {
+  const session = authClient.useSession();
+  const isLoggedIn = !!session.data?.user?.id;
+
   const { selectedAddressId, selectedRateId } = useCheckout();
 
   const trpc = useTRPC();
+
+  const addressesQuery = useQuery(
+    trpc.terminal.getUserAddresses.queryOptions(undefined, {
+      enabled: isLoggedIn,
+    }),
+  );
 
   // Get address data
   const addressQuery = useQuery(
@@ -34,5 +44,6 @@ export const useCheckoutQueries = () => {
   return {
     addressQuery,
     ratesQuery,
+    addressesQuery,
   };
 };
