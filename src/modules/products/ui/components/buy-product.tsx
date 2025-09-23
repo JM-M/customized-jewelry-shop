@@ -1,13 +1,12 @@
-import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/utils";
 import { useCart } from "@/modules/cart/contexts";
 import { AddToBagButton } from "@/modules/products/ui/components/add-to-bag-button";
-import { SiWhatsapp } from "react-icons/si";
 import { useProduct } from "../../contexts/product";
 import { AddToBagCounter } from "./add-to-bag-counter";
+import { BuyOnWhatsappBtn } from "./buy-on-whatsapp-btn";
 
 export const BuyProduct = () => {
-  const { product, selectedMaterial } = useProduct();
+  const { product } = useProduct();
   const { cart } = useCart();
   const cartItem = cart?.items.find((item) => item.productId === product.id);
 
@@ -22,10 +21,7 @@ export const BuyProduct = () => {
       ) : (
         <AddToBagButton className="flex h-12 w-full rounded-full" />
       )}
-      <Button className="flex h-12 w-full rounded-full bg-[#1DAD52] text-white">
-        <SiWhatsapp className="size-5" />
-        Buy on WhatsApp
-      </Button>
+      <BuyOnWhatsappBtn />
     </div>
   );
 };

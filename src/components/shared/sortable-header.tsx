@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SortableHeaderProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   column: Column<any, any>;
   children: React.ReactNode;
   className?: string;

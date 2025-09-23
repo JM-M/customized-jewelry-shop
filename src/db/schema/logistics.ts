@@ -31,6 +31,7 @@ export const terminalAddresses = pgTable("terminal_addresses", {
   line2: text("line2"),
 
   // Optional metadata as JSON
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: json("metadata").$type<Record<string, any>>(),
 
   name: text("name"),

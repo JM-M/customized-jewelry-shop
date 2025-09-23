@@ -22,6 +22,7 @@ export interface TerminalAddress {
   last_name?: string;
   line1?: string;
   line2?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
   name?: string;
   phone?: string;
@@ -147,6 +148,7 @@ export interface TerminalParcel {
   id: string;
   description?: string;
   items: TerminalParcelItem[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
   proof_of_payments: string[];
   rec_docs: string[];
@@ -177,6 +179,7 @@ export interface TerminalRate {
   includes_insurance: boolean;
   insurance_coverage: number;
   insurance_fee: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
   pickup_time: string;
   rate_id: string;

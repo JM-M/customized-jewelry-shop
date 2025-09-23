@@ -823,6 +823,7 @@ export const terminalRouter = createTRPCRouter({
         });
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updateData: any = {
         checkoutStep: input.step,
         updatedAt: new Date(),

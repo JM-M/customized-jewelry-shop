@@ -52,8 +52,8 @@ export const CheckoutSuccessView = () => {
           </h2>
           <p>
             You will receive an email confirmation with your order details
-            shortly. If you have any questions, please don't hesitate to contact
-            our customer service team.
+            shortly. If you have any questions, please don{"'"}t hesitate to
+            contact our customer service team.
           </p>
           {orderData && (
             <div className="mt-4 text-center">

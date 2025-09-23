@@ -6,10 +6,7 @@ export default function AdminNotFound() {
     <div className="flex min-h-screen flex-col items-center justify-center gap-4">
       <div className="space-y-2 text-center">
         <h1 className="text-4xl font-bold">404</h1>
-        <h2 className="text-xl font-semibold">Admin Access Required</h2>
-        <p className="text-muted-foreground">
-          You don't have permission to access this admin area.
-        </p>
+        <h2 className="text-xl font-semibold">Page not found</h2>
       </div>
       <div className="flex gap-2">
         <Button asChild>
