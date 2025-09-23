@@ -18,7 +18,7 @@ export async function seedCategories() {
       name: "Rings",
       slug: "rings",
       description: "Beautiful rings for every occasion",
-      image: "/images/categories/5.png",
+      image: "/images/categories/5.jpg",
     },
     {
       name: "Necklaces",
@@ -30,7 +30,7 @@ export async function seedCategories() {
       name: "Earrings",
       slug: "earrings",
       description: "Stunning earrings for any outfit",
-      image: "images/categories/4.png",
+      image: "images/categories/4.jpg",
     },
     {
       name: "Bracelets",
