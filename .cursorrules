@@ -1,0 +1,121 @@
+# Cursor Project Rules
+
+## Code Style and Formatting
+
+### Import Order
+
+- Always place React Query imports (`useQuery`, `useMutation`, `useSuspenseQuery`, etc.) before React imports
+- Group imports in this order:
+  1. React Query hooks (`@tanstack/react-query`)
+  2. External libraries (lucide-react, etc.)
+  3. React imports (`react`)
+  4. Internal UI components
+  5. Utility functions (`@/lib/utils`)
+  6. Type definitions
+  7. tRPC client imports
+
+### Query and Mutation Formatting
+
+When using `useQuery` with tRPC, always format as:
+
+```typescript
+const {
+	data: queryData,
+	isLoading,
+	error,
+} = useQuery(trpc.module.procedure.queryOptions());
+```
+
+When using `useSuspenseQuery` with tRPC, always format as:
+
+```typescript
+const { data: queryData } = useSuspenseQuery(
+	trpc.module.procedure.queryOptions()
+);
+```
+
+When using `useMutation` with tRPC, always format as:
+
+```typescript
+const { mutate, isPending, error } = useMutation(
+	trpc.module.procedure.mutationOptions()
+);
+```
+
+### General Formatting Rules
+
+- Always use trailing commas in function calls, object properties, and array elements
+- Use multi-line destructuring for complex objects (3+ properties)
+- Prefer explicit return types for complex functions
+- Use consistent indentation (2 spaces)
+
+### tRPC Query and Mutation Patterns
+
+- Always use `queryOptions()` method for tRPC queries and `mutationOptions()` for mutations
+- Destructure query results with descriptive variable names
+- Handle loading and error states explicitly
+- Use proper TypeScript types from the terminal module
+- For `useSuspenseQuery`, only destructure `data` as it handles loading/error states automatically
+- For `useMutation`, destructure `mutate`, `isPending`, and `error` as needed
+
+### Component Structure
+
+- Use "use client" directive for client components
+- Place interfaces before component definitions
+- Use consistent prop destructuring patterns
+- Prefer arrow functions for component definitions
+
+### Error Handling
+
+- Always provide meaningful error messages
+- Use conditional rendering for error states
+- Implement proper loading states for async operations
+
+## Examples
+
+### Correct Query Usage:
+
+```typescript
+const {
+	data: countriesData,
+	isLoading,
+	error,
+} = useQuery(trpc.terminal.getCountries.queryOptions());
+```
+
+### Correct Suspense Query Usage:
+
+```typescript
+const { data: countriesData } = useSuspenseQuery(
+	trpc.terminal.getCountries.queryOptions()
+);
+```
+
+### Correct Mutation Usage:
+
+```typescript
+const {
+	mutate: createAddress,
+	isPending,
+	error,
+} = useMutation(trpc.terminal.createAddress.mutationOptions());
+```
+
+### Correct Import Order:
+
+```typescript
+import { useQuery, useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { Check, ChevronsUpDown } from "lucide-react";
+import * as React from "react";
+
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { TerminalCountry } from "@/modules/terminal/types";
+import { useTRPC } from "@/trpc/client";
+```
+
+### Correct Function Call Formatting:
+
+```typescript
+const selectedCountry = countries.find((country) => country.isoCode === value);
+```

@@ -8,6 +8,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  PaginationState,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -35,12 +36,35 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  /** key of column used for the simple search input (client-side) */
   searchKey?: string;
   searchPlaceholder?: string;
+  /** initial page size */
   pageSize?: number;
+  /** show the column visibility menu */
   showColumnVisibility?: boolean;
+  /** show the search input */
   showSearch?: boolean;
   emptyMessage?: string;
+
+  /**
+   * Server-side pagination mode. Defaults to false (client-side pagination).
+   * When true, the table uses manual pagination and expects the parent to
+   * supply `data` as the current page's rows and optionally `pageCount`.
+   */
+  serverSidePagination?: boolean;
+
+  /**
+   * Number of pages available on the server (used to compute next/prev availability).
+   * Required for correct `getCanNextPage()` behavior in server-side mode.
+   */
+  pageCount?: number;
+
+  /**
+   * Callback invoked when pagination changes. Useful in server-side mode to fetch data.
+   * Called with (pageIndex, pageSize).
+   */
+  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -52,6 +76,9 @@ export function DataTable<TData, TValue>({
   showColumnVisibility = true,
   showSearch = true,
   emptyMessage = "No results.",
+  serverSidePagination = false,
+  pageCount,
+  onPaginationChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -61,27 +88,67 @@ export function DataTable<TData, TValue>({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  // pagination state (local). Keep this for both client & server modes.
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize,
+  });
+
+  // Keep local pageSize synced if prop pageSize changes
+  React.useEffect(() => {
+    setPagination((p) => ({ ...p, pageSize }));
+  }, [pageSize]);
+
+  // When pagination changes locally, notify parent (useful for server-side)
+  const handlePaginationChange = (
+    updaterOrValue:
+      | PaginationState
+      | ((old: PaginationState) => PaginationState),
+  ) => {
+    const newPagination =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(pagination)
+        : updaterOrValue;
+    setPagination(newPagination);
+    onPaginationChange?.(newPagination.pageIndex, newPagination.pageSize);
+  };
+
   const table = useReactTable({
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    initialState: {
-      pagination: {
-        pageSize,
-      },
-    },
+
+    // pagination control
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
+    },
+
+    // keep pagination behavior flexible:
+    manualPagination: serverSidePagination,
+    pageCount: serverSidePagination ? (pageCount ?? -1) : undefined,
+
+    // local pagination handlers (table will call this when pagination changes)
+    onPaginationChange: handlePaginationChange,
+
+    // row models
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+
+    // initial state
+    initialState: {
+      pagination: {
+        pageIndex: pagination.pageIndex,
+        pageSize: pagination.pageSize,
+      },
     },
   });
 
@@ -181,12 +248,19 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
+
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
-        <div className="space-x-2">
+
+        <div className="flex items-center space-x-2">
+          <div className="mr-2 text-sm">
+            Page {pagination.pageIndex + 1}
+            {serverSidePagination && pageCount ? ` of ${pageCount}` : ""}
+          </div>
+
           <Button
             variant="outline"
             size="sm"

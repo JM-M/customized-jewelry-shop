@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 
 import {
   createActionsColumn,
@@ -15,6 +16,23 @@ import { AdminGetProductsOutput } from "@/modules/admin/admin-products/types";
 
 type Product = AdminGetProductsOutput["items"][0];
 
+const ProductNameCell = ({ product }: { product: Product }) => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/admin/products/${product.slug}`);
+  };
+
+  return (
+    <div
+      className="cursor-pointer font-medium transition-colors hover:text-blue-600 hover:underline"
+      onClick={handleClick}
+    >
+      {product.name}
+    </div>
+  );
+};
+
 export const columns: ColumnDef<Product>[] = [
   createSelectColumn<Product>(),
   {
@@ -22,9 +40,7 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ column }) => (
       <SortableHeader column={column}>Name</SortableHeader>
     ),
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("name")}</div>
-    ),
+    cell: ({ row }) => <ProductNameCell product={row.original} />,
   },
   {
     accessorKey: "sku",
