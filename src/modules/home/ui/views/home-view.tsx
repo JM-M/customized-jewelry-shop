@@ -5,7 +5,6 @@ import { Hero } from "../components/hero";
 import { HomeProducts } from "../components/home-products";
 import { Newsletter } from "../components/newsletter";
 import { SocialMedia } from "../components/social-media";
-import { SocialProof } from "../components/social-proof";
 
 export const HomeView = () => {
   return (
@@ -14,7 +13,7 @@ export const HomeView = () => {
         <Hero />
         <Categories />
       </div>
-      <SocialProof />
+      {/* <SocialProof /> */}
       <HomeProducts />
       <SocialMedia />
       <Newsletter />
