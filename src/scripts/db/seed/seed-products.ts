@@ -44,260 +44,339 @@ export async function seedProducts(
   });
 
   const productData: ProductData[] = [
-    // Engagement Rings
+    // Picture Necklaces
     {
-      name: "Classic Solitaire Diamond Ring",
-      slug: "classic-solitaire-diamond-ring",
+      name: "Picture Necklaces",
+      slug: "picture-necklaces",
       description:
-        "A timeless solitaire engagement ring featuring a brilliant cut diamond in a classic four-prong setting. Crafted in 18k white gold with exceptional attention to detail.",
-      price: "2999.99",
-      sku: "ENG-SOL-001",
-      categoryId: categoryMap.get("engagement-rings") || "",
-      primaryImage:
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop",
+        "Personalized picture necklaces featuring your precious memories in elegant settings. Crafted with attention to detail, these necklaces allow you to carry your loved ones close to your heart. Perfect for gifting or as a meaningful keepsake.",
+      price: "16500.00",
+      sku: "NECK-PIC-001",
+      categoryId: categoryMap.get("pendants") || "",
+      primaryImage: "/images/sample-product/1.jpg",
       images: [
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&h=600&fit=crop",
+        "/images/sample-product/1.jpg",
+        "/images/sample-product/2.jpg",
+        "/images/sample-product/3.jpg",
+        "/images/sample-product/4.jpg",
+        "/images/sample-product/5.jpg",
+        "/images/sample-product/6.jpg",
+        "/images/sample-product/7.jpg",
+        "/images/sample-product/8.jpg",
       ],
-      stockQuantity: 15,
-      metaTitle: "Classic Solitaire Diamond Ring - Premium Engagement Ring",
+      stockQuantity: 50,
+      metaTitle: "Picture Necklaces - Personalized Memory Jewelry",
       metaDescription:
-        "Stunning solitaire engagement ring with brilliant cut diamond in 18k white gold. Perfect for your special proposal moment.",
+        "Beautiful personalized picture necklaces to hold your precious memories. Available in gold, silver, and copper with elegant designs.",
       materials: [
         {
-          materialName: "18k_white_gold",
-          price: "2999.99",
-          stockQuantity: 8,
+          materialName: "gold",
+          price: "16500.00",
+          stockQuantity: 20,
           isDefault: true,
         },
         {
-          materialName: "18k_yellow_gold",
-          price: "2899.99",
-          stockQuantity: 5,
+          materialName: "silver",
+          price: "12500.00",
+          stockQuantity: 20,
           isDefault: false,
         },
         {
-          materialName: "platinum",
-          price: "3999.99",
-          stockQuantity: 3,
-          isDefault: false,
-        },
-      ],
-    },
-    {
-      name: "Vintage Halo Engagement Ring",
-      slug: "vintage-halo-engagement-ring",
-      description:
-        "Elegant vintage-style engagement ring with a center diamond surrounded by a halo of smaller diamonds. Set in rose gold for a romantic touch.",
-      price: "3999.99",
-      sku: "ENG-HAL-002",
-      categoryId: categoryMap.get("engagement-rings") || "",
-      materials: [
-        {
-          materialName: "18k_rose_gold",
-          price: "3999.99",
-          stockQuantity: 6,
-          isDefault: true,
-        },
-        {
-          materialName: "14k_rose_gold",
-          price: "3299.99",
-          stockQuantity: 8,
-          isDefault: false,
-        },
-        {
-          materialName: "18k_white_gold",
-          price: "4199.99",
-          stockQuantity: 4,
-          isDefault: false,
-        },
-      ],
-      primaryImage:
-        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&h=600&fit=crop",
-      images: [
-        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop",
-      ],
-      stockQuantity: 8,
-      metaTitle: "Vintage Halo Engagement Ring - Rose Gold Diamond Ring",
-      metaDescription:
-        "Romantic vintage halo engagement ring in rose gold. Features a center diamond with surrounding halo for maximum sparkle.",
-    },
-
-    // Wedding Bands
-    {
-      name: "Classic Gold Wedding Band",
-      slug: "classic-gold-wedding-band",
-      description:
-        "Timeless 14k yellow gold wedding band with a comfort fit design. Simple, elegant, and perfect for everyday wear.",
-      price: "899.99",
-      sku: "WED-CL-001",
-      categoryId: categoryMap.get("wedding-bands") || "",
-      primaryImage:
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop",
-      images: [
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop",
-      ],
-      stockQuantity: 25,
-      metaTitle: "Classic Gold Wedding Band - 14k Yellow Gold",
-      metaDescription:
-        "Traditional 14k yellow gold wedding band with comfort fit. A symbol of eternal love and commitment.",
-      materials: [
-        {
-          materialName: "14k_yellow_gold",
-          price: "899.99",
-          stockQuantity: 15,
-          isDefault: true,
-        },
-        {
-          materialName: "18k_yellow_gold",
-          price: "1199.99",
+          materialName: "copper",
+          price: "8500.00",
           stockQuantity: 10,
           isDefault: false,
         },
       ],
     },
 
-    // Fashion Rings
+    // Engraved Executive Bracelets
     {
-      name: "Art Deco Emerald Ring",
-      slug: "art-deco-emerald-ring",
+      name: "Engraved Executive Bracelets",
+      slug: "engraved-executive-bracelets",
       description:
-        "Stunning Art Deco inspired ring featuring a vibrant emerald center stone surrounded by diamond accents. Set in platinum for durability and elegance.",
-      price: "2499.99",
-      sku: "FASH-EM-001",
-      categoryId: categoryMap.get("fashion-rings") || "",
-      primaryImage:
-        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
+        "Sophisticated executive bracelets designed for the modern professional. These elegant bracelets feature premium craftsmanship and can be personalized with custom engravings. Perfect for business executives, entrepreneurs, and anyone who appreciates refined luxury jewelry.",
+      price: "17500.00",
+      sku: "BRACE-EXEC-001",
+      categoryId: categoryMap.get("chain-bracelets") || "",
+      primaryImage: "/images/sample-product-2/1.jpg",
       images: [
-        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
-      ],
-      stockQuantity: 12,
-      metaTitle: "Art Deco Emerald Ring - Vintage Style Fashion Ring",
-      metaDescription:
-        "Vintage Art Deco emerald ring with diamond accents. A statement piece that captures the glamour of the 1920s.",
-    },
-
-    // Pendants
-    {
-      name: "Heart Locket Pendant",
-      slug: "heart-locket-pendant",
-      description:
-        "Romantic heart-shaped locket pendant in sterling silver. Features intricate engravings and opens to hold precious photos or keepsakes.",
-      price: "299.99",
-      sku: "PEND-HEART-001",
-      categoryId: categoryMap.get("pendants") || "",
-      primaryImage:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
-      images: [
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
+        "/images/sample-product-2/1.jpg",
+        "/images/sample-product-2/2.jpg",
+        "/images/sample-product-2/3.jpg",
+        "/images/sample-product-2/4.jpg",
+        "/images/sample-product-2/5.jpg",
+        "/images/sample-product-2/6.jpg",
+        "/images/sample-product-2/7.jpg",
+        "/images/sample-product-2/8.jpg",
+        "/images/sample-product-2/9.jpg",
       ],
       stockQuantity: 30,
-      metaTitle: "Heart Locket Pendant - Sterling Silver Keepsake",
+      metaTitle: "Engraved Executive Bracelets - Professional Luxury Jewelry",
       metaDescription:
-        "Beautiful heart locket pendant in sterling silver. Perfect for holding treasured memories close to your heart.",
+        "Premium executive bracelets with custom engraving options. Available in gold and gold-silver combinations for the discerning professional.",
+      materials: [
+        {
+          materialName: "14k_yellow_gold",
+          price: "17500.00",
+          stockQuantity: 15,
+          isDefault: true,
+        },
+        {
+          materialName: "14k_white_gold",
+          price: "18500.00",
+          stockQuantity: 15,
+          isDefault: false,
+        },
+      ],
     },
 
-    // Chains
-    {
-      name: "Box Chain Necklace",
-      slug: "box-chain-necklace",
-      description:
-        "Classic box chain necklace in 14k white gold. Features a sleek, modern design that complements any pendant or can be worn alone.",
-      price: "599.99",
-      sku: "CHAIN-BOX-001",
-      categoryId: categoryMap.get("chains") || "",
-      primaryImage:
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop",
-      images: [
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop",
-      ],
-      stockQuantity: 20,
-      metaTitle: "Box Chain Necklace - 14k White Gold Chain",
-      metaDescription:
-        "Elegant box chain necklace in 14k white gold. Versatile design perfect for layering or wearing with pendants.",
-    },
-
-    // Stud Earrings
-    {
-      name: "Diamond Stud Earrings",
-      slug: "diamond-stud-earrings",
-      description:
-        "Classic diamond stud earrings in 14k white gold. Features brilliant cut diamonds in a secure four-prong setting.",
-      price: "1299.99",
-      sku: "STUD-DIA-001",
-      categoryId: categoryMap.get("stud-earrings") || "",
-      primaryImage:
-        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
-      images: [
-        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
-      ],
-      stockQuantity: 18,
-      metaTitle: "Diamond Stud Earrings - Classic White Gold",
-      metaDescription:
-        "Timeless diamond stud earrings in 14k white gold. Perfect for everyday elegance or special occasions.",
-    },
-
-    // Hoop Earrings
-    {
-      name: "Gold Hoop Earrings",
-      slug: "gold-hoop-earrings",
-      description:
-        "Elegant 14k yellow gold hoop earrings in a medium size. Features a smooth, polished finish for maximum shine.",
-      price: "799.99",
-      sku: "HOOP-GOLD-001",
-      categoryId: categoryMap.get("hoop-earrings") || "",
-      primaryImage:
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
-      images: [
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
-      ],
-      stockQuantity: 22,
-      metaTitle: "Gold Hoop Earrings - 14k Yellow Gold Medium",
-      metaDescription:
-        "Classic gold hoop earrings in 14k yellow gold. Medium size perfect for everyday wear or special occasions.",
-    },
-
-    // Chain Bracelets
-    {
-      name: "Tennis Bracelet",
-      slug: "tennis-bracelet",
-      description:
-        "Elegant tennis bracelet featuring a continuous line of brilliant cut diamonds. Set in 14k white gold with a secure clasp.",
-      price: "4999.99",
-      sku: "BRACE-TENNIS-001",
-      categoryId: categoryMap.get("chain-bracelets") || "",
-      primaryImage:
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
-      images: [
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
-      ],
-      stockQuantity: 6,
-      metaTitle: "Tennis Bracelet - Diamond Tennis Bracelet",
-      metaDescription:
-        "Luxurious tennis bracelet with continuous line of diamonds in 14k white gold. A true statement piece.",
-    },
-
-    // Luxury Watches
-    {
-      name: "Swiss Luxury Watch",
-      slug: "swiss-luxury-watch",
-      description:
-        "Premium Swiss-made luxury watch with automatic movement. Features a sapphire crystal face and genuine leather strap.",
-      price: "8999.99",
-      sku: "WATCH-SWISS-001",
-      categoryId: categoryMap.get("luxury-watches") || "",
-      primaryImage:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
-      images: [
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
-      ],
-      stockQuantity: 4,
-      metaTitle: "Swiss Luxury Watch - Automatic Movement",
-      metaDescription:
-        "Premium Swiss luxury watch with automatic movement and sapphire crystal. A timepiece for discerning collectors.",
-    },
+    // // Engagement Rings
+    // {
+    //   name: "Classic Solitaire Diamond Ring",
+    //   slug: "classic-solitaire-diamond-ring",
+    //   description:
+    //     "A timeless solitaire engagement ring featuring a brilliant cut diamond in a classic four-prong setting. Crafted in 18k white gold with exceptional attention to detail.",
+    //   price: "2999.99",
+    //   sku: "ENG-SOL-001",
+    //   categoryId: categoryMap.get("engagement-rings") || "",
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop",
+    //     "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 15,
+    //   metaTitle: "Classic Solitaire Diamond Ring - Premium Engagement Ring",
+    //   metaDescription:
+    //     "Stunning solitaire engagement ring with brilliant cut diamond in 18k white gold. Perfect for your special proposal moment.",
+    //   materials: [
+    //     {
+    //       materialName: "18k_white_gold",
+    //       price: "2999.99",
+    //       stockQuantity: 8,
+    //       isDefault: true,
+    //     },
+    //     {
+    //       materialName: "18k_yellow_gold",
+    //       price: "2899.99",
+    //       stockQuantity: 5,
+    //       isDefault: false,
+    //     },
+    //     {
+    //       materialName: "platinum",
+    //       price: "3999.99",
+    //       stockQuantity: 3,
+    //       isDefault: false,
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "Vintage Halo Engagement Ring",
+    //   slug: "vintage-halo-engagement-ring",
+    //   description:
+    //     "Elegant vintage-style engagement ring with a center diamond surrounded by a halo of smaller diamonds. Set in rose gold for a romantic touch.",
+    //   price: "3999.99",
+    //   sku: "ENG-HAL-002",
+    //   categoryId: categoryMap.get("engagement-rings") || "",
+    //   materials: [
+    //     {
+    //       materialName: "18k_rose_gold",
+    //       price: "3999.99",
+    //       stockQuantity: 6,
+    //       isDefault: true,
+    //     },
+    //     {
+    //       materialName: "14k_rose_gold",
+    //       price: "3299.99",
+    //       stockQuantity: 8,
+    //       isDefault: false,
+    //     },
+    //     {
+    //       materialName: "18k_white_gold",
+    //       price: "4199.99",
+    //       stockQuantity: 4,
+    //       isDefault: false,
+    //     },
+    //   ],
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&h=600&fit=crop",
+    //     "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 8,
+    //   metaTitle: "Vintage Halo Engagement Ring - Rose Gold Diamond Ring",
+    //   metaDescription:
+    //     "Romantic vintage halo engagement ring in rose gold. Features a center diamond with surrounding halo for maximum sparkle.",
+    // },
+    // // Wedding Bands
+    // {
+    //   name: "Classic Gold Wedding Band",
+    //   slug: "classic-gold-wedding-band",
+    //   description:
+    //     "Timeless 14k yellow gold wedding band with a comfort fit design. Simple, elegant, and perfect for everyday wear.",
+    //   price: "899.99",
+    //   sku: "WED-CL-001",
+    //   categoryId: categoryMap.get("wedding-bands") || "",
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 25,
+    //   metaTitle: "Classic Gold Wedding Band - 14k Yellow Gold",
+    //   metaDescription:
+    //     "Traditional 14k yellow gold wedding band with comfort fit. A symbol of eternal love and commitment.",
+    //   materials: [
+    //     {
+    //       materialName: "14k_yellow_gold",
+    //       price: "899.99",
+    //       stockQuantity: 15,
+    //       isDefault: true,
+    //     },
+    //     {
+    //       materialName: "18k_yellow_gold",
+    //       price: "1199.99",
+    //       stockQuantity: 10,
+    //       isDefault: false,
+    //     },
+    //   ],
+    // },
+    // // Fashion Rings
+    // {
+    //   name: "Art Deco Emerald Ring",
+    //   slug: "art-deco-emerald-ring",
+    //   description:
+    //     "Stunning Art Deco inspired ring featuring a vibrant emerald center stone surrounded by diamond accents. Set in platinum for durability and elegance.",
+    //   price: "2499.99",
+    //   sku: "FASH-EM-001",
+    //   categoryId: categoryMap.get("fashion-rings") || "",
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
+    //     "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 12,
+    //   metaTitle: "Art Deco Emerald Ring - Vintage Style Fashion Ring",
+    //   metaDescription:
+    //     "Vintage Art Deco emerald ring with diamond accents. A statement piece that captures the glamour of the 1920s.",
+    // },
+    // // Pendants
+    // {
+    //   name: "Heart Locket Pendant",
+    //   slug: "heart-locket-pendant",
+    //   description:
+    //     "Romantic heart-shaped locket pendant in sterling silver. Features intricate engravings and opens to hold precious photos or keepsakes.",
+    //   price: "299.99",
+    //   sku: "PEND-HEART-001",
+    //   categoryId: categoryMap.get("pendants") || "",
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 30,
+    //   metaTitle: "Heart Locket Pendant - Sterling Silver Keepsake",
+    //   metaDescription:
+    //     "Beautiful heart locket pendant in sterling silver. Perfect for holding treasured memories close to your heart.",
+    // },
+    // // Chains
+    // {
+    //   name: "Box Chain Necklace",
+    //   slug: "box-chain-necklace",
+    //   description:
+    //     "Classic box chain necklace in 14k white gold. Features a sleek, modern design that complements any pendant or can be worn alone.",
+    //   price: "599.99",
+    //   sku: "CHAIN-BOX-001",
+    //   categoryId: categoryMap.get("chains") || "",
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 20,
+    //   metaTitle: "Box Chain Necklace - 14k White Gold Chain",
+    //   metaDescription:
+    //     "Elegant box chain necklace in 14k white gold. Versatile design perfect for layering or wearing with pendants.",
+    // },
+    // // Stud Earrings
+    // {
+    //   name: "Diamond Stud Earrings",
+    //   slug: "diamond-stud-earrings",
+    //   description:
+    //     "Classic diamond stud earrings in 14k white gold. Features brilliant cut diamonds in a secure four-prong setting.",
+    //   price: "1299.99",
+    //   sku: "STUD-DIA-001",
+    //   categoryId: categoryMap.get("stud-earrings") || "",
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 18,
+    //   metaTitle: "Diamond Stud Earrings - Classic White Gold",
+    //   metaDescription:
+    //     "Timeless diamond stud earrings in 14k white gold. Perfect for everyday elegance or special occasions.",
+    // },
+    // // Hoop Earrings
+    // {
+    //   name: "Gold Hoop Earrings",
+    //   slug: "gold-hoop-earrings",
+    //   description:
+    //     "Elegant 14k yellow gold hoop earrings in a medium size. Features a smooth, polished finish for maximum shine.",
+    //   price: "799.99",
+    //   sku: "HOOP-GOLD-001",
+    //   categoryId: categoryMap.get("hoop-earrings") || "",
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 22,
+    //   metaTitle: "Gold Hoop Earrings - 14k Yellow Gold Medium",
+    //   metaDescription:
+    //     "Classic gold hoop earrings in 14k yellow gold. Medium size perfect for everyday wear or special occasions.",
+    // },
+    // // Chain Bracelets
+    // {
+    //   name: "Tennis Bracelet",
+    //   slug: "tennis-bracelet",
+    //   description:
+    //     "Elegant tennis bracelet featuring a continuous line of brilliant cut diamonds. Set in 14k white gold with a secure clasp.",
+    //   price: "4999.99",
+    //   sku: "BRACE-TENNIS-001",
+    //   categoryId: categoryMap.get("chain-bracelets") || "",
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 6,
+    //   metaTitle: "Tennis Bracelet - Diamond Tennis Bracelet",
+    //   metaDescription:
+    //     "Luxurious tennis bracelet with continuous line of diamonds in 14k white gold. A true statement piece.",
+    // },
+    // // Luxury Watches
+    // {
+    //   name: "Swiss Luxury Watch",
+    //   slug: "swiss-luxury-watch",
+    //   description:
+    //     "Premium Swiss-made luxury watch with automatic movement. Features a sapphire crystal face and genuine leather strap.",
+    //   price: "8999.99",
+    //   sku: "WATCH-SWISS-001",
+    //   categoryId: categoryMap.get("luxury-watches") || "",
+    //   primaryImage:
+    //     "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
+    //   images: [
+    //     "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
+    //   ],
+    //   stockQuantity: 4,
+    //   metaTitle: "Swiss Luxury Watch - Automatic Movement",
+    //   metaDescription:
+    //     "Premium Swiss luxury watch with automatic movement and sapphire crystal. A timepiece for discerning collectors.",
+    // },
   ];
 
   const createdProducts = [];
