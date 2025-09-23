@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { productMaterials, products } from "@/db/schema/products";
+import { productMaterials, products } from "@/db/schema/shop";
 
 export interface ProductMaterialVariant {
   materialName: string; // e.g., "14k_yellow_gold"

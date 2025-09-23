@@ -2,6 +2,7 @@ import { adminProductsRouter } from "@/modules/admin/admin-products/server/proce
 import { cartRouter } from "@/modules/cart/server/procedures";
 import { categoriesRouter } from "@/modules/categories/server/procedures";
 import { homeRouter } from "@/modules/home/server/procedures";
+import { ordersRouter } from "@/modules/orders/server/procedures";
 import { productsRouter } from "@/modules/products/server/procedures";
 import { terminalRouter } from "@/modules/terminal/server/procedures";
 import { createTRPCRouter } from "../init";
@@ -11,6 +12,7 @@ export const appRouter = createTRPCRouter({
   home: homeRouter,
   products: productsRouter,
   cart: cartRouter,
+  orders: ordersRouter,
   terminal: terminalRouter,
   adminProducts: adminProductsRouter,
 });

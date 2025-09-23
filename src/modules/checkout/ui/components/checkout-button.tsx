@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { formatNaira } from "@/lib/utils";
+import { useMutation } from "@tanstack/react-query";
 import { PaystackButton } from "react-paystack";
+
+import { useCart } from "@/modules/cart/contexts";
+import { useTRPC } from "@/trpc/client";
 import { useCheckout } from "../../contexts/checkout";
 import { useCheckoutFees } from "../../hooks/use-checkout-fees";
 
@@ -14,7 +18,14 @@ export const CheckoutButton = () => {
     hasTotal,
   } = useCheckoutFees();
 
-  const { selectedAddressId } = useCheckout();
+  const { selectedAddressId, selectedRateId } = useCheckout();
+  const { cart } = useCart();
+  const trpc = useTRPC();
+
+  // Create order mutation
+  const { mutate: createOrder, isPending: isCreatingOrder } = useMutation(
+    trpc.orders.createOrder.mutationOptions(),
+  );
 
   // Generate a unique reference for this transaction
   const generateReference = () => {
@@ -56,16 +67,39 @@ export const CheckoutButton = () => {
           amount={total! * 100} // Convert to kobo
           reference={generateReference()}
           text="Proceed to Payment"
-          onSuccess={(reference) => {
-            console.log("Payment successful:", reference);
-            // Handle successful payment here
+          onSuccess={(data) => {
+            console.log("Payment successful:", data);
+
+            // TODO: Move order creation into a webhook
+
+            // Create order from cart
+            if (cart?.id && selectedAddressId) {
+              createOrder(
+                {
+                  cartId: cart.id,
+                  deliveryAddressId: selectedAddressId,
+                  paymentReference: data.reference,
+                  rateId: selectedRateId || undefined,
+                },
+                {
+                  onSuccess: (result) => {
+                    console.log("Order created successfully:", result);
+                    // TODO: Redirect to order confirmation page or show success message
+                  },
+                  onError: (error) => {
+                    console.error("Failed to create order:", error);
+                    // TODO: Show error message to user
+                  },
+                },
+              );
+            }
           }}
           onClose={() => {
             console.log("Payment closed");
             // Handle payment closure here
           }}
           className="flex h-12 w-full"
-          disabled={!canProcessPayment}
+          disabled={!canProcessPayment || isCreatingOrder}
         />
       </Button>
     </div>

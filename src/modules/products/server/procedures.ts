@@ -7,7 +7,7 @@ import {
   productEngravingAreas,
   productMaterials,
   products,
-} from "@/db/schema/products";
+} from "@/db/schema/shop";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { TRPCError } from "@trpc/server";

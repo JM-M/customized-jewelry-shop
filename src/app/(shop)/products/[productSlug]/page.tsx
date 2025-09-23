@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { products } from "@/db/schema/products";
+import { products } from "@/db/schema/shop";
 import { ProductView } from "@/modules/products/ui/views/product-view";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { eq } from "drizzle-orm";

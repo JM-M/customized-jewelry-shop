@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { materials } from "@/db/schema/products";
+import { materials } from "@/db/schema/shop";
 
 export interface MaterialData {
   name: string;

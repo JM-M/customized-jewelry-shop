@@ -1,12 +1,12 @@
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
-import { cartItems, carts, materials, products } from "@/db/schema/products";
 import {
   checkoutSessions,
   pickupAddresses,
   terminalAddresses,
   userTerminalAddresses,
-} from "@/db/schema/terminal";
+} from "@/db/schema/logistics";
+import { cartItems, carts, materials, products } from "@/db/schema/shop";
 import {
   makeTerminalRequest,
   terminalClient,

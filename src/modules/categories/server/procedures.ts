@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { categories } from "@/db/schema/products";
+import { categories } from "@/db/schema/shop";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 

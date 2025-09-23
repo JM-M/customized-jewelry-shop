@@ -5,7 +5,7 @@ import {
   materials,
   productMaterials,
   products,
-} from "@/db/schema/products";
+} from "@/db/schema/shop";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import {

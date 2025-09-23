@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { categories } from "@/db/schema/products";
+import { categories } from "@/db/schema/shop";
 
 export interface CategoryData {
   name: string;

@@ -1,6 +1,6 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
-import { products } from "@/db/schema/products";
+import { products } from "@/db/schema/shop";
 import { adminProcedure, createTRPCRouter } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { sql } from "drizzle-orm";

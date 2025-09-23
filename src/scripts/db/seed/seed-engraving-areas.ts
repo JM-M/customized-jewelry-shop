@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { engravingAreas, productEngravingAreas } from "@/db/schema/products";
+import { engravingAreas, productEngravingAreas } from "@/db/schema/shop";
 
 export interface EngravingAreaData {
   name: string;

@@ -1,5 +1,3 @@
-// TODO: Rename this file to logistics.ts
-
 import { relations } from "drizzle-orm";
 import { boolean, json, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { user } from "./auth";
