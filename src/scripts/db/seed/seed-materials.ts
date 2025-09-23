@@ -13,11 +13,23 @@ export async function seedMaterials(): Promise<MaterialData[]> {
 
   const materialsData: MaterialData[] = [
     {
-      name: "sterling_silver",
-      displayName: "Sterling Silver",
+      name: "silver",
+      displayName: "Silver",
       hexColor: "#C0C0C0",
       description:
         "Classic sterling silver with timeless elegance and durability",
+    },
+    {
+      name: "gold",
+      displayName: "Gold",
+      hexColor: "#FFD700",
+      description: "Classic gold with timeless elegance and durability",
+    },
+    {
+      name: "copper",
+      displayName: "Copper",
+      hexColor: "#B87333",
+      description: "Classic copper with timeless elegance and durability",
     },
     {
       name: "14k_yellow_gold",

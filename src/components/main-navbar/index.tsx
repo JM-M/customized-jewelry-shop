@@ -10,7 +10,7 @@ export const MainNavbar = () => {
   const { toggleSidebar } = useSidebar();
 
   return (
-    <nav className="flex h-17 items-center justify-between p-4">
+    <nav className="bg-background sticky top-0 z-50 flex h-17 items-center justify-between p-4">
       <h1 className="font-serif text-2xl font-medium">
         <Link href="/" className="font-niconne">
           Temmy Accessories
