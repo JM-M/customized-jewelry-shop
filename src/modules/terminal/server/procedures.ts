@@ -1,18 +1,23 @@
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
-import { terminalAddresses, userTerminalAddresses } from "@/db/schema/terminal";
+import {
+  pickupAddresses,
+  terminalAddresses,
+  userTerminalAddresses,
+} from "@/db/schema/terminal";
 import {
   makeTerminalRequest,
   terminalClient,
   terminalSandboxClient,
 } from "@/lib/terminal-client";
 import {
+  adminProcedure,
   baseProcedure,
   createTRPCRouter,
   protectedProcedure,
 } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
-import { desc, eq, getTableColumns } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   TerminalCreateAddressResponse,
@@ -89,6 +94,49 @@ const getPackagingSchema = z.object({
   page: z.number().min(1).default(1).optional(),
 });
 
+// Schema for creating a pickup address
+const createPickupAddressSchema = z.object({
+  // Terminal address fields
+  city: z.string().min(1, "City is required"),
+  country: z.string().length(2, "Country must be a 2-letter ISO code"),
+  state: z.string().min(1, "State is required"),
+  email: z.string().email("Invalid email format").optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  name: z.string().optional(),
+  phone: z.string().optional(),
+  line1: z.string().optional(),
+  line2: z.string().optional(),
+  zip: z.string().optional(),
+  is_residential: z.boolean().default(true),
+  metadata: z.record(z.string(), z.any()).optional(),
+
+  // Pickup address fields
+  isDefault: z.boolean().default(false).optional(),
+  nickname: z.string().optional(),
+});
+
+// Schema for updating a pickup address
+const updatePickupAddressSchema = z.object({
+  id: z.string().min(1, "Pickup address ID is required"),
+  terminalAddressId: z
+    .string()
+    .min(1, "Terminal address ID is required")
+    .optional(),
+  isDefault: z.boolean().optional(),
+  nickname: z.string().optional(),
+});
+
+// Schema for getting a pickup address
+const getPickupAddressSchema = z.object({
+  id: z.string().min(1, "Pickup address ID is required"),
+});
+
+// Schema for deleting a pickup address
+const deletePickupAddressSchema = z.object({
+  id: z.string().min(1, "Pickup address ID is required"),
+});
+
 export const terminalRouter = createTRPCRouter({
   testTerminal: baseProcedure.query(async () => {
     return makeTerminalRequest(
@@ -118,15 +166,36 @@ export const terminalRouter = createTRPCRouter({
       );
     }),
 
-  getAddress: baseProcedure.input(getAddressSchema).query(async ({ input }) => {
-    return makeTerminalRequest(
-      () =>
-        terminalClient.get<TerminalGetAddressResponse>(
-          `/addresses/${input.addressId}`,
-        ),
-      "Failed to get address",
-    );
-  }),
+  getAddress: protectedProcedure
+    .input(getAddressSchema)
+    .query(async ({ input, ctx }) => {
+      // First, verify that the user owns this address
+      const userAddress = await db
+        .select()
+        .from(userTerminalAddresses)
+        .where(
+          and(
+            eq(userTerminalAddresses.userId, ctx.auth.user.id),
+            eq(userTerminalAddresses.terminalAddressId, input.addressId),
+          ),
+        )
+        .limit(1);
+
+      if (userAddress.length === 0) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can only view your own addresses",
+        });
+      }
+
+      return makeTerminalRequest(
+        () =>
+          terminalClient.get<TerminalGetAddressResponse>(
+            `/addresses/${input.addressId}`,
+          ),
+        "Failed to get address",
+      );
+    }),
 
   getUserAddresses: protectedProcedure.query(async ({ ctx }) => {
     return await db
@@ -204,6 +273,25 @@ export const terminalRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { addressId, ...updateData } = input;
 
+      // First, verify that the user owns this address
+      const userAddress = await db
+        .select()
+        .from(userTerminalAddresses)
+        .where(
+          and(
+            eq(userTerminalAddresses.userId, ctx.auth.user.id),
+            eq(userTerminalAddresses.terminalAddressId, addressId),
+          ),
+        )
+        .limit(1);
+
+      if (userAddress.length === 0) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can only update your own addresses",
+        });
+      }
+
       // Terminal API call - no try-catch needed, tRPC handles errors
       const result = await makeTerminalRequest(
         () => terminalClient.put(`/addresses/${addressId}`, updateData),
@@ -263,19 +351,34 @@ export const terminalRouter = createTRPCRouter({
       );
     }),
 
-  setDefaultSenderAddress: baseProcedure
+  setDefaultSenderAddress: adminProcedure
     .input(setDefaultSenderAddressSchema)
     .mutation(async ({ input }) => {
-      return makeTerminalRequest(
+      // Call Terminal API to set default sender address
+      const terminalResult = await makeTerminalRequest(
         () =>
           terminalClient.post("/addresses/default/sender", {
             address_id: input.addressId,
           }),
         "Failed to set default sender address",
       );
+
+      // Sync pickup addresses table - unset all other defaults
+      await db
+        .update(pickupAddresses)
+        .set({ isDefault: false })
+        .where(eq(pickupAddresses.isDefault, true));
+
+      // Set the specified pickup address as default
+      await db
+        .update(pickupAddresses)
+        .set({ isDefault: true })
+        .where(eq(pickupAddresses.terminalAddressId, input.addressId));
+
+      return terminalResult;
     }),
 
-  getDefaultSenderAddress: baseProcedure.query(async () => {
+  getDefaultSenderAddress: adminProcedure.query(async () => {
     return makeTerminalRequest(
       () => terminalClient.get("/addresses/default/sender"),
       "Failed to get default sender address",
@@ -289,7 +392,7 @@ export const terminalRouter = createTRPCRouter({
     );
   }),
 
-  getPackaging: baseProcedure
+  getPackaging: adminProcedure
     .input(getPackagingSchema)
     .query(async ({ input }) => {
       const params = new URLSearchParams();
@@ -311,5 +414,275 @@ export const terminalRouter = createTRPCRouter({
         () => terminalClient.get(url),
         "Failed to get packagings",
       );
+    }),
+
+  // Pickup Addresses procedures
+  getPickupAddresses: adminProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(DEFAULT_PAGE).optional(),
+        limit: z.number().min(1).max(100).default(DEFAULT_PAGE_SIZE).optional(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const page = input.page || DEFAULT_PAGE;
+      const limit = input.limit || DEFAULT_PAGE_SIZE;
+      const offset = (page - 1) * limit;
+
+      // Get total count
+      const totalCountResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(pickupAddresses);
+      const totalCount = totalCountResult[0]?.count || 0;
+
+      // Get paginated data
+      const data = await db
+        .select({
+          ...getTableColumns(pickupAddresses),
+          terminalAddress: getTableColumns(terminalAddresses),
+        })
+        .from(pickupAddresses)
+        .innerJoin(
+          terminalAddresses,
+          eq(pickupAddresses.terminalAddressId, terminalAddresses.address_id),
+        )
+        .orderBy(desc(pickupAddresses.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      return {
+        items: data,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+      };
+    }),
+
+  getPickupAddress: adminProcedure
+    .input(getPickupAddressSchema)
+    .query(async ({ input }) => {
+      const result = await db
+        .select({
+          ...getTableColumns(pickupAddresses),
+          terminalAddress: getTableColumns(terminalAddresses),
+        })
+        .from(pickupAddresses)
+        .innerJoin(
+          terminalAddresses,
+          eq(pickupAddresses.terminalAddressId, terminalAddresses.address_id),
+        )
+        .where(eq(pickupAddresses.id, input.id))
+        .limit(1);
+
+      if (result.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Pickup address not found",
+        });
+      }
+
+      return result[0];
+    }),
+
+  createPickupAddress: adminProcedure
+    .input(createPickupAddressSchema)
+    .mutation(async ({ input }) => {
+      // Extract terminal address fields from input
+      const {
+        city,
+        country,
+        state,
+        email,
+        first_name,
+        last_name,
+        name,
+        phone,
+        line1,
+        line2,
+        zip,
+        is_residential,
+        metadata,
+        isDefault,
+        nickname,
+      } = input;
+
+      // Create terminal address first
+      const terminalAddressData = {
+        city,
+        country,
+        state,
+        email,
+        first_name,
+        last_name,
+        name,
+        phone,
+        line1,
+        line2,
+        zip,
+        is_residential,
+        metadata,
+      };
+
+      // Terminal API call to create address
+      const terminalResult =
+        await makeTerminalRequest<TerminalCreateAddressResponse>(
+          () => terminalClient.post("/addresses", terminalAddressData),
+          "Failed to create terminal address",
+        );
+
+      if (!terminalResult.status) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create terminal address",
+        });
+      }
+
+      // Sync terminal address to local database
+      try {
+        await db.insert(terminalAddresses).values({
+          address_id: terminalResult.data.address_id,
+          city: terminalResult.data.city,
+          coordinates: terminalResult.data.coordinates,
+          country: terminalResult.data.country,
+          email: terminalResult.data.email,
+          first_name: terminalResult.data.first_name,
+          id: terminalResult.data.id,
+          is_residential: terminalResult.data.is_residential,
+          last_name: terminalResult.data.last_name,
+          line1: terminalResult.data.line1,
+          line2: terminalResult.data.line2,
+          metadata: terminalResult.data.metadata,
+          name: terminalResult.data.name,
+          phone: terminalResult.data.phone,
+          state: terminalResult.data.state,
+          zip: terminalResult.data.zip,
+          created_at: terminalResult.data.created_at,
+          updated_at: terminalResult.data.updated_at,
+        });
+      } catch (error) {
+        console.error(
+          "Failed to sync terminal address to local database:",
+          error,
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to sync terminal address to local database",
+        });
+      }
+
+      // If this is being set as default, unset all other defaults
+      if (isDefault) {
+        await db
+          .update(pickupAddresses)
+          .set({ isDefault: false })
+          .where(eq(pickupAddresses.isDefault, true));
+      }
+
+      // Create pickup address
+      const pickupResult = await db
+        .insert(pickupAddresses)
+        .values({
+          terminalAddressId: terminalResult.data.address_id,
+          isDefault: isDefault || false,
+          nickname: nickname || null,
+        })
+        .returning();
+
+      // If this is being set as default, also set it as the default sender address in Terminal
+      if (isDefault) {
+        await makeTerminalRequest(
+          () =>
+            terminalClient.post("/addresses/default/sender", {
+              address_id: terminalResult.data.address_id,
+            }),
+          "Failed to set default sender address",
+        );
+      }
+
+      return pickupResult[0];
+    }),
+
+  updatePickupAddress: adminProcedure
+    .input(updatePickupAddressSchema)
+    .mutation(async ({ input }) => {
+      const { id, ...updateData } = input;
+
+      // Verify that the pickup address exists
+      const existingPickupAddress = await db
+        .select()
+        .from(pickupAddresses)
+        .where(eq(pickupAddresses.id, id))
+        .limit(1);
+
+      if (existingPickupAddress.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Pickup address not found",
+        });
+      }
+
+      // If terminal address is being updated, verify it exists
+      if (updateData.terminalAddressId) {
+        const terminalAddress = await db
+          .select()
+          .from(terminalAddresses)
+          .where(eq(terminalAddresses.address_id, updateData.terminalAddressId))
+          .limit(1);
+
+        if (terminalAddress.length === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Terminal address not found",
+          });
+        }
+      }
+
+      // If this is being set as default, unset all other defaults
+      if (updateData.isDefault) {
+        await db
+          .update(pickupAddresses)
+          .set({ isDefault: false })
+          .where(eq(pickupAddresses.isDefault, true));
+      }
+
+      const result = await db
+        .update(pickupAddresses)
+        .set({
+          ...updateData,
+          updatedAt: new Date(),
+        })
+        .where(eq(pickupAddresses.id, id))
+        .returning();
+
+      return result[0];
+    }),
+
+  deletePickupAddress: adminProcedure
+    .input(deletePickupAddressSchema)
+    .mutation(async ({ input }) => {
+      // Verify that the pickup address exists
+      const existingPickupAddress = await db
+        .select()
+        .from(pickupAddresses)
+        .where(eq(pickupAddresses.id, input.id))
+        .limit(1);
+
+      if (existingPickupAddress.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Pickup address not found",
+        });
+      }
+
+      await db.delete(pickupAddresses).where(eq(pickupAddresses.id, input.id));
+
+      return { success: true };
     }),
 });

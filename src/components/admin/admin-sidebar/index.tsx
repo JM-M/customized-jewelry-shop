@@ -6,6 +6,7 @@ import {
   GiftIcon,
   LayoutDashboardIcon,
   LucideIcon,
+  MapPinIcon,
   PackageIcon,
   TruckIcon,
 } from "lucide-react";
@@ -86,7 +87,7 @@ const sidebarConfig: SidebarGroup[] = [
             id: "pickup-addresses",
             label: "Pickup Addresses",
             href: "/admin/pickup-addresses",
-            icon: TruckIcon,
+            icon: MapPinIcon,
           },
         ],
       },

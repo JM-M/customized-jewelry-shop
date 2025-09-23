@@ -1,6 +1,12 @@
 import { AppRouter } from "@/trpc/routers/_app";
 import { inferRouterOutputs } from "@trpc/server";
 
+export type GetUserAddressesOutput =
+  inferRouterOutputs<AppRouter>["terminal"]["getUserAddresses"];
+
+export type GetPickupAddressesOutput =
+  inferRouterOutputs<AppRouter>["terminal"]["getPickupAddresses"];
+
 export interface TerminalAddress {
   address_id: string;
   city: string;
@@ -113,5 +119,17 @@ export interface TerminalGetPackagingsResponse {
   };
 }
 
-export type GetUserAddressesOutput =
-  inferRouterOutputs<AppRouter>["terminal"]["getUserAddresses"];
+export type PickupAddress = GetPickupAddressesOutput["items"][number];
+
+export interface CreatePickupAddressInput {
+  terminalAddressId: string;
+  isDefault?: boolean;
+  nickname?: string;
+}
+
+export interface UpdatePickupAddressInput {
+  id: string;
+  terminalAddressId?: string;
+  isDefault?: boolean;
+  nickname?: string;
+}

@@ -76,11 +76,38 @@ export const userTerminalAddresses = pgTable("user_terminal_addresses", {
     .notNull(),
 });
 
+// Pickup addresses table - references terminal addresses for pickup locations
+export const pickupAddresses = pgTable("pickup_addresses", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+
+  // Reference to terminal address
+  terminalAddressId: text("terminal_address_id")
+    .references(() => terminalAddresses.address_id, { onDelete: "cascade" })
+    .notNull(),
+
+  // Whether this is the default pickup address
+  isDefault: boolean("is_default").default(false).notNull(),
+
+  // Optional nickname for the pickup address
+  nickname: text("nickname"),
+
+  // Timestamps
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
 // Relations
 export const terminalAddressesRelations = relations(
   terminalAddresses,
   ({ many }) => ({
     userAssociations: many(userTerminalAddresses),
+    pickupAddresses: many(pickupAddresses),
   }),
 );
 
@@ -93,6 +120,16 @@ export const userTerminalAddressesRelations = relations(
     }),
     terminalAddress: one(terminalAddresses, {
       fields: [userTerminalAddresses.terminalAddressId],
+      references: [terminalAddresses.address_id],
+    }),
+  }),
+);
+
+export const pickupAddressesRelations = relations(
+  pickupAddresses,
+  ({ one }) => ({
+    terminalAddress: one(terminalAddresses, {
+      fields: [pickupAddresses.terminalAddressId],
       references: [terminalAddresses.address_id],
     }),
   }),
