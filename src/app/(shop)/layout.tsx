@@ -16,7 +16,7 @@ const ShopLayout = ({ children }: Props) => {
         <MainSidebar />
         <div className="flex min-h-screen max-w-full flex-1 flex-col">
           <MainNavbar />
-          <main>{children}</main>
+          <main className="flex-1">{children}</main>
         </div>
       </SidebarProvider>
       <Footer />

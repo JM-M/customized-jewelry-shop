@@ -16,6 +16,36 @@ function generateOrderNumber(): string {
 }
 
 export const ordersRouter = createTRPCRouter({
+  // Get order status by order ID
+  getOrderStatus: protectedProcedure
+    .input(z.object({ orderId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.auth.user.id;
+
+      const [order] = await db
+        .select({
+          id: orders.id,
+          orderNumber: orders.orderNumber,
+          status: orders.status,
+          subtotal: orders.subtotal,
+          deliveryFee: orders.deliveryFee,
+          totalAmount: orders.totalAmount,
+          createdAt: orders.createdAt,
+        })
+        .from(orders)
+        .where(and(eq(orders.id, input.orderId), eq(orders.userId, userId)))
+        .limit(1);
+
+      if (!order) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Order not found or not accessible",
+        });
+      }
+
+      return order;
+    }),
+
   // Create order from cart
   createOrder: protectedProcedure
     .input(
@@ -29,6 +59,7 @@ export const ordersRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       // TODO: Handle failure modes e.g could not fetch delivery fee.
+      // TODO: Handle what should happen to the checkout session.
 
       const userId = ctx.auth.user.id;
 
@@ -123,7 +154,7 @@ export const ordersRouter = createTRPCRouter({
           subtotal: subtotal.toString(),
           deliveryFee: deliveryFee.toString(),
           totalAmount: totalAmount.toString(),
-          status: "pending",
+          status: "confirmed",
           paymentReference: input.paymentReference,
           deliveryAddressId: input.deliveryAddressId,
           pickupAddressId: input.pickupAddressId,

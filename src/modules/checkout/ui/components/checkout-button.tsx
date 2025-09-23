@@ -5,8 +5,10 @@ import { formatNaira } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 
+import { authClient } from "@/lib/auth-client";
 import { useCart } from "@/modules/cart/contexts";
 import { useTRPC } from "@/trpc/client";
+import { useRouter } from "next/navigation";
 import { useCheckout } from "../../contexts/checkout";
 import { useCheckoutFees } from "../../hooks/use-checkout-fees";
 
@@ -25,6 +27,9 @@ const PaystackButton = dynamic(
 );
 
 export const CheckoutButton = () => {
+  const session = authClient.useSession();
+  const userEmail = session.data?.user?.email;
+
   const {
     deliveryFee,
     total,
@@ -37,6 +42,7 @@ export const CheckoutButton = () => {
   const { selectedAddressId, selectedRateId } = useCheckout();
   const { cart } = useCart();
   const trpc = useTRPC();
+  const router = useRouter();
 
   // Create order mutation
   const { mutate: createOrder, isPending: isCreatingOrder } = useMutation(
@@ -48,7 +54,8 @@ export const CheckoutButton = () => {
     return `jewelry_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
-  const canProcessPayment = hasTotal && !!total && !!selectedAddressId;
+  const canProcessPayment =
+    userEmail && hasTotal && !!total && !!selectedAddressId;
 
   return (
     <div className="space-y-4">
@@ -79,7 +86,7 @@ export const CheckoutButton = () => {
       <Button asChild>
         <PaystackButton
           publicKey={process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || ""}
-          email="customer@example.com" // You might want to get this from user context
+          email={userEmail!}
           amount={total! * 100} // Convert to kobo
           reference={generateReference()}
           text="Proceed to Payment"
@@ -101,6 +108,7 @@ export const CheckoutButton = () => {
                   onSuccess: (result) => {
                     console.log("Order created successfully:", result);
                     // TODO: Redirect to order confirmation page or show success message
+                    router.push(`/checkout/success?orderId=${result.order.id}`);
                   },
                   onError: (error) => {
                     console.error("Failed to create order:", error);
