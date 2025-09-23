@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { useCart } from "@/modules/cart/contexts";
 import { useCartOptimisticUpdates } from "@/modules/cart/hooks/use-cart-optimistic-updates";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useProduct } from "../../contexts/product";
 
 interface AddToBagButtonProps {
