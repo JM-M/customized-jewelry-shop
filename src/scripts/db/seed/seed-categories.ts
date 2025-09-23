@@ -18,36 +18,31 @@ export async function seedCategories() {
       name: "Rings",
       slug: "rings",
       description: "Beautiful rings for every occasion",
-      image:
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=300&fit=crop",
+      image: "/images/categories/5.png",
     },
     {
       name: "Necklaces",
       slug: "necklaces",
       description: "Elegant necklaces to complement your style",
-      image:
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop",
+      image: "/images/categories/3.png",
     },
     {
       name: "Earrings",
       slug: "earrings",
       description: "Stunning earrings for any outfit",
-      image:
-        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=300&fit=crop",
+      image: "images/categories/4.png",
     },
     {
       name: "Bracelets",
       slug: "bracelets",
       description: "Charming bracelets for your wrist",
-      image:
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=300&fit=crop",
+      image: "/images/categories/2.png",
     },
     {
       name: "Watches",
       slug: "watches",
       description: "Luxury timepieces for every style",
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
+      image: "/images/categories/1.png",
     },
   ];
 
