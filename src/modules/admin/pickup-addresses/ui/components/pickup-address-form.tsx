@@ -20,7 +20,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { CitiesSelect } from "@/modules/checkout/ui/components/cities-select";
 import { CountriesSelect } from "@/modules/checkout/ui/components/countries-select";
+import { StatesSelect } from "@/modules/checkout/ui/components/states-select";
 import { useTRPC } from "@/trpc/client";
 
 // TODO: Remove fields that can be inferred from business information
@@ -240,7 +242,14 @@ export const PickupAddressForm = ({
                     <FormItem>
                       <FormLabel>City *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter city" {...field} />
+                        <CitiesSelect
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select city..."
+                          className="w-full"
+                          countryCode={form.watch("country")}
+                          stateCode={form.watch("state")}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -253,7 +262,13 @@ export const PickupAddressForm = ({
                     <FormItem>
                       <FormLabel>State/Province *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter state" {...field} />
+                        <StatesSelect
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select state..."
+                          className="w-full"
+                          countryCode={form.watch("country")}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

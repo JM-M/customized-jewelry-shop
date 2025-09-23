@@ -14,8 +14,8 @@ export const CartItemCard = ({ item }: CartItemCardProps) => {
   const { name, primaryImage } = product;
   return (
     <Card className="flex flex-row items-center justify-between gap-0 p-0 shadow-none">
-      <div className="h-32">
-        <Image src={primaryImage} alt={name} height={128} width={128} />
+      <div className="relative aspect-[6/7] h-40">
+        <Image src={primaryImage} alt={name} fill className="object-cover" />
       </div>
       <div className="flex-1 self-stretch px-3 py-2">
         <h3 className="font-medium">{name}</h3>

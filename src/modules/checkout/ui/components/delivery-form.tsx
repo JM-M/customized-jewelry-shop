@@ -24,9 +24,12 @@ import * as z from "zod";
 
 import { Spinner2 } from "@/components/shared/spinner-2";
 import { Button } from "@/components/ui/button";
+import { useGetStates } from "@/modules/terminal/hooks/use-get-states";
 import { ArrowRightIcon } from "lucide-react";
 import { useCheckout } from "../../contexts/checkout";
+import { CitiesSelect } from "./cities-select";
 import { CountriesSelect } from "./countries-select";
+import { StatesSelect } from "./states-select";
 
 // Delivery form validation schema
 const deliveryFormSchema = z.object({
@@ -57,16 +60,16 @@ const deliveryFormSchema = z.object({
     })
     .optional(),
   city: z.string().min(2, {
-    message: "City must be at least 2 characters.",
+    message: "Please select a city.",
   }),
   state: z.string().min(2, {
-    message: "State must be at least 2 characters.",
+    message: "Please select a state.",
   }),
   zip: z.string().min(5, {
     message: "ZIP code must be at least 5 characters.",
   }),
   country: z.string().length(2, {
-    message: "Country must be a 2-letter ISO code.",
+    message: "Please select a country.",
   }),
 });
 
@@ -109,6 +112,14 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
       ...initialValues,
     },
   });
+
+  const countryCode = form.watch("country");
+  const stateName = form.watch("state");
+
+  const { states } = useGetStates({
+    countryCode,
+  });
+  const stateCode = states.find((state) => state.name === stateName)?.isoCode;
 
   const handleFormSubmit = async (data: DeliveryFormValues) => {
     const addressData = {
@@ -259,12 +270,17 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <FormField
               control={form.control}
-              name="city"
+              name="country"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City</FormLabel>
+                  <FormLabel>Country</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter city" {...field} />
+                    <CountriesSelect
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select country..."
+                      className="w-full"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -277,11 +293,39 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
                 <FormItem>
                   <FormLabel>State</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter state" {...field} />
+                    <StatesSelect
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select state..."
+                      className="w-full"
+                      countryCode={form.watch("country")}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
+            />
+            <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      <CitiesSelect
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select city..."
+                        className="w-full"
+                        countryCode={countryCode}
+                        stateCode={stateCode}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}
@@ -297,24 +341,6 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
               )}
             />
           </div>
-          <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Country</FormLabel>
-                <FormControl>
-                  <CountriesSelect
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    placeholder="Select country..."
-                    className="w-full"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
         {/* Submit Button */}
         <div className="flex justify-end pt-4">

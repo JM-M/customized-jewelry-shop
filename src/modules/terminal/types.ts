@@ -86,6 +86,34 @@ export interface TerminalGetCountriesResponse {
   data: TerminalCountry[];
 }
 
+export interface TerminalState {
+  name: string;
+  isoCode: string;
+  countryCode: string;
+  latitude: string;
+  longitude: string;
+}
+
+export interface TerminalGetStatesResponse {
+  status: boolean;
+  message: string;
+  data: TerminalState[];
+}
+
+export interface TerminalCity {
+  name: string;
+  countryCode: string;
+  stateCode: string;
+  latitude: string;
+  longitude: string;
+}
+
+export interface TerminalGetCitiesResponse {
+  status: boolean;
+  message: string;
+  data: TerminalCity[];
+}
+
 export interface TerminalPackaging {
   height: number;
   id: string;

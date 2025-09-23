@@ -25,10 +25,12 @@ import {
   TerminalCreateAddressResponse,
   TerminalCreateParcelResponse,
   TerminalGetAddressResponse,
+  TerminalGetCitiesResponse,
   TerminalGetCountriesResponse,
   TerminalGetDefaultSenderResponse,
   TerminalGetPackagingsResponse,
   TerminalGetRatesForShipmentResponse,
+  TerminalGetStatesResponse,
 } from "../types";
 
 // Schema for creating an address
@@ -97,6 +99,21 @@ const getPackagingSchema = z.object({
   type: z.string().optional(),
   perPage: z.number().min(1).max(100).default(100).optional(),
   page: z.number().min(1).default(1).optional(),
+});
+
+// Schema for getting states by country code
+const getStatesSchema = z.object({
+  country_code: z
+    .string()
+    .length(2, "Country code must be a 2-letter ISO code"),
+});
+
+// Schema for getting cities by country code and optional state code
+const getCitiesSchema = z.object({
+  country_code: z
+    .string()
+    .length(2, "Country code must be a 2-letter ISO code"),
+  state_code: z.string().optional(),
 });
 
 // Schema for creating a pickup address
@@ -416,6 +433,36 @@ export const terminalRouter = createTRPCRouter({
     return makeTerminalRequest<TerminalGetCountriesResponse>(
       () => terminalClient.get("/countries"),
       "Failed to get countries",
+    );
+  }),
+
+  getStates: baseProcedure.input(getStatesSchema).query(async ({ input }) => {
+    const params = new URLSearchParams();
+    params.append("country_code", input.country_code);
+
+    const queryString = params.toString();
+    const url = `/states?${queryString}`;
+
+    return makeTerminalRequest<TerminalGetStatesResponse>(
+      () => terminalClient.get(url),
+      "Failed to get states",
+    );
+  }),
+
+  getCities: baseProcedure.input(getCitiesSchema).query(async ({ input }) => {
+    const params = new URLSearchParams();
+    params.append("country_code", input.country_code);
+
+    if (input.state_code) {
+      params.append("state_code", input.state_code);
+    }
+
+    const queryString = params.toString();
+    const url = `/cities?${queryString}`;
+
+    return makeTerminalRequest<TerminalGetCitiesResponse>(
+      () => terminalClient.get(url),
+      "Failed to get cities",
     );
   }),
 

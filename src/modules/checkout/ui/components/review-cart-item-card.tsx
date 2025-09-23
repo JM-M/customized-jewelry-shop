@@ -15,8 +15,8 @@ export const ReviewCartItemCard = ({ item }: ReviewCartItemCardProps) => {
 
   return (
     <Card className="flex flex-row items-center justify-between gap-0 p-0 shadow-none">
-      <div className="h-20">
-        <Image src={primaryImage} alt={name} height={80} width={80} />
+      <div className="relative aspect-[6/7] h-20">
+        <Image src={primaryImage} alt={name} fill className="object-cover" />
       </div>
       <div className="flex-1 self-stretch px-3 py-1.5">
         <h3 className="font-medium">{name}</h3>

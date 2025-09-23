@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 
@@ -19,39 +18,31 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { TerminalCountry } from "@/modules/terminal/types";
-import { useTRPC } from "@/trpc/client";
+import { useGetStates } from "@/modules/terminal/hooks/use-get-states";
 
-interface CountriesSelectProps {
+interface StatesSelectProps {
   value?: string;
   onValueChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  countryCode?: string;
 }
 
-export const CountriesSelect = ({
+export const StatesSelect = ({
   value,
   onValueChange,
-  placeholder = "Select country...",
+  placeholder = "Select state...",
   className,
   disabled = false,
-}: CountriesSelectProps) => {
+  countryCode,
+}: StatesSelectProps) => {
   const [open, setOpen] = React.useState(false);
-  const trpc = useTRPC();
 
-  // Query countries data using the terminal countries procedure
-  const {
-    data: countriesData,
-    isLoading,
-    error,
-  } = useQuery(trpc.terminal.getCountries.queryOptions());
+  // Query states data using the custom hook
+  const { states, isLoading, error } = useGetStates({ countryCode });
 
-  const countries: TerminalCountry[] = countriesData?.data || [];
-
-  const selectedCountry = countries.find(
-    (country) => country.isoCode === value,
-  );
+  const selectedState = states.find((state) => state.name === value);
 
   const handleSelect = (currentValue: string) => {
     const newValue = currentValue === value ? "" : currentValue;
@@ -59,10 +50,23 @@ export const CountriesSelect = ({
     setOpen(false);
   };
 
+  if (!countryCode) {
+    return (
+      <Button
+        variant="outline"
+        className={cn("w-full justify-between rounded-none", className)}
+        disabled={true}
+      >
+        Select a country first
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    );
+  }
+
   if (error) {
     return (
       <div className="text-sm text-red-500">
-        Failed to load countries. Please try again.
+        Failed to load states. Please try again.
       </div>
     );
   }
@@ -77,44 +81,38 @@ export const CountriesSelect = ({
           className={cn("w-full justify-between rounded-none", className)}
           disabled={disabled || isLoading}
         >
-          {isLoading ? (
-            "Loading countries..."
-          ) : selectedCountry ? (
-            <div className="flex items-center gap-2">
-              <span>{selectedCountry.flag}</span>
-              <span>{selectedCountry.name}</span>
-            </div>
-          ) : (
-            placeholder
-          )}
+          {isLoading
+            ? "Loading states..."
+            : selectedState
+              ? selectedState.name
+              : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search countries..." className="h-9" />
+          <CommandInput placeholder="Search states..." className="h-9" />
           <CommandList>
             <CommandEmpty>
-              {isLoading ? "Loading..." : "No country found."}
+              {isLoading ? "Loading..." : "No state found."}
             </CommandEmpty>
             <CommandGroup>
-              {countries.map((country, index) => (
+              {states.map((state, index) => (
                 <CommandItem
                   key={index}
-                  value={`${country.name} ${country.isoCode}`}
-                  onSelect={() => handleSelect(country.isoCode)}
+                  value={`${state.name} ${state.isoCode}`}
+                  onSelect={() => handleSelect(state.name)}
                 >
                   <div className="flex items-center gap-2">
-                    <span>{country.flag}</span>
-                    <span>{country.name}</span>
+                    <span>{state.name}</span>
                     <span className="text-muted-foreground">
-                      ({country.isoCode})
+                      ({state.isoCode})
                     </span>
                   </div>
                   <Check
                     className={cn(
                       "ml-auto h-4 w-4",
-                      value === country.isoCode ? "opacity-100" : "opacity-0",
+                      value === state.name ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
