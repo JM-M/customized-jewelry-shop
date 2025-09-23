@@ -20,7 +20,7 @@ export const ProductCustomization = () => {
     setSelectedMaterial,
     updateEngraving,
   } = useProduct();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-y">
