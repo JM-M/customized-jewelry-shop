@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 import { MinusIcon, PlusIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCart } from "../../../cart/contexts";
 import { useCartOptimisticUpdates } from "../../../cart/hooks/use-cart-optimistic-updates";
 import { CartItem } from "../../../cart/types";
@@ -8,6 +10,11 @@ interface AddToBagCounterProps {
   cartItem: CartItem;
 }
 export const AddToBagCounter = ({ cartItem }: AddToBagCounterProps) => {
+  const session = authClient.useSession();
+  const isLoggedIn = !!session.data;
+
+  const router = useRouter();
+
   const { updateQuantityMutation, removeItemMutation } = useCart();
   const {
     optimisticallyUpdateQuantity,
@@ -16,6 +23,11 @@ export const AddToBagCounter = ({ cartItem }: AddToBagCounterProps) => {
   } = useCartOptimisticUpdates();
 
   const handleAddItem = () => {
+    if (!isLoggedIn) {
+      router.push(`/sign-in?redirect=${window.location.pathname}`);
+      return;
+    }
+
     const newQuantity = cartItem.quantity + 1;
 
     // Optimistically update quantity

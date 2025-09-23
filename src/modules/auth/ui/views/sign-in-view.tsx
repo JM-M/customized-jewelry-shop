@@ -21,7 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { OctagonAlertIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { SocialAuth } from "../components/social-auth";
 
@@ -34,6 +34,9 @@ type FormValues = z.infer<typeof formSchema>;
 
 export const SignInView = () => {
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
 
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -58,7 +61,7 @@ export const SignInView = () => {
       {
         onSuccess: () => {
           setPending(false);
-          router.push("/");
+          router.push(redirect || "/");
         },
         onError: ({ error }) => {
           setPending(false);
