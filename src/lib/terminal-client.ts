@@ -6,12 +6,10 @@ import axios, { AxiosError, AxiosInstance } from "axios";
 function handleTerminalApiError(error: unknown, defaultMessage: string): never {
   if (axios.isAxiosError(error)) {
     const message = error.response?.data?.message || defaultMessage;
-    if (process.env.NODE_ENV === "development") {
-      const path = error.config?.url;
-      const method = error.config?.method?.toUpperCase();
-      console.log(`Error: ${method} ${path}`);
-      console.log(error.response?.data);
-    }
+    const path = error.config?.url;
+    const method = error.config?.method?.toUpperCase();
+    console.log(`Terminal API Error: ${method} ${path}`);
+    console.log(error.response?.data);
 
     const statusCode = error.response?.status;
 
