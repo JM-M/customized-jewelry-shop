@@ -17,6 +17,7 @@ export const PackagingTable = () => {
       page: 1,
     }),
   );
+  // console.log(packagingsData);
 
   if (isLoading)
     return (

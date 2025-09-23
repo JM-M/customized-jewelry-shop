@@ -39,7 +39,14 @@ export const DeliveryAddresses = ({ onProceed }: DeliveryAddressesProps) => {
     );
 
   const noAddresses = (addresses?.length ?? 0) === 0;
-  if (noAddresses) return null;
+  if (noAddresses)
+    return (
+      <div className="flex items-center gap-2">
+        <p className="text-muted-foreground text-sm">
+          You have not saved any addresses yet
+        </p>
+      </div>
+    );
 
   return (
     <div className="space-y-3 py-4">

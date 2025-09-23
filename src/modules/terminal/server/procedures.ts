@@ -1,6 +1,8 @@
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
+import { cartItems, carts, materials, products } from "@/db/schema/products";
 import {
+  checkoutSessions,
   pickupAddresses,
   terminalAddresses,
   userTerminalAddresses,
@@ -21,9 +23,12 @@ import { and, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   TerminalCreateAddressResponse,
+  TerminalCreateParcelResponse,
   TerminalGetAddressResponse,
   TerminalGetCountriesResponse,
+  TerminalGetDefaultSenderResponse,
   TerminalGetPackagingsResponse,
+  TerminalGetRatesForShipmentResponse,
 } from "../types";
 
 // Schema for creating an address
@@ -135,6 +140,28 @@ const getPickupAddressSchema = z.object({
 // Schema for deleting a pickup address
 const deletePickupAddressSchema = z.object({
   id: z.string().min(1, "Pickup address ID is required"),
+});
+
+// Schema for creating a parcel
+const createParcelSchema = z.object({
+  description: z.string().optional(),
+  items: z
+    .array(
+      z.object({
+        description: z.string().min(1, "Item description is required"),
+        name: z.string().min(1, "Item name is required"),
+        currency: z.string().min(1, "Currency is required"),
+        value: z.number().min(0, "Value must be non-negative"),
+        weight: z.number().min(0, "Weight must be non-negative"),
+        quantity: z.number().min(1, "Quantity must be at least 1"),
+      }),
+    )
+    .min(1, "At least one item is required"),
+  metadata: z.record(z.string(), z.any()).optional(),
+  packaging: z.string().min(1, "Packaging ID is required"),
+  proof_of_payments: z.array(z.string().url()).optional(),
+  rec_docs: z.array(z.string().url()).optional(),
+  weight_unit: z.literal("kg"),
 });
 
 export const terminalRouter = createTRPCRouter({
@@ -379,7 +406,7 @@ export const terminalRouter = createTRPCRouter({
     }),
 
   getDefaultSenderAddress: adminProcedure.query(async () => {
-    return makeTerminalRequest(
+    return makeTerminalRequest<TerminalGetDefaultSenderResponse>(
       () => terminalClient.get("/addresses/default/sender"),
       "Failed to get default sender address",
     );
@@ -414,6 +441,59 @@ export const terminalRouter = createTRPCRouter({
         () => terminalClient.get(url),
         "Failed to get packagings",
       );
+    }),
+
+  createParcel: protectedProcedure
+    .input(createParcelSchema)
+    .mutation(async ({ input, ctx }) => {
+      // Terminal API call
+      const result = await makeTerminalRequest<TerminalCreateParcelResponse>(
+        () => terminalClient.post("/parcels", input),
+        "Failed to create parcel",
+      );
+
+      // Store user association and checkout state
+      if (result.status) {
+        try {
+          // Check if user already has active checkout data
+          const existingData = await db
+            .select()
+            .from(checkoutSessions)
+            .where(
+              and(
+                eq(checkoutSessions.userId, ctx.auth.user.id),
+                eq(checkoutSessions.status, "active"),
+              ),
+            )
+            .limit(1);
+
+          // TODO: Replace the if else with an upsert
+          if (existingData.length > 0) {
+            // Update existing checkout data
+            await db
+              .update(checkoutSessions)
+              .set({
+                parcelId: result.data.parcel_id,
+                checkoutStep: "parcel_created",
+                updatedAt: new Date(),
+              })
+              .where(eq(checkoutSessions.id, existingData[0].id));
+          } else {
+            // Create new checkout data
+            await db.insert(checkoutSessions).values({
+              userId: ctx.auth.user.id,
+              parcelId: result.data.parcel_id,
+              checkoutStep: "parcel_created",
+              status: "active",
+            });
+          }
+        } catch (error) {
+          console.error("Failed to track parcel association:", error);
+          // Don't fail the entire operation, just log the error
+        }
+      }
+
+      return result;
     }),
 
   // Pickup Addresses procedures
@@ -684,5 +764,355 @@ export const terminalRouter = createTRPCRouter({
       await db.delete(pickupAddresses).where(eq(pickupAddresses.id, input.id));
 
       return { success: true };
+    }),
+
+  // Checkout Session procedures
+  getCheckoutSession: protectedProcedure.query(async ({ ctx }) => {
+    const [checkoutSession] = await db
+      .select()
+      .from(checkoutSessions)
+      .where(
+        and(
+          eq(checkoutSessions.userId, ctx.auth.user.id),
+          eq(checkoutSessions.status, "active"),
+        ),
+      )
+      .orderBy(desc(checkoutSessions.createdAt))
+      .limit(1);
+
+    return checkoutSession || null;
+  }),
+
+  updateCheckoutStep: protectedProcedure
+    .input(
+      z.object({
+        step: z.enum([
+          "address_selected",
+          "parcel_created",
+          "rates_generated",
+          "rate_selected",
+          "shipment_created",
+          "payment_completed",
+        ]),
+        data: z
+          .object({
+            selectedAddressId: z.string().optional(),
+            rateId: z.string().optional(),
+            shipmentId: z.string().optional(),
+            cartSnapshot: z.any().optional(),
+          })
+          .optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const checkoutData = await db
+        .select()
+        .from(checkoutSessions)
+        .where(
+          and(
+            eq(checkoutSessions.userId, ctx.auth.user.id),
+            eq(checkoutSessions.status, "active"),
+          ),
+        )
+        .limit(1);
+
+      if (checkoutData.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No active checkout session found",
+        });
+      }
+
+      const updateData: any = {
+        checkoutStep: input.step,
+        updatedAt: new Date(),
+      };
+
+      if (input.data) {
+        if (input.data.selectedAddressId)
+          updateData.selectedAddressId = input.data.selectedAddressId;
+        if (input.data.rateId) updateData.rateId = input.data.rateId;
+        if (input.data.shipmentId)
+          updateData.shipmentId = input.data.shipmentId;
+        if (input.data.cartSnapshot)
+          updateData.cartSnapshot = input.data.cartSnapshot;
+      }
+
+      const result = await db
+        .update(checkoutSessions)
+        .set(updateData)
+        .where(eq(checkoutSessions.id, checkoutData[0].id))
+        .returning();
+
+      return result[0];
+    }),
+
+  createCheckoutSession: protectedProcedure
+    .input(
+      z.object({
+        selectedAddressId: z.string().optional(),
+        cartSnapshot: z.any().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Check if user already has active checkout session
+      const existingSession = await db
+        .select()
+        .from(checkoutSessions)
+        .where(
+          and(
+            eq(checkoutSessions.userId, ctx.auth.user.id),
+            eq(checkoutSessions.status, "active"),
+          ),
+        )
+        .limit(1);
+
+      if (existingSession.length > 0) {
+        // Update existing session
+        const result = await db
+          .update(checkoutSessions)
+          .set({
+            selectedAddressId: input.selectedAddressId,
+            cartSnapshot: input.cartSnapshot,
+            checkoutStep: "address_selected",
+            updatedAt: new Date(),
+          })
+          .where(eq(checkoutSessions.id, existingSession[0].id))
+          .returning();
+
+        return result[0];
+      } else {
+        // Create new session
+        const result = await db
+          .insert(checkoutSessions)
+          .values({
+            userId: ctx.auth.user.id,
+            selectedAddressId: input.selectedAddressId,
+            cartSnapshot: input.cartSnapshot,
+            checkoutStep: "address_selected",
+            status: "active",
+          })
+          .returning();
+
+        return result[0];
+      }
+    }),
+
+  completeCheckoutSession: protectedProcedure
+    .input(
+      z.object({
+        orderId: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const checkoutData = await db
+        .select()
+        .from(checkoutSessions)
+        .where(
+          and(
+            eq(checkoutSessions.userId, ctx.auth.user.id),
+            eq(checkoutSessions.status, "active"),
+          ),
+        )
+        .limit(1);
+
+      if (checkoutData.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No active checkout session found",
+        });
+      }
+
+      const result = await db
+        .update(checkoutSessions)
+        .set({
+          status: "completed",
+          orderId: input.orderId,
+          checkoutStep: "payment_completed",
+          updatedAt: new Date(),
+        })
+        .where(eq(checkoutSessions.id, checkoutData[0].id))
+        .returning();
+
+      return result[0];
+    }),
+
+  getDeliveryRates: protectedProcedure
+    .input(
+      z.object({
+        deliveryAddressId: z.string().min(1, "Delivery address ID is required"),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.auth.user.id;
+
+      // 1. Get user's active cart with items
+      const [cart] = await db
+        .select()
+        .from(carts)
+        .where(and(eq(carts.userId, userId), eq(carts.status, "active")))
+        .limit(1);
+
+      if (!cart) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No active cart found",
+        });
+      }
+
+      // 2. Get cart items with product details
+      const cartItemsWithProducts = await db
+        .select({
+          ...getTableColumns(cartItems),
+          product: {
+            id: products.id,
+            name: products.name,
+            // weight: products.weight // TODO: Implement product weight
+          },
+          material: {
+            id: materials.id,
+            name: materials.name,
+          },
+        })
+        .from(cartItems)
+        .innerJoin(products, eq(cartItems.productId, products.id))
+        .leftJoin(materials, eq(cartItems.materialId, materials.id))
+        .where(eq(cartItems.cartId, cart.id));
+
+      if (cartItemsWithProducts.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No items in cart",
+        });
+      }
+
+      // 3. Check if user has existing checkout session with parcel
+      const [checkoutSession] = await db
+        .select()
+        .from(checkoutSessions)
+        .where(
+          and(
+            eq(checkoutSessions.userId, userId),
+            eq(checkoutSessions.status, "active"),
+          ),
+        )
+        .limit(1);
+
+      let parcelId = checkoutSession?.parcelId;
+
+      // 4. Create or update parcel if needed
+      if (!parcelId || !checkoutSession) {
+        // Create parcel from current cart items
+        const parcelItems = cartItemsWithProducts.map((item) => ({
+          name: item.product.name,
+          description: `${item.product.name}${item.material ? ` - ${item.material.name}` : ""}`,
+          currency: "NGN",
+          value: Number(item.price),
+          // weight: item.product.weight || 0.1, // Default weight if not set
+          weight: 0.1, // Default weight if not set
+          quantity: item.quantity,
+        }));
+
+        const parcelResult =
+          await makeTerminalRequest<TerminalCreateParcelResponse>(
+            () =>
+              terminalClient.post("/parcels", {
+                items: parcelItems,
+                packaging: "PA-3XHSN4UG3BCWO5C6", // Placeholder as requested
+                weight_unit: "kg",
+                description: "Parcel for checkout", // TODO: Add description
+              }),
+            "Failed to create parcel",
+          );
+
+        if (!parcelResult.status) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create parcel",
+          });
+        }
+
+        parcelId = parcelResult.data.parcel_id;
+
+        // Update or create checkout session
+        if (checkoutSession) {
+          await db
+            .update(checkoutSessions)
+            .set({
+              parcelId,
+              selectedAddressId: input.deliveryAddressId,
+              checkoutStep: "parcel_created",
+              updatedAt: new Date(),
+            })
+            .where(eq(checkoutSessions.id, checkoutSession.id));
+        } else {
+          await db.insert(checkoutSessions).values({
+            userId,
+            parcelId,
+            selectedAddressId: input.deliveryAddressId,
+            checkoutStep: "parcel_created",
+            status: "active",
+          });
+        }
+      }
+
+      // 5. Get default pickup address from Terminal API
+      const defaultPickupResult =
+        await makeTerminalRequest<TerminalGetDefaultSenderResponse>(
+          () => terminalClient.get("/addresses/default/sender"),
+          "Failed to get default pickup address",
+        );
+
+      if (
+        !defaultPickupResult.status ||
+        !defaultPickupResult.data?.address_id
+      ) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "No default pickup address configured",
+        });
+      }
+
+      const pickupAddressId = defaultPickupResult.data.address_id;
+
+      // 6. Get shipping rates from Terminal API
+      const ratesResult =
+        await makeTerminalRequest<TerminalGetRatesForShipmentResponse>(
+          () =>
+            terminalClient.get("/rates/shipment", {
+              params: {
+                parcel_id: parcelId,
+                pickup_address: pickupAddressId,
+                delivery_address: input.deliveryAddressId,
+              },
+            }),
+          "Failed to get delivery rates",
+        );
+
+      if (!ratesResult.status) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to get delivery rates",
+        });
+      }
+
+      // 7. Update checkout session with rates
+      await db
+        .update(checkoutSessions)
+        .set({
+          checkoutStep: "rates_generated",
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(checkoutSessions.userId, userId),
+            eq(checkoutSessions.status, "active"),
+          ),
+        );
+
+      return {
+        rates: ratesResult.data,
+        parcelId,
+      };
     }),
 });

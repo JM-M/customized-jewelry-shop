@@ -1,26 +1,21 @@
 import { Spinner2 } from "@/components/shared/spinner-2";
-import { formatNaira } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
-import { useQuery } from "@tanstack/react-query";
 import { MapPinIcon, PhoneIcon } from "lucide-react";
 import { useCheckout } from "../../contexts/checkout";
+import { useCheckoutQueries } from "../../hooks/use-checkout-queries";
+import { DeliveryRates } from "./delivery-rates";
 
 export const DeliveryReview = () => {
-  const { selectedAddressId } = useCheckout();
+  const { selectedAddressId, selectedRateId } = useCheckout();
 
-  const trpc = useTRPC();
-  const { data, isLoading } = useQuery(
-    trpc.terminal.getAddress.queryOptions(
-      {
-        addressId: selectedAddressId!,
-      },
-      {
-        enabled: !!selectedAddressId,
-      },
-    ),
-  );
+  const { addressQuery, ratesQuery } = useCheckoutQueries();
 
-  if (isLoading)
+  // Get address data
+  const { data: addressData, isLoading: addressLoading } = addressQuery;
+
+  // Get delivery rates
+  const { data: ratesData, isLoading: ratesLoading } = ratesQuery;
+
+  if (addressLoading || ratesLoading)
     return (
       <div className="flex items-center justify-center gap-2">
         <Spinner2 /> Loading...
@@ -29,13 +24,18 @@ export const DeliveryReview = () => {
 
   if (!selectedAddressId) return "No address selected";
 
-  if (!data) return "Unable to fetch address";
+  if (!addressData) return "Unable to fetch address";
 
-  const { line1, line2, city, state, country, zip, phone } = data.data;
-
+  const { line1, line2, city, state, country, zip, phone } = addressData.data;
   const fullAddress = [line1, line2, city, state, country, zip]
     .filter(Boolean)
     .join(", ");
+
+  // Get the cheapest rate or first available rate
+  const selectedRate = ratesData?.rates.find(
+    (rate) => rate.rate_id === selectedRateId,
+  );
+  const deliveryFee = selectedRate?.amount || 0;
 
   return (
     <div className="space-y-2">
@@ -51,13 +51,7 @@ export const DeliveryReview = () => {
         </div>
       )}
 
-      <div className="flex items-center justify-between text-lg">
-        <span className="font-medium text-gray-900">Delivery Fee</span>
-        <span className="font-medium text-gray-900">
-          {/* TODO: Add delivery fee */}
-          {formatNaira(1000)}
-        </span>
-      </div>
+      <DeliveryRates rates={ratesData?.rates || []} />
     </div>
   );
 };

@@ -5,9 +5,11 @@ import { createContext, ReactNode, useContext, useState } from "react";
 interface CheckoutContextType {
   // State
   selectedAddressId: string | null;
+  selectedRateId: string | null;
 
   // Actions
   setSelectedAddressId: (addressId: string | null) => void;
+  setSelectedRateId: (rateId: string | null) => void;
   clearSelectedAddress: () => void;
 }
 
@@ -23,17 +25,20 @@ export function CheckoutProvider({ children }: CheckoutProviderProps) {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null,
   );
+  const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
 
   const clearSelectedAddress = () => {
     setSelectedAddressId(null);
+    setSelectedRateId(null);
   };
 
   const contextValue: CheckoutContextType = {
     // State
     selectedAddressId,
-
+    selectedRateId,
     // Actions
     setSelectedAddressId,
+    setSelectedRateId,
     clearSelectedAddress,
   };
 

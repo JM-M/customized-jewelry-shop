@@ -1,3 +1,5 @@
+// TODO: Rename this file to logistics.ts
+
 import { relations } from "drizzle-orm";
 import { boolean, json, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { user } from "./auth";
@@ -131,6 +133,76 @@ export const pickupAddressesRelations = relations(
     terminalAddress: one(terminalAddresses, {
       fields: [pickupAddresses.terminalAddressId],
       references: [terminalAddresses.address_id],
+    }),
+  }),
+);
+
+// Checkout sessions table - tracks user's checkout flow and Terminal entity associations
+export const checkoutSessions = pgTable("checkout_sessions", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+
+  // User reference
+  userId: text("user_id")
+    .references(() => user.id, { onDelete: "cascade" })
+    .notNull(),
+
+  // Terminal entity references (only store IDs, fetch data from API when needed)
+  parcelId: text("parcel_id"), // Terminal parcel ID
+  shipmentId: text("shipment_id"), // Terminal shipment ID
+  rateId: text("rate_id"), // Selected rate ID
+
+  // Checkout flow state
+  checkoutStep: text("checkout_step", {
+    enum: [
+      "address_selected",
+      "parcel_created",
+      "rates_generated",
+      "rate_selected",
+      "shipment_created",
+      "payment_completed",
+    ],
+  }).notNull(),
+
+  // Context data (store only what you need for UI/flow)
+  selectedAddressId: text("selected_address_id"), // User's selected delivery address
+  cartSnapshot: json("cart_snapshot").$type<{
+    itemCount: number;
+    totalValue: number;
+    items: Array<{
+      productId: string;
+      quantity: number;
+      price: number;
+    }>;
+  }>(), // Snapshot of cart at checkout
+
+  // Status tracking
+  status: text("status", {
+    enum: ["active", "completed", "cancelled", "abandoned"],
+  })
+    .default("active")
+    .notNull(),
+
+  // Optional order reference
+  orderId: text("order_id"), // Link to your order system when payment completes
+
+  // Timestamps
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
+// Relations
+export const checkoutSessionsRelations = relations(
+  checkoutSessions,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [checkoutSessions.userId],
+      references: [user.id],
     }),
   }),
 );

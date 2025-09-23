@@ -122,7 +122,7 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
       onSuccess: (data) => {
         form.reset();
         // Set the newly created address as selected in the checkout context
-        setSelectedAddressId(data.data.id);
+        setSelectedAddressId(data.data.address_id);
         onSubmit?.(data.data);
         queryClient.invalidateQueries(
           trpc.terminal.getUserAddresses.queryOptions(),

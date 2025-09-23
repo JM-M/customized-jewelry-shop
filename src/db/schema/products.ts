@@ -1,3 +1,5 @@
+// TODO: Rename this file to shop.ts
+
 import { ENGRAVING_TYPES } from "@/constants/db";
 import { relations, sql } from "drizzle-orm";
 import {
