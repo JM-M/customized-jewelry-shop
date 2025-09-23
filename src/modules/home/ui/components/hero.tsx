@@ -57,44 +57,40 @@ export const Hero = () => {
   // Array of slide objects with image and text
   const slides = [
     {
-      image: "/images/1.png",
-      text: "Customized Jewelry that Speaks to You",
+      image: "/images/hero/9.jpg",
+      text: "Monument of Expression.",
     },
     {
-      image: "/images/2.png",
-      text: "Handcrafted Elegance for Every Occasion",
+      image: "/images/hero/10.jpg",
+      text: "Give a piece that says what words can't.",
     },
     {
-      image: "/images/3.png",
-      text: "Timeless Designs, Personal Stories",
+      image: "/images/hero/5.jpg",
+      text: "Memories, engraved in gold.",
     },
     {
-      image: "/images/4.png",
-      text: "Your Style, Our Craftsmanship",
+      image: "/images/hero/2.jpg",
+      text: "Wear what makes you, you.",
     },
     {
-      image: "/images/5.png",
+      image: "/images/10.png",
+      text: "Carry them close—always.",
+    },
+    {
+      image: "/images/hero/7.jpg",
       text: "Unique Pieces for Unique People",
     },
     {
       image: "/images/6.png",
-      text: "Luxury Redefined, Just for You",
+      text: "Crafted with care, worn with pride.",
     },
     {
-      image: "/images/7.png",
-      text: "Where Dreams Meet Diamonds",
+      image: "/images/hero/11.jpg",
+      text: "A milestone you can wear.",
     },
     {
-      image: "/images/8.png",
-      text: "Artisan Quality, Personal Touch",
-    },
-    {
-      image: "/images/9.png",
-      text: "Create Memories, Wear Stories",
-    },
-    {
-      image: "/images/10.png",
-      text: "Bespoke Beauty, Endless Possibilities",
+      image: "/images/hero/4.jpg",
+      text: "When a gift becomes a memory.",
     },
   ];
 
