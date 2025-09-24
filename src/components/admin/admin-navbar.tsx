@@ -65,7 +65,7 @@ export const AdminNavbar = () => {
         <Breadcrumb>
           <BreadcrumbList>
             {breadcrumbs.map((breadcrumb, index) => (
-              <div key={breadcrumb.href} className="flex items-center">
+              <div key={breadcrumb.href} className="flex items-center gap-2">
                 <BreadcrumbItem>
                   {breadcrumb.isLast ? (
                     <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>

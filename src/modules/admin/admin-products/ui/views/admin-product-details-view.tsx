@@ -5,7 +5,7 @@ import { Spinner2 } from "@/components/shared/spinner-2";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { ProductDetails } from "../components/product-details";
+import { AdminProductDetails } from "../components/admin-product-details";
 
 export const AdminProductDetailsView = () => {
   const { productSlug } = useParams();
@@ -54,7 +54,7 @@ export const AdminProductDetailsView = () => {
         title={product.name}
         description={`Manage and view details for ${product.name}`}
       />
-      <ProductDetails
+      <AdminProductDetails
         product={product}
         productMaterials={productMaterials || []}
         productEngravingAreas={productEngravingAreas || []}
