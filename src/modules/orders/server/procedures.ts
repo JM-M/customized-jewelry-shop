@@ -140,6 +140,69 @@ export const ordersRouter = createTRPCRouter({
       return order;
     }),
 
+  // Get user order by order number with full details
+  getUserOrder: protectedProcedure
+    .input(z.object({ orderNumber: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.auth.user.id;
+
+      // Get order with basic details
+      const [order] = await db
+        .select({
+          id: orders.id,
+          orderNumber: orders.orderNumber,
+          status: orders.status,
+          subtotal: orders.subtotal,
+          deliveryFee: orders.deliveryFee,
+          totalAmount: orders.totalAmount,
+          paymentReference: orders.paymentReference,
+          trackingNumber: orders.trackingNumber,
+          deliveryAddressId: orders.deliveryAddressId,
+          pickupAddressId: orders.pickupAddressId,
+          shipmentId: orders.shipmentId,
+          createdAt: orders.createdAt,
+          updatedAt: orders.updatedAt,
+          shippedAt: orders.shippedAt,
+          deliveredAt: orders.deliveredAt,
+        })
+        .from(orders)
+        .where(
+          and(
+            eq(orders.orderNumber, input.orderNumber),
+            eq(orders.userId, userId),
+          ),
+        )
+        .limit(1);
+
+      if (!order) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Order not found or not accessible",
+        });
+      }
+
+      // Get order items with product and material details
+      const orderItemsData = await db
+        .select({
+          id: orderItems.id,
+          productId: orderItems.productId,
+          materialId: orderItems.materialId,
+          quantity: orderItems.quantity,
+          unitPrice: orderItems.unitPrice,
+          totalPrice: orderItems.totalPrice,
+          engravings: orderItems.engravings,
+          notes: orderItems.notes,
+          createdAt: orderItems.createdAt,
+        })
+        .from(orderItems)
+        .where(eq(orderItems.orderId, order.id));
+
+      return {
+        ...order,
+        items: orderItemsData,
+      };
+    }),
+
   // Create order from cart
   createOrder: protectedProcedure
     .input(

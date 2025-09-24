@@ -1,5 +1,6 @@
 export { createActionsColumn } from "./actions-column";
 export { CarouselIndicators } from "./carousel-indicators";
+export { CopyableText } from "./copyable-text";
 export { DataTable } from "./data-table";
 export { InfiniteLoadingTrigger } from "./infinite-loading-trigger";
 export { PhoneInput } from "./phone-input";

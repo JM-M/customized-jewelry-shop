@@ -3,3 +3,6 @@ import { inferRouterOutputs } from "@trpc/server";
 
 export type GetUserOrdersOutput =
   inferRouterOutputs<AppRouter>["orders"]["getUserOrders"];
+
+export type GetUserOrderOutput =
+  inferRouterOutputs<AppRouter>["orders"]["getUserOrder"];
