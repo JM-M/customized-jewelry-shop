@@ -89,7 +89,7 @@ export const CheckoutButton = () => {
           email={userEmail!}
           amount={total! * 100} // Convert to kobo
           reference={generateReference()}
-          text="Proceed to Payment"
+          text={isCreatingOrder ? "Processing..." : "Proceed to Payment"}
           onSuccess={(data) => {
             console.log("Payment successful:", data);
 
@@ -108,7 +108,9 @@ export const CheckoutButton = () => {
                   onSuccess: (result) => {
                     console.log("Order created successfully:", result);
                     // TODO: Redirect to order confirmation page or show success message
-                    router.push(`/checkout/success?orderId=${result.order.id}`);
+                    router.push(
+                      `/checkout/success?orderNumber=${result.order.orderNumber}`,
+                    );
                   },
                   onError: (error) => {
                     console.error("Failed to create order:", error);

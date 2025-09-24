@@ -11,20 +11,20 @@ import { useTRPC } from "@/trpc/client";
 export const CheckoutSuccessView = () => {
   const params = useSearchParams();
   const trpc = useTRPC();
-  const orderId = params.get("orderId") as string;
+  const orderNumber = params.get("orderNumber") as string;
 
   const {
     data: orderData,
     isLoading,
     error,
-  } = useQuery(trpc.orders.getOrderStatus.queryOptions({ orderId }));
+  } = useQuery(trpc.orders.getOrderStatus.queryOptions({ orderNumber }));
 
   if (isLoading) {
     return (
       <div className="flex h-full flex-1 flex-col items-center justify-center p-4">
         <div className="flex items-center gap-2">
           <Spinner2 />
-          <span>Loading order status...</span>
+          <span>Loading...</span>
         </div>
       </div>
     );
@@ -71,7 +71,7 @@ export const CheckoutSuccessView = () => {
             <Link href="/">Continue Shopping</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/">View Orders</Link>
+            <Link href={`/orders/${orderNumber}`}>View Order</Link>
           </Button>
         </div>
       </div>

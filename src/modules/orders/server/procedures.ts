@@ -1,11 +1,13 @@
+import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
 import { orderItems, orders } from "@/db/schema/orders";
 import { cartItems, carts } from "@/db/schema/shop";
 import { makeTerminalRequest, terminalClient } from "@/lib/terminal-client";
 import { TerminalRate } from "@/modules/terminal/types";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { CursorPaginatedResponse } from "@/types/api";
 import { TRPCError } from "@trpc/server";
-import { and, eq, getTableColumns } from "drizzle-orm";
+import { and, count, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { z } from "zod";
 
 // Helper function to generate order number
@@ -16,9 +18,96 @@ function generateOrderNumber(): string {
 }
 
 export const ordersRouter = createTRPCRouter({
+  // Get all orders for the current user
+  getUserOrders: protectedProcedure
+    .input(
+      z.object({
+        cursor: z.number().default(0),
+        limit: z.number().min(1).max(100).default(DEFAULT_PAGE_SIZE),
+        status: z
+          .enum([
+            "pending",
+            "confirmed",
+            "processing",
+            "shipped",
+            "delivered",
+            "cancelled",
+            "refunded",
+          ])
+          .optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.auth.user.id;
+
+      const whereConditions = [eq(orders.userId, userId)];
+      if (input.status) {
+        whereConditions.push(eq(orders.status, input.status));
+      }
+
+      // Get total count for pagination
+      const [{ count: totalCount }] = await db
+        .select({
+          count: sql<number>`count(*)`.as("count"),
+        })
+        .from(orders)
+        .where(and(...whereConditions));
+
+      // Get orders with cursor-based pagination and item count
+      // Get one extra item to check if there are more items
+      const userOrders = await db
+        .select({
+          id: orders.id,
+          orderNumber: orders.orderNumber,
+          status: orders.status,
+          subtotal: orders.subtotal,
+          deliveryFee: orders.deliveryFee,
+          totalAmount: orders.totalAmount,
+          paymentReference: orders.paymentReference,
+          trackingNumber: orders.trackingNumber,
+          createdAt: orders.createdAt,
+          updatedAt: orders.updatedAt,
+          shippedAt: orders.shippedAt,
+          deliveredAt: orders.deliveredAt,
+          itemCount: count(orderItems.id).as("itemCount"),
+        })
+        .from(orders)
+        .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+        .where(and(...whereConditions))
+        .groupBy(
+          orders.id,
+          orders.orderNumber,
+          orders.status,
+          orders.subtotal,
+          orders.deliveryFee,
+          orders.totalAmount,
+          orders.paymentReference,
+          orders.trackingNumber,
+          orders.createdAt,
+          orders.updatedAt,
+          orders.shippedAt,
+          orders.deliveredAt,
+        )
+        .orderBy(desc(orders.createdAt))
+        .offset(input.cursor)
+        .limit(input.limit + 1);
+
+      // Check if there are more items
+      const hasMore = userOrders.length > input.limit;
+      const items = hasMore ? userOrders.slice(0, -1) : userOrders;
+
+      const response: CursorPaginatedResponse<(typeof items)[0]> = {
+        items,
+        nextCursor: hasMore ? input.cursor + input.limit : undefined,
+        totalCount,
+      };
+
+      return response;
+    }),
+
   // Get order status by order ID
   getOrderStatus: protectedProcedure
-    .input(z.object({ orderId: z.string() }))
+    .input(z.object({ orderNumber: z.string() }))
     .query(async ({ input, ctx }) => {
       const userId = ctx.auth.user.id;
 
@@ -33,7 +122,12 @@ export const ordersRouter = createTRPCRouter({
           createdAt: orders.createdAt,
         })
         .from(orders)
-        .where(and(eq(orders.id, input.orderId), eq(orders.userId, userId)))
+        .where(
+          and(
+            eq(orders.orderNumber, input.orderNumber),
+            eq(orders.userId, userId),
+          ),
+        )
         .limit(1);
 
       if (!order) {

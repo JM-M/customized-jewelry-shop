@@ -3,7 +3,7 @@ interface PageHeaderProps {
   description: string;
 }
 
-export const PageHeader = ({ title, description }: PageHeaderProps) => {
+export const AdminPageHeader = ({ title, description }: PageHeaderProps) => {
   return (
     <div className="mb-4">
       <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>

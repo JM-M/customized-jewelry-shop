@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader } from "@/components/admin/shared/page-header";
+import { AdminPageHeader } from "@/components/admin/shared/page-header";
 import { Spinner2 } from "@/components/shared/spinner-2";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
@@ -50,7 +50,7 @@ export const AdminProductDetailsView = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader
+      <AdminPageHeader
         title={product.name}
         description={`Manage and view details for ${product.name}`}
       />

@@ -1,12 +1,12 @@
 "use client";
 
-import { PageHeader } from "@/components/admin/shared/page-header";
+import { AdminPageHeader } from "@/components/admin/shared/page-header";
 import { AdminProductsTable } from "../components/admin-products-table";
 
 export const AdminProductsView = () => {
   return (
     <div>
-      <PageHeader
+      <AdminPageHeader
         title="Products"
         description="Manage your products and configurations."
       />

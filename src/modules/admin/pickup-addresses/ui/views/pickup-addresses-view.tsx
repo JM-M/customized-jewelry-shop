@@ -1,12 +1,12 @@
 "use client";
 
-import { PageHeader } from "@/components/admin/shared/page-header";
+import { AdminPageHeader } from "@/components/admin/shared/page-header";
 import { PickupAddressesTable } from "../components/pickup-addresses-table";
 
 export const PickupAddressesView = () => {
   return (
     <div className="space-y-6">
-      <PageHeader
+      <AdminPageHeader
         title="Pickup Addresses"
         description="Manage your pickup addresses"
       />

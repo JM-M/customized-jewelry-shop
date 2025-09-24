@@ -19,6 +19,7 @@ export const LogoutButton = ({ onClick }: LogoutButtonProps) => {
     try {
       await authClient.signOut();
       setPending(false);
+      // TODO: Clear all protected trpc procedures
       router.push("/");
     } catch {
       setPending(false);

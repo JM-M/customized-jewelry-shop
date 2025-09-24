@@ -142,9 +142,12 @@ export function MainSidebar() {
           variant="ghost"
           className="flex w-full justify-start"
           onClick={handleLinkClick}
+          asChild
         >
-          <HistoryIcon />
-          History
+          <Link href="/orders">
+            <HistoryIcon />
+            Orders
+          </Link>
         </Button>
         {/* Add logout button if not logged in */}
         {session?.data ? (
