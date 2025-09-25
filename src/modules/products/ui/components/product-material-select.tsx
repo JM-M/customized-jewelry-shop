@@ -20,19 +20,23 @@ export const ProductMaterialSelect = ({
     <div className="flex flex-wrap gap-2 p-3">
       {productMaterials.map((productMaterial) => {
         const { material } = productMaterial;
-        const formattedName = capitalize(material.name.replace("_", " "));
+        const formattedName = material.name
+          .replaceAll("_", " ")
+          .split(" ")
+          .map(capitalize)
+          .join(" ");
         return (
           <Badge
             key={material.id}
             variant="outline"
             className={cn(
-              "flex cursor-pointer items-center gap-1.5 border-2 px-3 py-2 transition-colors hover:opacity-80",
+              "flex min-w-20 cursor-pointer flex-col items-center justify-center gap-1.5 border-2 px-3 py-2 transition-colors hover:opacity-80",
               { "border-primary": selectedMaterial === material.id },
             )}
             onClick={() => onMaterialChange(productMaterial.material.id)}
           >
             <div
-              className="h-4 w-4 rounded-full border border-white/20"
+              className="size-6 rounded-full border border-white/20"
               style={{ backgroundColor: material.hexColor }}
             />
             {formattedName}

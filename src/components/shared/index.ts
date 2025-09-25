@@ -2,6 +2,7 @@ export { createActionsColumn } from "./actions-column";
 export { CarouselIndicators } from "./carousel-indicators";
 export { CopyableText } from "./copyable-text";
 export { DataTable } from "./data-table";
+export { Dropzone } from "./dropzone";
 export { InfiniteLoadingTrigger } from "./infinite-loading-trigger";
 export { PhoneInput } from "./phone-input";
 export { createSelectColumn } from "./select-column";

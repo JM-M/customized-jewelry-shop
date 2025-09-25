@@ -36,7 +36,7 @@ export const ProductEngraving = ({
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="space-y-4">
         {productEngravingAreas.map((area) => {
           const currentEngraving = engravings[area.engravingArea.id];
           const engravingType = area.engravingType;
@@ -64,7 +64,7 @@ export const ProductEngraving = ({
                         }
                       >
                         <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="h-fit">
                             See example
                           </Button>
                         </DialogTrigger>

@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { UploadIcon, X } from "lucide-react";
 import { useState } from "react";
 
@@ -77,8 +76,6 @@ export const ImageEngravingInput = ({
 
   return (
     <div className="space-y-3">
-      <Label>Image Content</Label>
-
       {!value ? (
         <div className="space-y-2">
           <div className="flex w-full items-center justify-center">

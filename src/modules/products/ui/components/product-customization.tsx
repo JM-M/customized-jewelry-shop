@@ -25,7 +25,7 @@ export const ProductCustomization = () => {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-y">
       <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50">
-        <span className="font-medium">Customize Your Jewelry</span>
+        <span>Customize Your Jewelry</span>
         <ChevronDownIcon
           className={`h-4 w-4 transition-transform ${
             isOpen ? "rotate-180" : ""

@@ -6,6 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { useCart } from "@/modules/cart/contexts";
 import { useCartOptimisticUpdates } from "@/modules/cart/hooks/use-cart-optimistic-updates";
 import { useRouter } from "next/navigation";
+import { HiShoppingBag } from "react-icons/hi2";
 import { useProduct } from "../../contexts/product";
 
 interface AddToBagButtonProps {
@@ -75,7 +76,10 @@ export function AddToBagButton({ className }: AddToBagButtonProps) {
           Adding...
         </>
       ) : (
-        "Add to Bag"
+        <>
+          <HiShoppingBag className="size-4.5" />
+          Add to Bag
+        </>
       )}
     </Button>
   );

@@ -23,7 +23,7 @@ export const CategoryCard = ({ name, image, href }: CategoryCardProps) => {
           )}
         </div>
         <div className="text-center">
-          <span className="underline">{name}</span>
+          <span className="underline underline-offset-2">{name}</span>
         </div>
       </Link>
     </div>
