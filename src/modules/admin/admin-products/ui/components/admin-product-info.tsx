@@ -3,14 +3,16 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatNaira } from "@/lib/utils";
-import { GetProductByIdOutput } from "@/modules/products/types";
 import { EditIcon } from "lucide-react";
 
-interface AdminProductInfoProps {
-  product: GetProductByIdOutput;
-}
+import { useAdminProduct } from "../../contexts/admin-product";
 
-export const AdminProductInfo = ({ product }: AdminProductInfoProps) => {
+export const AdminProductInfo = () => {
+  const { product } = useAdminProduct();
+
+  if (!product) {
+    return null;
+  }
   return (
     <Card className="gap-3 p-3">
       <CardHeader className="flex items-center justify-between p-0">

@@ -1,5 +1,6 @@
 export { createActionsColumn } from "./actions-column";
 export { CarouselIndicators } from "./carousel-indicators";
+export { Combobox, type ComboboxOption, type ComboboxProps } from "./combobox";
 export { CopyableText } from "./copyable-text";
 export { DataTable } from "./data-table";
 export { Dropzone } from "./dropzone";

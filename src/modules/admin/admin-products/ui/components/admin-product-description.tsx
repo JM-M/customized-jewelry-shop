@@ -2,16 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GetProductByIdOutput } from "@/modules/products/types";
 import { EditIcon } from "lucide-react";
 
-interface AdminProductDescriptionProps {
-  product: GetProductByIdOutput;
-}
+import { useAdminProduct } from "../../contexts/admin-product";
 
-export const AdminProductDescription = ({
-  product,
-}: AdminProductDescriptionProps) => {
+export const AdminProductDescription = () => {
+  const { product } = useAdminProduct();
+
+  if (!product) {
+    return null;
+  }
   if (!product.description) {
     return null;
   }

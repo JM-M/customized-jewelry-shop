@@ -2,16 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GetProductByIdOutput } from "@/modules/products/types";
 import { EditIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
-interface AdminProductImagesProps {
-  product: GetProductByIdOutput;
-}
+import { useAdminProduct } from "../../contexts/admin-product";
 
-export const AdminProductImages = ({ product }: AdminProductImagesProps) => {
+export const AdminProductImages = () => {
+  const { product } = useAdminProduct();
+
+  if (!product) {
+    return null;
+  }
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const images = [product.primaryImage, ...product.images];
 

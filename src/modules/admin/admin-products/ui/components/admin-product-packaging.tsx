@@ -3,20 +3,19 @@
 import { Spinner2 } from "@/components/shared/spinner-2";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GetProductByIdOutput } from "@/modules/products/types";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import { EditIcon } from "lucide-react";
 
+import { useAdminProduct } from "../../contexts/admin-product";
 import { PackagingInfo } from "./packaging-info";
 
-interface AdminProductPackagingProps {
-  product: GetProductByIdOutput;
-}
+export const AdminProductPackaging = () => {
+  const { product } = useAdminProduct();
 
-export const AdminProductPackaging = ({
-  product,
-}: AdminProductPackagingProps) => {
+  if (!product) {
+    return null;
+  }
   const trpc = useTRPC();
 
   const { data: packaging, isLoading } = useQuery(

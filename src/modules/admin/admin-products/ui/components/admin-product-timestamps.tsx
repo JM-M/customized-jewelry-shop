@@ -1,15 +1,15 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GetProductByIdOutput } from "@/modules/products/types";
 
-interface AdminProductTimestampsProps {
-  product: GetProductByIdOutput;
-}
+import { useAdminProduct } from "../../contexts/admin-product";
 
-export const AdminProductTimestamps = ({
-  product,
-}: AdminProductTimestampsProps) => {
+export const AdminProductTimestamps = () => {
+  const { product } = useAdminProduct();
+
+  if (!product) {
+    return null;
+  }
   return (
     <Card className="gap-3 p-3">
       <CardHeader className="flex items-center justify-between p-0">

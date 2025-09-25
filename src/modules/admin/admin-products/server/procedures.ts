@@ -1,9 +1,9 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
-import { products } from "@/db/schema/shop";
+import { materials, productMaterials, products } from "@/db/schema/shop";
 import { adminProcedure, createTRPCRouter } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
-import { sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import z from "zod";
 
 export const adminProductsRouter = createTRPCRouter({
@@ -41,5 +41,84 @@ export const adminProductsRouter = createTRPCRouter({
       };
 
       return response;
+    }),
+
+  getAllMaterials: adminProcedure.query(async () => {
+    const allMaterials = await db
+      .select()
+      .from(materials)
+      .orderBy(materials.name);
+
+    return allMaterials;
+  }),
+  toggleProductMaterial: adminProcedure
+    .input(
+      z.object({
+        productId: z.string(),
+        materialId: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { productId, materialId } = input;
+      const [productMaterial] = await db
+        .select()
+        .from(productMaterials)
+        .where(
+          and(
+            eq(productMaterials.productId, productId),
+            eq(productMaterials.materialId, materialId),
+          ),
+        );
+
+      if (productMaterial) {
+        await db
+          .delete(productMaterials)
+          .where(eq(productMaterials.id, productMaterial.id));
+      } else {
+        await db.insert(productMaterials).values({
+          productId,
+          materialId,
+          price: "0",
+          stockQuantity: 0,
+          isDefault: false,
+        });
+      }
+
+      return {
+        success: true,
+      };
+    }),
+
+  updateProductMaterials: adminProcedure
+    .input(
+      z.object({
+        productId: z.string(),
+        materialIds: z.array(z.string()),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { productId, materialIds } = input;
+
+      // First, remove all existing product materials for this product
+      await db
+        .delete(productMaterials)
+        .where(eq(productMaterials.productId, productId));
+
+      // Then, insert the new materials
+      if (materialIds.length > 0) {
+        await db.insert(productMaterials).values(
+          materialIds.map((materialId) => ({
+            productId,
+            materialId,
+            price: "0",
+            stockQuantity: 0,
+            isDefault: false,
+          })),
+        );
+      }
+
+      return {
+        success: true,
+      };
     }),
 });

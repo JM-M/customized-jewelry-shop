@@ -2,14 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GetProductByIdOutput } from "@/modules/products/types";
 import { EditIcon } from "lucide-react";
 
-interface AdminProductSEOProps {
-  product: GetProductByIdOutput;
-}
+import { useAdminProduct } from "../../contexts/admin-product";
 
-export const AdminProductSEO = ({ product }: AdminProductSEOProps) => {
+export const AdminProductSEO = () => {
+  const { product } = useAdminProduct();
+
+  if (!product) {
+    return null;
+  }
   if (!product.metaTitle && !product.metaDescription) {
     return null;
   }
