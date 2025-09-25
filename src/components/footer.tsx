@@ -43,8 +43,9 @@ const footerSections: FooterSection[] = [
 ];
 
 export const Footer = () => {
+  // On larger screens, all sections should be open
   const [openSections, setOpenSections] = useState<Set<string>>(
-    new Set(["Help"]),
+    new Set(["Help", "About Us", "More Info"]),
   );
 
   const toggleSection = (sectionTitle: string) => {
@@ -73,11 +74,11 @@ export const Footer = () => {
                 onOpenChange={() => toggleSection(section.title)}
               >
                 <div className="space-y-2">
-                  <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 text-left transition-colors hover:bg-gray-50">
+                  <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-2 text-left transition-colors hover:bg-gray-50 md:pointer-events-none">
                     <h3 className="font-medium text-gray-900">
                       {section.title}
                     </h3>
-                    <div className="flex items-center">
+                    <div className="flex items-center md:hidden">
                       {isOpen ? (
                         <Minus className="h-4 w-4 text-gray-500" />
                       ) : (
@@ -92,7 +93,7 @@ export const Footer = () => {
                         <li key={item}>
                           <a
                             href="#"
-                            className="block rounded-md px-2 py-1 text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+                            className="block rounded-md px-2 py-1 text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 md:px-0"
                           >
                             {item}
                           </a>

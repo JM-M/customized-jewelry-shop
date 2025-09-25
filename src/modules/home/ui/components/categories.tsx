@@ -29,7 +29,7 @@ export const Categories = () => {
       <div>
         <Button
           variant="secondary"
-          className="ml-auto flex h-12 w-fit !px-6"
+          className="mx-auto flex h-12 w-fit !px-6"
           asChild
         >
           <Link href="/categories">

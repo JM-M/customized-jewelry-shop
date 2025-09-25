@@ -15,8 +15,10 @@ export const HomeView = () => {
       </div>
       {/* <SocialProof /> */}
       <HomeProducts />
-      <SocialMedia />
-      <Newsletter />
+      <div className="md:grid md:grid-cols-2">
+        <SocialMedia />
+        <Newsletter />
+      </div>
     </div>
   );
 };
