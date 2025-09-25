@@ -111,6 +111,7 @@ export const products = pgTable("products", {
   categoryId: uuid("category_id").references(() => categories.id, {
     onDelete: "cascade",
   }),
+  packagingId: text("packaging_id"), // References Terminal packaging.packaging_id
 
   // // Product details
   // weight: decimal("weight", { precision: 8, scale: 2 }), // in grams

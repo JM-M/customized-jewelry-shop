@@ -10,6 +10,7 @@ import { AdminProductCustomization } from "./admin-product-customization";
 import { AdminProductDescription } from "./admin-product-description";
 import { AdminProductImages } from "./admin-product-images";
 import { AdminProductInfo } from "./admin-product-info";
+import { AdminProductPackaging } from "./admin-product-packaging";
 import { AdminProductReviews } from "./admin-product-reviews";
 import { AdminProductSEO } from "./admin-product-seo";
 import { AdminProductTimestamps } from "./admin-product-timestamps";
@@ -48,6 +49,9 @@ export const AdminProductDetails = ({
 
       {/* Customization Section */}
       <AdminProductCustomization product={product} />
+
+      {/* Packaging Section */}
+      <AdminProductPackaging product={product} />
 
       {/* Reviews Section */}
       <AdminProductReviews product={product} />

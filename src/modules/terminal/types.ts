@@ -121,6 +121,7 @@ export interface TerminalPackaging {
   name: string;
   packaging_id: string;
   size_unit: string;
+  default: boolean;
   type: string;
   weight: number;
   weight_unit: string;
