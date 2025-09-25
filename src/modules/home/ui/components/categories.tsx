@@ -16,7 +16,7 @@ export const Categories = () => {
 
   return (
     <section className="space-y-5 p-3">
-      <div className="grid grid-cols-2 gap-x-3 gap-y-4">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-4">
         {topCategories.map((category) => (
           <CategoryCard
             key={category.name}
@@ -28,8 +28,8 @@ export const Categories = () => {
       </div>
       <div>
         <Button
-          variant="outline"
-          className="mx-auto flex h-12 w-fit !px-6"
+          variant="secondary"
+          className="ml-auto flex h-12 w-fit !px-6"
           asChild
         >
           <Link href="/categories">
