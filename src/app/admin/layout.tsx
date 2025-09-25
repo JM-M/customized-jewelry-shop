@@ -40,7 +40,7 @@ export default async function AdminLayout({
       <AdminSidebar />
       <div className="flex min-h-screen max-w-full flex-1 flex-col">
         <AdminNavbar />
-        <main className="flex-1 p-4">{children}</main>
+        <main className="@container flex-1 p-4">{children}</main>
       </div>
     </SidebarProvider>
   );

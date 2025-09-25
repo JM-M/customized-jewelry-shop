@@ -116,7 +116,7 @@ export const Material = () => {
           Error saving materials. Please try again.
         </div>
       )}
-      <div className="mt-2 grid grid-cols-3 gap-2">
+      <div className="mt-2 grid grid-cols-3 gap-2 @sm:grid-cols-4 @md:grid-cols-5 @lg:grid-cols-6">
         {materials.map((material, index) => {
           const { displayName, hexColor } = material;
           const isSelected = selectedMaterialIds.has(material.id);
