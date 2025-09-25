@@ -13,7 +13,16 @@ import { ArrowRightIcon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-export const Hero = () => {
+interface Slide {
+  image: string;
+  text: string;
+}
+
+interface MobileHeroProps {
+  slides: Slide[];
+}
+
+export const MobileHero = ({ slides }: MobileHeroProps) => {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [current, setCurrent] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -53,46 +62,6 @@ export const Hero = () => {
       setCurrent(api.selectedScrollSnap());
     });
   }, [api]);
-
-  // Array of slide objects with image and text
-  const slides = [
-    {
-      image: "/images/hero/9.jpg",
-      text: "Monument of Expression.",
-    },
-    {
-      image: "/images/hero/10.jpg",
-      text: "Give a piece that says what words can't.",
-    },
-    {
-      image: "/images/hero/5.jpg",
-      text: "Memories, engraved in gold.",
-    },
-    {
-      image: "/images/hero/2.jpg",
-      text: "Wear what makes you, you.",
-    },
-    {
-      image: "/images/10.png",
-      text: "Carry them close—always.",
-    },
-    {
-      image: "/images/hero/7.jpg",
-      text: "Unique Pieces for Unique People",
-    },
-    {
-      image: "/images/6.png",
-      text: "Crafted with care, worn with pride.",
-    },
-    {
-      image: "/images/hero/11.jpg",
-      text: "A milestone you can wear.",
-    },
-    {
-      image: "/images/hero/4.jpg",
-      text: "When a gift becomes a memory.",
-    },
-  ];
 
   return (
     <header className="relative h-fit">
@@ -178,39 +147,6 @@ export const Hero = () => {
           </Button>
         </motion.div>
       </div>
-
-      {/* Slide indicators */}
-      {/* <div className="absolute bottom-4 left-1/2 z-[2] flex -translate-x-1/2 gap-2">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            className={`h-2 w-2 rounded-full transition-all ${
-              current === index ? "bg-white" : "bg-white/50"
-            }`}
-            onClick={() => api?.scrollTo(index)}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div> */}
-
-      {/* <div className="text-background relative z-[2] flex h-full flex-col items-center justify-center gap-10 px-10 text-center">
-        <h1 className="font-serif text-4xl font-semibold">
-          Customized Jewelry that Speaks to You
-        </h1>
-        <div className="flex flex-col gap-3">
-          <Button className="flex h-12 w-full !px-6">
-            SHOP NEW COLLECTION
-            <ChevronRightIcon className="size-4" />
-          </Button>
-          <Button
-            variant="secondary"
-            className="flex h-12 w-full bg-white !px-6 text-black"
-          >
-            DESIGN YOUR OWN
-            <ChevronRightIcon className="size-4" />
-          </Button>
-        </div>
-      </div> */}
     </header>
   );
 };
