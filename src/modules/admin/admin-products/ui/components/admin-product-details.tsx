@@ -6,6 +6,7 @@ import { AdminProductCustomization } from "./admin-product-customization";
 import { AdminProductDescription } from "./admin-product-description";
 import { AdminProductImages } from "./admin-product-images";
 import { AdminProductInfo } from "./admin-product-info";
+import { AdminProductMaterial } from "./admin-product-material";
 import { AdminProductPackaging } from "./admin-product-packaging";
 import { AdminProductReviews } from "./admin-product-reviews";
 import { AdminProductSEO } from "./admin-product-seo";
@@ -24,6 +25,7 @@ export const AdminProductDetails = () => {
         <AdminProductInfo />
         <AdminProductPackaging />
       </div>
+      <AdminProductMaterial />
       <AdminProductCustomization />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <AdminProductImages />

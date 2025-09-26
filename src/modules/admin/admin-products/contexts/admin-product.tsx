@@ -6,7 +6,7 @@ import {
   GetProductMaterialsOutput,
 } from "@/modules/products/types";
 import { useTRPC } from "@/trpc/client";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { createContext, ReactNode, useContext } from "react";
 
@@ -21,6 +21,10 @@ interface AdminProductContextType {
 
   // Computed values
   hasProduct: boolean;
+
+  // Actions
+  removeCustomizationOption: (optionId: string) => void;
+  isRemovingCustomizationOption: boolean;
 }
 
 const AdminProductContext = createContext<AdminProductContextType | undefined>(
@@ -35,6 +39,7 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
   const params = useParams();
   const productSlug = params.productSlug as string;
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   // Query product data
   const { data: product, isLoading: productLoading } = useQuery(
@@ -50,11 +55,33 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
 
   const { data: customizationOptions, isLoading: customizationOptionsLoading } =
     useQuery({
-      ...trpc.products.getProductCustomizationOptions.queryOptions({
+      ...trpc.adminProducts.getCustomizationOptions.queryOptions({
         productId: product?.id || "",
       }),
       enabled: !!product?.id,
     });
+
+  // Mutation for removing customization options
+  const {
+    mutate: removeCustomizationOptionMutation,
+    isPending: isRemovingCustomizationOption,
+  } = useMutation(
+    trpc.adminProducts.removeCustomizationOption.mutationOptions({
+      onSuccess: () => {
+        // Invalidate and refetch customization options
+        queryClient.invalidateQueries({
+          queryKey: trpc.adminProducts.getCustomizationOptions.queryKey({
+            productId: product?.id || "",
+          }),
+        });
+      },
+    }),
+  );
+
+  // Wrapper function to handle the string parameter and convert to object
+  const removeCustomizationOption = (optionId: string) => {
+    removeCustomizationOptionMutation({ optionId });
+  };
 
   // Computed values
   const isLoading =
@@ -72,6 +99,10 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
 
     // Computed values
     hasProduct,
+
+    // Actions
+    removeCustomizationOption,
+    isRemovingCustomizationOption,
   };
 
   return (

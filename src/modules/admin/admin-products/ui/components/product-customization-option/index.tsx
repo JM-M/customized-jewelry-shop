@@ -1,6 +1,6 @@
 import { ProductCustomizationOptionType } from "../../../types";
+import { Material } from "../admin-product-material";
 import { Engraving } from "./engraving";
-import { Material } from "./material";
 import { TextShape } from "./text-shape";
 
 interface ProductCustomizationOptionProps {

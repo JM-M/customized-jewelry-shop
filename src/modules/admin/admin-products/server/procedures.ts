@@ -1,6 +1,11 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
-import { materials, productMaterials, products } from "@/db/schema/shop";
+import {
+  customizationOptions,
+  materials,
+  productMaterials,
+  products,
+} from "@/db/schema/shop";
 import { adminProcedure, createTRPCRouter } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { and, eq, sql } from "drizzle-orm";
@@ -116,6 +121,71 @@ export const adminProductsRouter = createTRPCRouter({
           })),
         );
       }
+
+      return {
+        success: true,
+      };
+    }),
+
+  createCustomizationOption: adminProcedure
+    .input(
+      z.object({
+        productId: z.string(),
+        name: z.string().min(1, "Name is required"),
+        description: z.string().optional(),
+        type: z.enum(["text", "image", "qr_code"]),
+        sampleImage: z.string().optional(),
+        maxCharacters: z.number().min(1).optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const customizationOption = await db
+        .insert(customizationOptions)
+        .values({
+          productId: input.productId,
+          name: input.name,
+          description: input.description,
+          type: input.type,
+          sampleImage: input.sampleImage,
+          maxCharacters: input.maxCharacters,
+        })
+        .returning();
+
+      return {
+        success: true,
+        customizationOption: customizationOption[0],
+      };
+    }),
+
+  getCustomizationOptions: adminProcedure
+    .input(
+      z.object({
+        productId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const options = await db
+        .select()
+        .from(customizationOptions)
+        .where(eq(customizationOptions.productId, input.productId))
+        .orderBy(
+          customizationOptions.displayOrder,
+          customizationOptions.createdAt,
+        );
+
+      return options;
+    }),
+
+  removeCustomizationOption: adminProcedure
+    .input(
+      z.object({
+        optionId: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await db
+        .delete(customizationOptions)
+        .where(eq(customizationOptions.id, input.optionId));
 
       return {
         success: true,

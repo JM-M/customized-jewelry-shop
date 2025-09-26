@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 
 import { Spinner } from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
-import { useAdminProduct } from "../../../contexts/admin-product";
+import { useAdminProduct } from "../../contexts/admin-product";
 
-export const Material = () => {
+export const AdminProductMaterial = () => {
   const [selectedMaterialIds, setSelectedMaterialIds] = useState<Set<string>>(
     new Set(),
   );
@@ -62,11 +62,6 @@ export const Material = () => {
   const handleSave = () => {
     if (!product) return;
 
-    const queryOptions =
-      trpc.products.getProductMaterialsByProductId.queryOptions({
-        productId: product.id,
-      });
-
     // If switch is off, send empty array to remove all materials
     const materialIdsToSave = isEnabled ? Array.from(selectedMaterialIds) : [];
 
@@ -77,7 +72,11 @@ export const Material = () => {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries(queryOptions);
+          queryClient.invalidateQueries({
+            queryKey: trpc.products.getProductMaterials.queryKey({
+              productId: product.id,
+            }),
+          });
         },
       },
     );
@@ -133,67 +132,69 @@ export const Material = () => {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <Label htmlFor="material">Material</Label>
+    <Card className="gap-3 p-3">
+      <CardHeader className="flex items-center justify-between p-0">
+        <CardTitle className="font-medium">Materials</CardTitle>
         <Switch
           id="material"
           checked={isEnabled}
           onCheckedChange={handleSwitchToggle}
         />
-      </div>
-      {error && (
-        <div className="mt-2 text-sm text-red-600">
-          Error saving materials. Please try again.
-        </div>
-      )}
-      {isEnabled && (
-        <div className="mt-2 grid grid-cols-3 gap-2 @sm:grid-cols-4 @md:grid-cols-5 @lg:grid-cols-6">
-          {materials.map((material, index) => {
-            const { displayName, hexColor } = material;
-            const isSelected = selectedMaterialIds.has(material.id);
+      </CardHeader>
+      <CardContent className="space-y-3 p-0">
+        {error && (
+          <div className="text-sm text-red-600">
+            Error saving materials. Please try again.
+          </div>
+        )}
+        {isEnabled && (
+          <div className="grid grid-cols-3 gap-2 @sm:grid-cols-4 @md:grid-cols-5 @lg:grid-cols-6">
+            {materials.map((material, index) => {
+              const { displayName, hexColor } = material;
+              const isSelected = selectedMaterialIds.has(material.id);
 
-            return (
-              <div
-                key={index}
-                className={cn(
-                  "relative flex h-full cursor-pointer flex-col items-center gap-2 border p-3 text-center text-sm transition-colors hover:bg-gray-50",
-                  {
-                    "border-primary": isSelected,
-                  },
-                )}
-                onClick={() => toggleMaterial(material.id)}
-              >
-                {isSelected && (
-                  <CheckIcon className="absolute top-2 right-2 size-4" />
-                )}
-                <span
-                  className="m-auto block size-4 rounded-full"
-                  style={{ backgroundColor: hexColor }}
-                />
-                {displayName}
-              </div>
-            );
-          })}
-        </div>
-      )}
-      {hasChanges() && (
-        <div className="mt-4 flex justify-end">
-          <Button onClick={handleSave} disabled={isPending} size="sm">
-            {isPending ? (
-              <>
-                <Spinner className="size-4" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <SaveIcon className="size-4" />
-                Save Changes
-              </>
-            )}
-          </Button>
-        </div>
-      )}
-    </div>
+              return (
+                <div
+                  key={index}
+                  className={cn(
+                    "relative flex h-full cursor-pointer flex-col items-center gap-2 border p-3 text-center text-sm transition-colors hover:bg-gray-50",
+                    {
+                      "border-primary": isSelected,
+                    },
+                  )}
+                  onClick={() => toggleMaterial(material.id)}
+                >
+                  {isSelected && (
+                    <CheckIcon className="absolute top-2 right-2 size-4" />
+                  )}
+                  <span
+                    className="m-auto block size-4 rounded-full"
+                    style={{ backgroundColor: hexColor }}
+                  />
+                  {displayName}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {hasChanges() && (
+          <div className="flex justify-end">
+            <Button onClick={handleSave} disabled={isPending} size="sm">
+              {isPending ? (
+                <>
+                  <Spinner className="size-4" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <SaveIcon className="size-4" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
