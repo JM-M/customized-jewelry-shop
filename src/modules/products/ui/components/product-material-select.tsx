@@ -2,11 +2,11 @@
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { GetMaterialsByProductIdOutput } from "@/modules/products/types";
+import { GetProductMaterialsOutput } from "@/modules/products/types";
 import { capitalize } from "lodash-es";
 
 interface ProductMaterialSelectProps {
-  productMaterials: GetMaterialsByProductIdOutput;
+  productMaterials: GetProductMaterialsOutput;
   selectedMaterial: string | null;
   onMaterialChange: (material: string | null) => void;
 }
@@ -17,7 +17,7 @@ export const ProductMaterialSelect = ({
   onMaterialChange,
 }: ProductMaterialSelectProps) => {
   return (
-    <div className="flex flex-wrap gap-2 p-3">
+    <div className="grid grid-cols-3 gap-2 p-3">
       {productMaterials.map((productMaterial) => {
         const { material } = productMaterial;
         const formattedName = material.name
@@ -30,7 +30,7 @@ export const ProductMaterialSelect = ({
             key={material.id}
             variant="outline"
             className={cn(
-              "flex min-w-20 cursor-pointer flex-col items-center justify-center gap-1.5 border-2 px-3 py-2 transition-colors hover:opacity-80",
+              "flex w-full min-w-20 cursor-pointer flex-col items-center justify-center gap-1.5 border-2 px-3 py-2 transition-colors hover:opacity-80",
               { "border-primary": selectedMaterial === material.id },
             )}
             onClick={() => onMaterialChange(productMaterial.material.id)}

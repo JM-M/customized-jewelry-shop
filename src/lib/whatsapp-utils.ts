@@ -1,8 +1,8 @@
 import { formatNaira } from "@/lib/utils";
 import {
-  EngravingContent,
-  GetEngravingAreasByProductIdOutput,
-  GetMaterialsByProductIdOutput,
+  CustomizationContent,
+  GetProductCustomizationOptionsOutput,
+  GetProductMaterialsOutput,
 } from "@/modules/products/types";
 
 // Seller WhatsApp phone number - you should configure this in your environment
@@ -13,9 +13,9 @@ interface WhatsAppMessageData {
   productPrice: number;
   productDescription?: string;
   selectedMaterial: string | null;
-  productMaterials: GetMaterialsByProductIdOutput;
-  engravings: Record<string, EngravingContent>;
-  productEngravingAreas: GetEngravingAreasByProductIdOutput;
+  productMaterials: GetProductMaterialsOutput;
+  customizations: Record<string, CustomizationContent>;
+  customizationOptions: GetProductCustomizationOptionsOutput;
 }
 
 export function generateWhatsAppInterestMessage(
@@ -27,8 +27,8 @@ export function generateWhatsAppInterestMessage(
     productDescription,
     selectedMaterial,
     productMaterials,
-    engravings,
-    productEngravingAreas,
+    customizations,
+    customizationOptions,
   } = data;
 
   let message = `🛍️ *Product Inquiry*\n\n`;
@@ -67,40 +67,40 @@ export function generateWhatsAppInterestMessage(
 
   message += `\n`;
 
-  // Engraving details
-  if (Object.keys(engravings).length > 0) {
-    message += `*Custom Engravings:*\n`;
+  // Customization details
+  if (Object.keys(customizations).length > 0) {
+    message += `*Custom Customizations:*\n`;
 
-    Object.entries(engravings).forEach(([areaId, engraving]) => {
-      const area = productEngravingAreas.find((a) => a.id === areaId);
-      const areaName = area?.engravingArea.name || `Area ${areaId}`;
+    Object.entries(customizations).forEach(([optionId, customization]) => {
+      const option = customizationOptions.find((o: any) => o.id === optionId);
+      const optionName = option?.name || `Option ${optionId}`;
 
-      message += `• *${areaName}:*\n`;
+      message += `• *${optionName}:*\n`;
 
-      switch (engraving.type) {
+      switch (customization.type) {
         case "text":
-          if (engraving.textContent) {
-            message += `  Text: "${engraving.textContent}"\n`;
+          if (customization.textContent) {
+            message += `  Text: "${customization.textContent}"\n`;
           }
           break;
         case "image":
-          if (engraving.imageFilename) {
-            message += `  Image: ${engraving.imageFilename}\n`;
+          if (customization.imageFilename) {
+            message += `  Image: ${customization.imageFilename}\n`;
           }
           break;
         case "qr_code":
-          if (engraving.qrData) {
-            message += `  QR Code Data: ${engraving.qrData}\n`;
+          if (customization.qrData) {
+            message += `  QR Code Data: ${customization.qrData}\n`;
           }
           break;
       }
     });
-  } else if (productEngravingAreas.length > 0) {
-    message += `*Available Engraving Areas:*\n`;
-    productEngravingAreas.forEach((area) => {
-      message += `• ${area.engravingArea.name} (${area.engravingType})\n`;
-      if (area.engravingArea.description) {
-        message += `  ${area.engravingArea.description}\n`;
+  } else if (customizationOptions.length > 0) {
+    message += `*Available Customization Options:*\n`;
+    customizationOptions.forEach((option: any) => {
+      message += `• ${option.name} (${option.type})\n`;
+      if (option.description) {
+        message += `  ${option.description}\n`;
       }
     });
   }

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import { Spinner } from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { useAdminProduct } from "../../../contexts/admin-product";
@@ -12,6 +14,7 @@ export const Material = () => {
   const [selectedMaterialIds, setSelectedMaterialIds] = useState<Set<string>>(
     new Set(),
   );
+  const [isEnabled, setIsEnabled] = useState<boolean>(true);
 
   const { productMaterials, product } = useAdminProduct();
 
@@ -33,6 +36,8 @@ export const Material = () => {
     if (productMaterials) {
       const materialIds = new Set(productMaterials.map((pm) => pm.material.id));
       setSelectedMaterialIds(materialIds);
+      // Enable switch if there are materials, disable if none
+      setIsEnabled(materialIds.size > 0);
     }
   }, [productMaterials]);
 
@@ -48,6 +53,12 @@ export const Material = () => {
     });
   };
 
+  const handleSwitchToggle = (checked: boolean) => {
+    setIsEnabled(checked);
+    // Don't clear selected materials when switch is turned off
+    // This preserves the selection when toggling back on
+  };
+
   const handleSave = () => {
     if (!product) return;
 
@@ -56,10 +67,13 @@ export const Material = () => {
         productId: product.id,
       });
 
+    // If switch is off, send empty array to remove all materials
+    const materialIdsToSave = isEnabled ? Array.from(selectedMaterialIds) : [];
+
     updateProductMaterials(
       {
         productId: product.id,
-        materialIds: Array.from(selectedMaterialIds),
+        materialIds: materialIdsToSave,
       },
       {
         onSuccess: () => {
@@ -99,10 +113,20 @@ export const Material = () => {
       productMaterials.map((pm) => pm.material.id),
     );
 
+    // If switch is off, check if there are any materials to remove
+    if (!isEnabled) {
+      return currentMaterialIds.size > 0;
+    }
+
+    // If switch is on, check if selected materials differ from current
     if (currentMaterialIds.size !== selectedMaterialIds.size) return true;
 
     for (const id of currentMaterialIds) {
       if (!selectedMaterialIds.has(id)) return true;
+    }
+
+    for (const id of selectedMaterialIds) {
+      if (!currentMaterialIds.has(id)) return true;
     }
 
     return false;
@@ -110,40 +134,49 @@ export const Material = () => {
 
   return (
     <div>
-      <h3 className="text-sm font-medium">Material</h3>
+      <div className="flex items-center justify-between">
+        <Label htmlFor="material">Material</Label>
+        <Switch
+          id="material"
+          checked={isEnabled}
+          onCheckedChange={handleSwitchToggle}
+        />
+      </div>
       {error && (
         <div className="mt-2 text-sm text-red-600">
           Error saving materials. Please try again.
         </div>
       )}
-      <div className="mt-2 grid grid-cols-3 gap-2 @sm:grid-cols-4 @md:grid-cols-5 @lg:grid-cols-6">
-        {materials.map((material, index) => {
-          const { displayName, hexColor } = material;
-          const isSelected = selectedMaterialIds.has(material.id);
+      {isEnabled && (
+        <div className="mt-2 grid grid-cols-3 gap-2 @sm:grid-cols-4 @md:grid-cols-5 @lg:grid-cols-6">
+          {materials.map((material, index) => {
+            const { displayName, hexColor } = material;
+            const isSelected = selectedMaterialIds.has(material.id);
 
-          return (
-            <div
-              key={index}
-              className={cn(
-                "relative flex h-full cursor-pointer flex-col items-center gap-2 border p-3 text-center text-sm transition-colors hover:bg-gray-50",
-                {
-                  "border-primary": isSelected,
-                },
-              )}
-              onClick={() => toggleMaterial(material.id)}
-            >
-              {isSelected && (
-                <CheckIcon className="absolute top-2 right-2 size-4" />
-              )}
-              <span
-                className="m-auto block size-4 rounded-full"
-                style={{ backgroundColor: hexColor }}
-              />
-              {displayName}
-            </div>
-          );
-        })}
-      </div>
+            return (
+              <div
+                key={index}
+                className={cn(
+                  "relative flex h-full cursor-pointer flex-col items-center gap-2 border p-3 text-center text-sm transition-colors hover:bg-gray-50",
+                  {
+                    "border-primary": isSelected,
+                  },
+                )}
+                onClick={() => toggleMaterial(material.id)}
+              >
+                {isSelected && (
+                  <CheckIcon className="absolute top-2 right-2 size-4" />
+                )}
+                <span
+                  className="m-auto block size-4 rounded-full"
+                  style={{ backgroundColor: hexColor }}
+                />
+                {displayName}
+              </div>
+            );
+          })}
+        </div>
+      )}
       {hasChanges() && (
         <div className="mt-4 flex justify-end">
           <Button onClick={handleSave} disabled={isPending} size="sm">

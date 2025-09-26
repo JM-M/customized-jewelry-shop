@@ -8,17 +8,17 @@ import {
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import { useProduct } from "../../contexts/product";
-import { ProductEngraving } from "./product-engraving";
+import { ProductCustomizationOptions } from "./product-customization-options";
 import { ProductMaterialSelect } from "./product-material-select";
 
 export const ProductCustomization = () => {
   const {
     productMaterials,
-    productEngravingAreas,
+    customizationOptions,
     selectedMaterial,
-    engravings,
+    customizations,
     setSelectedMaterial,
-    updateEngraving,
+    updateCustomization,
   } = useProduct();
   const [isOpen, setIsOpen] = useState(true);
 
@@ -48,12 +48,12 @@ export const ProductCustomization = () => {
 
             <div>
               <h4 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Engraving
+                Customization Options
               </h4>
-              <ProductEngraving
-                productEngravingAreas={productEngravingAreas}
-                engravings={engravings}
-                onEngravingChange={updateEngraving}
+              <ProductCustomizationOptions
+                customizationOptions={customizationOptions}
+                customizations={customizations}
+                onCustomizationChange={updateCustomization}
               />
             </div>
           </div>

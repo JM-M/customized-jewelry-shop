@@ -12,9 +12,9 @@ export const BuyOnWhatsappBtn = () => {
   const {
     product,
     productMaterials,
-    productEngravingAreas,
+    customizationOptions,
     selectedMaterial,
-    engravings,
+    customizations,
   } = useProduct();
   const { cart } = useCart();
   const cartItem = cart?.items.find((item) => item.productId === product.id);
@@ -26,8 +26,8 @@ export const BuyOnWhatsappBtn = () => {
       productDescription: product.description || undefined,
       selectedMaterial,
       productMaterials,
-      engravings,
-      productEngravingAreas,
+      customizations,
+      customizationOptions,
     });
 
     const whatsappUrl = createWhatsAppUrl(SELLER_WHATSAPP_NUMBER, message);

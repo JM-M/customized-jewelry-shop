@@ -12,35 +12,38 @@ import {
   useState,
 } from "react";
 import {
-  EngravingContent,
-  GetEngravingAreasByProductIdOutput,
-  GetMaterialsByProductIdOutput,
+  CustomizationContent,
   GetProductByIdOutput,
+  GetProductCustomizationOptionsOutput,
+  GetProductMaterialsOutput,
 } from "../types";
 
 interface ProductContextType {
   // Data
   product: GetProductByIdOutput;
-  productMaterials: GetMaterialsByProductIdOutput;
-  productEngravingAreas: GetEngravingAreasByProductIdOutput;
+  productMaterials: GetProductMaterialsOutput;
+  customizationOptions: GetProductCustomizationOptionsOutput;
   isLoading: boolean;
   isMaterialsLoading: boolean;
-  isEngravingAreasLoading: boolean;
+  isCustomizationOptionsLoading: boolean;
 
   // Customization State
   selectedMaterial: string | null;
-  engravings: Record<string, EngravingContent>;
+  customizations: Record<string, CustomizationContent>;
 
   // Actions
   setSelectedMaterial: (materialId: string | null) => void;
-  updateEngraving: (areaId: string, content: EngravingContent) => void;
-  clearEngravings: () => void;
+  updateCustomization: (
+    optionId: string,
+    content: CustomizationContent,
+  ) => void;
+  clearCustomizations: () => void;
   resetCustomization: () => void;
 
   // Computed values
   isCustomizationComplete: boolean;
-  hasEngravings: boolean;
-  totalEngravings: number;
+  hasCustomizations: boolean;
+  totalCustomizations: number;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -56,8 +59,8 @@ export function ProductProvider({ children }: ProductProviderProps) {
 
   // State management for customization
   const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
-  const [engravings, setEngravings] = useState<
-    Record<string, EngravingContent>
+  const [customizations, setCustomizations] = useState<
+    Record<string, CustomizationContent>
   >({});
 
   // Query product data
@@ -67,14 +70,14 @@ export function ProductProvider({ children }: ProductProviderProps) {
 
   const { data: productMaterials, isLoading: materialsLoading } =
     useSuspenseQuery(
-      trpc.products.getProductMaterialsByProductId.queryOptions({
+      trpc.products.getProductMaterials.queryOptions({
         productId: product.id,
       }),
     );
 
-  const { data: productEngravingAreas, isLoading: engravingAreasLoading } =
+  const { data: customizationOptions, isLoading: customizationOptionsLoading } =
     useSuspenseQuery(
-      trpc.products.getProductEngravingAreasByProductId.queryOptions({
+      trpc.products.getProductCustomizationOptions.queryOptions({
         productId: product.id,
       }),
     );
@@ -91,72 +94,77 @@ export function ProductProvider({ children }: ProductProviderProps) {
   }, [productMaterials, selectedMaterial, materialsLoading]);
 
   // Action handlers
-  const updateEngraving = (areaId: string, content: EngravingContent) => {
-    setEngravings((prev) => ({
+  const updateCustomization = (
+    optionId: string,
+    content: CustomizationContent,
+  ) => {
+    setCustomizations((prev) => ({
       ...prev,
-      [areaId]: content,
+      [optionId]: content,
     }));
   };
 
-  const clearEngravings = () => {
-    setEngravings({});
+  const clearCustomizations = () => {
+    setCustomizations({});
   };
 
   const resetCustomization = () => {
     setSelectedMaterial(null);
-    setEngravings({});
+    setCustomizations({});
   };
 
   // Computed values
   const isLoading = productLoading;
   const isMaterialsLoading = materialsLoading;
-  const isEngravingAreasLoading = engravingAreasLoading;
+  const isCustomizationOptionsLoading = customizationOptionsLoading;
 
   const isCustomizationComplete = useMemo(() => {
     // Check if material is selected (required for most products)
     const hasMaterial = selectedMaterial !== null;
 
-    // Check if all required engraving areas are filled
-    const hasRequiredEngravings = productEngravingAreas.every((area) => {
-      // If there are engraving areas, they might be optional
-      // You can add business logic here to determine which are required
-      return true; // For now, assume all engravings are optional
-    });
+    // Check if all required customization options are filled
+    const hasRequiredCustomizations = customizationOptions.every(
+      (option: any) => {
+        // If there are customization options, they might be optional
+        // You can add business logic here to determine which are required
+        return true; // For now, assume all customizations are optional
+      },
+    );
 
-    return hasMaterial && hasRequiredEngravings;
-  }, [selectedMaterial, productEngravingAreas]);
+    return hasMaterial && hasRequiredCustomizations;
+  }, [selectedMaterial, customizationOptions]);
 
-  const hasEngravings = useMemo(() => {
-    return Object.keys(engravings).length > 0;
-  }, [engravings]);
+  const hasCustomizations = useMemo(() => {
+    return Object.keys(customizations).length > 0;
+  }, [customizations]);
 
-  const totalEngravings = useMemo(() => {
-    return Object.keys(engravings).length;
-  }, [engravings]);
+  const totalCustomizations = useMemo(() => {
+    return Object.keys(customizations).length;
+  }, [customizations]);
 
   const contextValue: ProductContextType = {
     // Data
     product,
     productMaterials,
-    productEngravingAreas,
+    customizationOptions,
     isLoading,
     isMaterialsLoading,
-    isEngravingAreasLoading,
+    isCustomizationOptionsLoading,
 
     // Customization State
     selectedMaterial,
-    engravings,
+    customizations,
 
     // Actions
     setSelectedMaterial,
-    updateEngraving,
-    clearEngravings,
+    updateCustomization,
+    clearCustomizations,
     resetCustomization,
 
     // Computed values
     isCustomizationComplete,
-    hasEngravings,
-    totalEngravings,
+    hasCustomizations,
+    totalCustomizations,
   };
 
   return (

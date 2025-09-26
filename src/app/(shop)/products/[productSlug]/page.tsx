@@ -20,11 +20,9 @@ const ProductPage = async ({
   const productId = product.id;
 
   prefetch(trpc.products.getBySlug.queryOptions({ slug: productSlug }));
+  prefetch(trpc.products.getProductMaterials.queryOptions({ productId }));
   prefetch(
-    trpc.products.getProductMaterialsByProductId.queryOptions({ productId }),
-  );
-  prefetch(
-    trpc.products.getProductEngravingAreasByProductId.queryOptions({
+    trpc.products.getProductCustomizationOptions.queryOptions({
       productId,
     }),
   );

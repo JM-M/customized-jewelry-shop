@@ -2,16 +2,15 @@ import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
 import {
   categories,
-  engravingAreas,
+  customizationOptions,
   materials,
-  productEngravingAreas,
   productMaterials,
   products,
 } from "@/db/schema/shop";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { TRPCError } from "@trpc/server";
-import { desc, eq, getTableColumns, sql } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import z from "zod";
 
 export const productsRouter = createTRPCRouter({
@@ -155,7 +154,7 @@ export const productsRouter = createTRPCRouter({
       return product;
     }),
 
-  getProductMaterialsByProductId: baseProcedure
+  getProductMaterials: baseProcedure
     .input(z.object({ productId: z.string() }))
     .query(async ({ input }) => {
       return await db
@@ -168,20 +167,19 @@ export const productsRouter = createTRPCRouter({
         .where(eq(productMaterials.productId, input.productId));
     }),
 
-  getProductEngravingAreasByProductId: baseProcedure
+  getProductCustomizationOptions: baseProcedure
     .input(z.object({ productId: z.string() }))
     .query(async ({ input }) => {
       const result = await db
-        .select({
-          ...getTableColumns(productEngravingAreas),
-          engravingArea: { ...getTableColumns(engravingAreas) },
-        })
-        .from(productEngravingAreas)
-        .innerJoin(
-          engravingAreas,
-          eq(productEngravingAreas.engravingAreaId, engravingAreas.id),
+        .select()
+        .from(customizationOptions)
+        .where(
+          and(
+            eq(customizationOptions.productId, input.productId),
+            eq(customizationOptions.isActive, true),
+          ),
         )
-        .where(eq(productEngravingAreas.productId, input.productId));
+        .orderBy(customizationOptions.displayOrder);
 
       return result;
     }),

@@ -1,4 +1,3 @@
-import { ENGRAVING_TYPES } from "@/constants/db";
 import { AppRouter } from "@/trpc/routers/_app";
 import { inferRouterOutputs } from "@trpc/server";
 
@@ -11,18 +10,18 @@ export type GetProductsByCategorySlugOutput =
 export type GetNewArrivalsOutput =
   inferRouterOutputs<AppRouter>["products"]["getNewArrivals"];
 
-export type GetMaterialsByProductIdOutput =
-  inferRouterOutputs<AppRouter>["products"]["getProductMaterialsByProductId"];
+export type GetProductMaterialsOutput =
+  inferRouterOutputs<AppRouter>["products"]["getProductMaterials"];
 
-export type GetEngravingAreasByProductIdOutput =
-  inferRouterOutputs<AppRouter>["products"]["getProductEngravingAreasByProductId"];
+export type GetProductCustomizationOptionsOutput =
+  inferRouterOutputs<AppRouter>["products"]["getProductCustomizationOptions"];
 
-// New engraving types
-export type EngravingType = (typeof ENGRAVING_TYPES)[number];
+// Customization types
+export type CustomizationType = "text" | "image" | "qr_code";
 
-export interface EngravingContent {
+export interface CustomizationContent {
   id: string;
-  type: EngravingType;
+  type: CustomizationType;
   textContent?: string;
   imageUrl?: string;
   imageFilename?: string;
@@ -32,11 +31,16 @@ export interface EngravingContent {
   qrErrorCorrection?: string;
 }
 
-export interface EnhancedEngravingArea {
+export interface CustomizationOption {
   id: string;
   name: string;
-  description?: string;
-  engravingType: EngravingType;
-  maxCharacters?: number;
-  referenceImage?: string;
+  description: string | null;
+  type: CustomizationType;
+  sampleImage: string | null;
+  maxCharacters: number | null;
+  displayOrder: number | null;
+  isActive: boolean;
+  productId: string;
+  createdAt: string;
+  updatedAt: string;
 }

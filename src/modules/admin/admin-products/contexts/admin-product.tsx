@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  GetEngravingAreasByProductIdOutput,
-  GetMaterialsByProductIdOutput,
   GetProductByIdOutput,
+  GetProductCustomizationOptionsOutput,
+  GetProductMaterialsOutput,
 } from "@/modules/products/types";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
@@ -13,11 +13,11 @@ import { createContext, ReactNode, useContext } from "react";
 interface AdminProductContextType {
   // Data
   product: GetProductByIdOutput | null;
-  productMaterials: GetMaterialsByProductIdOutput;
-  productEngravingAreas: GetEngravingAreasByProductIdOutput;
+  productMaterials: GetProductMaterialsOutput;
+  customizationOptions: GetProductCustomizationOptionsOutput;
   isLoading: boolean;
   isMaterialsLoading: boolean;
-  isEngravingAreasLoading: boolean;
+  isCustomizationOptionsLoading: boolean;
 
   // Computed values
   hasProduct: boolean;
@@ -42,32 +42,33 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
   );
 
   const { data: productMaterials, isLoading: materialsLoading } = useQuery({
-    ...trpc.products.getProductMaterialsByProductId.queryOptions({
+    ...trpc.products.getProductMaterials.queryOptions({
       productId: product?.id || "",
     }),
     enabled: !!product?.id,
   });
 
-  const { data: productEngravingAreas, isLoading: engravingAreasLoading } =
+  const { data: customizationOptions, isLoading: customizationOptionsLoading } =
     useQuery({
-      ...trpc.products.getProductEngravingAreasByProductId.queryOptions({
+      ...trpc.products.getProductCustomizationOptions.queryOptions({
         productId: product?.id || "",
       }),
       enabled: !!product?.id,
     });
 
   // Computed values
-  const isLoading = productLoading || materialsLoading || engravingAreasLoading;
+  const isLoading =
+    productLoading || materialsLoading || customizationOptionsLoading;
   const hasProduct = !!product;
 
   const contextValue: AdminProductContextType = {
     // Data
     product: product || null,
     productMaterials: productMaterials || [],
-    productEngravingAreas: productEngravingAreas || [],
+    customizationOptions: customizationOptions || [],
     isLoading,
     isMaterialsLoading: materialsLoading,
-    isEngravingAreasLoading: engravingAreasLoading,
+    isCustomizationOptionsLoading: customizationOptionsLoading,
 
     // Computed values
     hasProduct,

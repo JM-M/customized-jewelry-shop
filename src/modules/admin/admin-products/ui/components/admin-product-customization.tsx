@@ -1,19 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { capitalize } from "lodash-es";
-import { PlusCircleIcon } from "lucide-react";
 
 import { useAdminProduct } from "../../contexts/admin-product";
-import { CUSTOMIZATION_OPTIONS } from "../../constants";
-import { ProductCustomizationOption } from "./product-customization-option";
+import { AddCustomizationForm } from "./add-customization-form";
+import { Material } from "./product-customization-option/material";
 
 export const AdminProductCustomization = () => {
   const { product } = useAdminProduct();
@@ -41,14 +32,8 @@ export const AdminProductCustomization = () => {
         <CardTitle className="font-medium">Customization Options</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 p-0">
-        {isEmpty ? (
-          emptyContent
-        ) : (
-          <>
-            <ProductCustomizationOption type="material" />
-          </>
-        )}
-        <DropdownMenu>
+        <Material />
+        {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="mt-6 ml-auto flex">
               <PlusCircleIcon className="size-4" />
@@ -62,7 +47,8 @@ export const AdminProductCustomization = () => {
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu> */}
+        <AddCustomizationForm />
       </CardContent>
     </Card>
   );

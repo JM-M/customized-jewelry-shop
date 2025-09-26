@@ -1,13 +1,11 @@
 // TODO: Rename this file to shop.ts
 
-import { ENGRAVING_TYPES } from "@/constants/db";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   decimal,
   integer,
   json,
-  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -217,11 +215,20 @@ export const productReviews = pgTable("product_reviews", {
 //     .notNull(),
 // });
 
-// Engraving areas table - defines different areas where products can be engraved
-export const engravingAreas = pgTable("engraving_areas", {
+// Customization options table - flexible system for product customizations
+export const customizationOptions = pgTable("customization_options", {
   id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(), // e.g., "Front", "Back", "Inside Band", "Clasp"
-  description: text("description"), // Optional description of the area
+  productId: uuid("product_id")
+    .references(() => products.id, { onDelete: "cascade" })
+    .notNull(),
+  name: text("name").notNull(), // e.g., "Front Engraving", "Back Engraving", "Custom Text"
+  description: text("description"), // Optional description of the customization
+  type: text("type", { enum: ["text", "image", "qr_code"] })
+    .notNull()
+    .default("text"),
+  sampleImage: text("sample_image"), // URL/path to sample image
+  maxCharacters: integer("max_characters"), // For text type - maximum characters allowed
+  displayOrder: integer("display_order").$defaultFn(() => 0),
   isActive: boolean("is_active")
     .$defaultFn(() => true)
     .notNull(),
@@ -232,47 +239,6 @@ export const engravingAreas = pgTable("engraving_areas", {
     .$defaultFn(() => new Date())
     .notNull(),
 });
-
-export const engravingTypeEnum = pgEnum("engraving_type", ENGRAVING_TYPES);
-
-// Junction table for products and their available engraving areas
-export const productEngravingAreas = pgTable(
-  "product_engraving_areas",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    productId: uuid("product_id")
-      .references(() => products.id, { onDelete: "cascade" })
-      .notNull(),
-    engravingAreaId: uuid("engraving_area_id")
-      .references(() => engravingAreas.id, { onDelete: "cascade" })
-      .notNull(),
-    engravingType: engravingTypeEnum("engraving_type")
-      .notNull()
-      .default("text"),
-    //   .notNull()
-    //   .default("text"),
-    // Optional: Different price for engraving in this specific area
-    // engravingPrice: decimal("engraving_price", { precision: 10, scale: 2 })
-    //   .$defaultFn(() => sql`0`)
-    //   .notNull(),
-    // Optional: Maximum characters allowed for this area
-    maxCharacters: integer("max_characters"),
-    // Optional: Product-specific reference image (overrides the general area image)
-    referenceImage: text("product_specific_image"),
-    // Display order for this engraving area on the product
-    displayOrder: integer("display_order").$defaultFn(() => 0),
-    isActive: boolean("is_active")
-      .$defaultFn(() => true)
-      .notNull(),
-    createdAt: timestamp("created_at")
-      .$defaultFn(() => new Date())
-      .notNull(),
-  },
-  (table) => [
-    // Ensure unique product-engraving area combinations
-    unique().on(table.productId, table.engravingAreaId),
-  ],
-);
 
 // Shopping cart table
 export const carts = pgTable(
@@ -317,9 +283,9 @@ export const cartItems = pgTable(
       .notNull(),
     price: decimal("price", { precision: 10, scale: 2 }).notNull(),
     // Customization options
-    engravings: json("engravings")
+    customizations: json("customizations")
       .$type<{
-        [engravingAreaId: string]: {
+        [customizationOptionId: string]: {
           type: "text" | "image" | "qr_code";
           content: string;
           additionalPrice?: number;
@@ -361,8 +327,8 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   reviews: many(productReviews),
   // Many-to-many relationship with materials
   materials: many(productMaterials),
-  // Many-to-many relationship with engraving areas
-  engravingAreas: many(productEngravingAreas),
+  // One-to-many relationship with customization options
+  customizationOptions: many(customizationOptions),
 }));
 
 export const productReviewsRelations = relations(productReviews, ({ one }) => ({
@@ -395,24 +361,13 @@ export const productMaterialsRelations = relations(
   }),
 );
 
-// New relations for engraving areas
-export const engravingAreasRelations = relations(
-  engravingAreas,
-  ({ many }) => ({
-    products: many(productEngravingAreas),
-  }),
-);
-
-export const productEngravingAreasRelations = relations(
-  productEngravingAreas,
+// Relations for customization options
+export const customizationOptionsRelations = relations(
+  customizationOptions,
   ({ one }) => ({
     product: one(products, {
-      fields: [productEngravingAreas.productId],
+      fields: [customizationOptions.productId],
       references: [products.id],
-    }),
-    engravingArea: one(engravingAreas, {
-      fields: [productEngravingAreas.engravingAreaId],
-      references: [engravingAreas.id],
     }),
   }),
 );

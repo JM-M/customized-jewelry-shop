@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import {
   EngravingContent,
-  GetMaterialsByProductIdOutput,
   GetProductByIdOutput,
+  GetProductMaterialsOutput,
 } from "../../products/types";
 import { useCart } from "../contexts";
 import { GetCartOutput } from "../types";
@@ -24,7 +24,7 @@ export const useCartOptimisticUpdates = () => {
     product: GetProductByIdOutput;
     materialId: string;
     engravings: Record<string, EngravingContent>;
-    productMaterials: GetMaterialsByProductIdOutput;
+    productMaterials: GetProductMaterialsOutput;
   }) => {
     const productId = product.id;
 
