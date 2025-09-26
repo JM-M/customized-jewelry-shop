@@ -1,5 +1,7 @@
 "use client";
 
+import { Dropzone } from "@/components/shared";
+import { Input } from "@/components/ui/input";
 import { CustomizationContent, CustomizationOption } from "../../types";
 
 interface ProductCustomizationOptionsProps {
@@ -38,10 +40,10 @@ export const ProductCustomizationOptions = ({
           )}
 
           {option.type === "text" && (
-            <input
+            <Input
               type="text"
               placeholder="Enter text..."
-              maxLength={option.maxCharacters}
+              // maxLength={option.maxCharacters} TODO: Either remove max length from schema or implement it
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               value={customizations[option.id]?.textContent || ""}
               onChange={(e) =>
@@ -56,7 +58,7 @@ export const ProductCustomizationOptions = ({
 
           {option.type === "image" && (
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              Image upload functionality to be implemented
+              <Dropzone id="image-upload" accept="image/*" />
             </div>
           )}
 

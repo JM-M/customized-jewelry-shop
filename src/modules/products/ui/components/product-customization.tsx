@@ -9,17 +9,10 @@ import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import { useProduct } from "../../contexts/product";
 import { ProductCustomizationOptions } from "./product-customization-options";
-import { ProductMaterialSelect } from "./product-material-select";
 
 export const ProductCustomization = () => {
-  const {
-    productMaterials,
-    customizationOptions,
-    selectedMaterial,
-    customizations,
-    setSelectedMaterial,
-    updateCustomization,
-  } = useProduct();
+  const { customizationOptions, customizations, updateCustomization } =
+    useProduct();
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -33,30 +26,12 @@ export const ProductCustomization = () => {
         />
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2">
-        <div className="rounded-md bg-gray-50/50 dark:bg-gray-800/30">
-          <div className="space-y-6 px-3">
-            <div>
-              <h4 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Material
-              </h4>
-              <ProductMaterialSelect
-                productMaterials={productMaterials}
-                selectedMaterial={selectedMaterial}
-                onMaterialChange={setSelectedMaterial}
-              />
-            </div>
-
-            <div>
-              <h4 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Customization Options
-              </h4>
-              <ProductCustomizationOptions
-                customizationOptions={customizationOptions}
-                customizations={customizations}
-                onCustomizationChange={updateCustomization}
-              />
-            </div>
-          </div>
+        <div className="space-y-6 rounded-md bg-gray-50/50 px-3 dark:bg-gray-800/30">
+          <ProductCustomizationOptions
+            customizationOptions={customizationOptions}
+            customizations={customizations}
+            onCustomizationChange={updateCustomization}
+          />
         </div>
       </CollapsibleContent>
     </Collapsible>

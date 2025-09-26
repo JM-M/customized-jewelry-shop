@@ -17,7 +17,7 @@ export const ProductMaterialSelect = ({
   onMaterialChange,
 }: ProductMaterialSelectProps) => {
   return (
-    <div className="grid grid-cols-3 gap-2 p-3">
+    <div className="grid grid-cols-3 gap-2">
       {productMaterials.map((productMaterial) => {
         const { material } = productMaterial;
         const formattedName = material.name
