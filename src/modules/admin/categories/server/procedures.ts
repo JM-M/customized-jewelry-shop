@@ -133,4 +133,234 @@ export const adminCategoriesRouter = createTRPCRouter({
         category,
       };
     }),
+
+  createCategory: adminProcedure
+    .input(
+      z.object({
+        name: z
+          .string()
+          .min(1, "Name is required")
+          .max(100, "Name must be less than 100 characters"),
+        slug: z
+          .string()
+          .min(1, "Slug is required")
+          .max(100, "Slug must be less than 100 characters"),
+        description: z
+          .string()
+          .max(500, "Description must be less than 500 characters")
+          .optional(),
+        image: z.string().min(1, "Image is required"),
+        parentId: z.string().uuid().optional(),
+        isActive: z.boolean().default(true),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { name, slug, description, image, parentId, isActive } = input;
+
+      // Check if slug already exists
+      const [existingCategory] = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.slug, slug));
+
+      if (existingCategory) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "A category with this slug already exists",
+        });
+      }
+
+      // If parentId is provided, validate it exists and is a top-level category
+      if (parentId) {
+        const [parentCategory] = await db
+          .select()
+          .from(categories)
+          .where(eq(categories.id, parentId));
+
+        if (!parentCategory) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Parent category not found",
+          });
+        }
+
+        if (parentCategory.parentId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Cannot create subcategory of a subcategory",
+          });
+        }
+      }
+
+      // Create the category
+      const [newCategory] = await db
+        .insert(categories)
+        .values({
+          name,
+          slug,
+          description,
+          image,
+          parentId: parentId || null,
+          isActive,
+        })
+        .returning();
+
+      return newCategory;
+    }),
+
+  updateCategory: adminProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+        name: z
+          .string()
+          .min(1, "Name is required")
+          .max(100, "Name must be less than 100 characters"),
+        slug: z
+          .string()
+          .min(1, "Slug is required")
+          .max(100, "Slug must be less than 100 characters"),
+        description: z
+          .string()
+          .max(500, "Description must be less than 500 characters")
+          .optional(),
+        image: z.string().min(1, "Image is required"),
+        parentId: z.string().uuid().optional(),
+        isActive: z.boolean().default(true),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { id, name, slug, description, image, parentId, isActive } = input;
+
+      // Check if category exists
+      const [existingCategory] = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.id, id));
+
+      if (!existingCategory) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Category not found",
+        });
+      }
+
+      // Check if slug already exists (excluding current category)
+      const [slugConflict] = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.slug, slug));
+
+      if (slugConflict && slugConflict.id !== id) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "A category with this slug already exists",
+        });
+      }
+
+      // If parentId is provided, validate it exists and is a top-level category
+      if (parentId) {
+        const [parentCategory] = await db
+          .select()
+          .from(categories)
+          .where(eq(categories.id, parentId));
+
+        if (!parentCategory) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Parent category not found",
+          });
+        }
+
+        if (parentCategory.parentId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Cannot create subcategory of a subcategory",
+          });
+        }
+
+        // Prevent circular reference (category cannot be its own parent)
+        if (parentId === id) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Category cannot be its own parent",
+          });
+        }
+      }
+
+      // Update the category
+      const [updatedCategory] = await db
+        .update(categories)
+        .set({
+          name,
+          slug,
+          description,
+          image,
+          parentId: parentId || null,
+          isActive,
+          updatedAt: new Date(),
+        })
+        .where(eq(categories.id, id))
+        .returning();
+
+      return updatedCategory;
+    }),
+
+  deleteCategory: adminProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { id } = input;
+
+      // Check if category exists
+      const [existingCategory] = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.id, id));
+
+      if (!existingCategory) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Category not found",
+        });
+      }
+
+      // Check if category has products
+      const [{ count: productCount }] = await db
+        .select({
+          count: sql<number>`count(*)`.as("count"),
+        })
+        .from(products)
+        .where(eq(products.categoryId, id));
+
+      if (productCount > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot delete category with existing products",
+        });
+      }
+
+      // Check if category has subcategories
+      const [{ count: subcategoryCount }] = await db
+        .select({
+          count: sql<number>`count(*)`.as("count"),
+        })
+        .from(categories)
+        .where(eq(categories.parentId, id));
+
+      if (subcategoryCount > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot delete category with existing subcategories",
+        });
+      }
+
+      // Delete the category
+      await db.delete(categories).where(eq(categories.id, id));
+
+      return { success: true };
+    }),
 });

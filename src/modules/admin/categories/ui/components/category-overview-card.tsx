@@ -29,11 +29,13 @@ import {
 interface CategoryOverviewCardProps {
   category: GetAllCategoriesOutput[number];
   parentCategory?: GetAllCategoriesOutput[number] | null;
+  onEdit?: () => void;
 }
 
 export const CategoryOverviewCard = ({
   category,
   parentCategory,
+  onEdit,
 }: CategoryOverviewCardProps) => {
   const trpc = useTRPC();
 
@@ -90,7 +92,7 @@ export const CategoryOverviewCard = ({
                     View Public Page
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={onEdit}>
                   <Edit className="mr-2 size-4" />
                   Edit Category
                 </DropdownMenuItem>
@@ -145,7 +147,11 @@ export const CategoryOverviewCard = ({
                 View Public
               </Link>
             </Button>
-            <Button className="w-full min-[400px]:w-fit" size="sm">
+            <Button
+              className="w-full min-[400px]:w-fit"
+              size="sm"
+              onClick={onEdit}
+            >
               <Edit />
               Edit Category
             </Button>

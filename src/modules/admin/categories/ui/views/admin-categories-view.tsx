@@ -10,9 +10,7 @@ export const AdminCategoriesView = () => {
         title="Categories"
         description="Manage your product categories and subcategories."
       />
-      <div className="mt-6">
-        <AdminCategoriesTable />
-      </div>
+      <AdminCategoriesTable />
     </div>
   );
 };

@@ -4,12 +4,13 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
 import {
-  createActionsColumn,
   createSelectColumn,
   DateCell,
   SortableHeader,
 } from "@/components/shared";
+import { Button } from "@/components/ui/button";
 import { GetAllCategoriesOutput } from "@/modules/categories/types";
+import { TrashIcon } from "lucide-react";
 
 type Category = GetAllCategoriesOutput[number];
 
@@ -30,6 +31,32 @@ const CategoryNameCell = ({ category }: { category: Category }) => {
   );
 };
 
+const CategoryActionsCell = ({
+  category,
+  onEdit,
+  onDelete,
+}: {
+  category: Category;
+  onEdit: (category: Category) => void;
+  onDelete: (category: Category) => void;
+}) => {
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="sm" onClick={() => onEdit(category)}>
+        Edit
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onDelete(category)}
+        className="text-red-600 hover:text-red-700"
+      >
+        <TrashIcon className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+};
+
 const CategoryStatusCell = ({ category }: { category: Category }) => {
   return (
     <span
@@ -44,7 +71,10 @@ const CategoryStatusCell = ({ category }: { category: Category }) => {
   );
 };
 
-export const columns: ColumnDef<Category>[] = [
+export const createColumns = (
+  onEdit: (category: Category) => void,
+  onDelete: (category: Category) => void,
+): ColumnDef<Category>[] => [
   createSelectColumn<Category>(),
   {
     accessorKey: "name",
@@ -76,27 +106,15 @@ export const columns: ColumnDef<Category>[] = [
     ),
     cell: ({ row }) => <DateCell value={row.getValue("createdAt")} />,
   },
-  createActionsColumn<Category>({
-    actions: [
-      {
-        label: "Copy category ID",
-        onClick: (category) => navigator.clipboard.writeText(category.id),
-      },
-      {
-        label: "View category",
-        onClick: (category) =>
-          window.open(`/categories/${category.slug}`, "_blank"),
-        separator: true,
-      },
-      {
-        label: "Edit category",
-        onClick: () => {},
-      },
-      {
-        label: "Delete category",
-        onClick: () => {},
-        className: "text-red-600",
-      },
-    ],
-  }),
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <CategoryActionsCell
+        category={row.original}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+    ),
+  },
 ];
