@@ -1,14 +1,20 @@
 "use client";
 
 import {
+  ChartBarIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  CreditCardIcon,
+  FolderIcon,
   GiftIcon,
   LayoutDashboardIcon,
   LucideIcon,
   MapPinIcon,
   PackageIcon,
+  ShoppingBagIcon,
+  ShoppingCartIcon,
   TruckIcon,
+  UserIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -63,10 +69,46 @@ const sidebarConfig: SidebarGroup[] = [
         icon: LayoutDashboardIcon,
       },
       {
+        id: "analytics",
+        label: "Analytics",
+        href: "/admin/analytics",
+        icon: ChartBarIcon,
+      },
+      {
+        id: "orders",
+        label: "Orders",
+        href: "/admin/orders",
+        icon: ShoppingBagIcon,
+      },
+      {
         id: "products",
         label: "Products",
         href: "/admin/products",
         icon: GiftIcon,
+      },
+      {
+        id: "categories",
+        label: "Categories",
+        href: "/admin/categories",
+        icon: FolderIcon,
+      },
+      {
+        id: "fast-checkout",
+        label: "Fast Checkout",
+        href: "/admin/fast-checkout",
+        icon: ShoppingCartIcon,
+      },
+      {
+        id: "transactions",
+        label: "Transactions",
+        href: "/admin/transactions",
+        icon: CreditCardIcon,
+      },
+      {
+        id: "users",
+        label: "Users",
+        href: "/admin/users",
+        icon: UserIcon,
       },
     ],
   },
@@ -189,9 +231,9 @@ export function AdminSidebar() {
           <span className="font-niconne">Temmy Accessories</span>
         </Link>
       </SidebarHeader>
-      <SidebarContent className="text-lg">
+      <SidebarContent className="gap-0 text-lg">
         {sidebarConfig.map((group, index) => (
-          <SidebarGroup key={index}>
+          <SidebarGroup key={index} className="py-0">
             {group.label && (
               <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             )}
