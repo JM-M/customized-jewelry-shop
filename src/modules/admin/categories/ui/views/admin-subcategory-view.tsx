@@ -4,8 +4,6 @@ import { AdminPageHeader } from "@/components/admin/shared/page-header";
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { notFound } from "next/navigation";
-import { CategoryDetailsCard } from "../components/category-details-card";
-import { CategoryImageCard } from "../components/category-image-card";
 
 interface AdminSubcategoryViewProps {
   categorySlug: string;
@@ -39,14 +37,6 @@ export const AdminSubcategoryView = ({
         title={subcategory.name}
         description={`Manage subcategory: ${subcategory.name} under ${parentCategory.name}`}
       />
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <CategoryDetailsCard
-          category={subcategory}
-          parentCategory={parentCategory}
-        />
-        <CategoryImageCard category={subcategory} />
-      </div>
     </div>
   );
 };

@@ -22,14 +22,14 @@ export const AdminProductMaterial = () => {
 
   const trpc = useTRPC();
   const { data: materials, isLoading } = useQuery(
-    trpc.adminProducts.getAllMaterials.queryOptions(),
+    trpc.admin.products.getAllMaterials.queryOptions(),
   );
 
   const {
     mutate: updateProductMaterials,
     isPending,
     error,
-  } = useMutation(trpc.adminProducts.updateProductMaterials.mutationOptions());
+  } = useMutation(trpc.admin.products.updateProductMaterials.mutationOptions());
 
   // Initialize selected materials from current product materials
   useEffect(() => {

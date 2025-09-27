@@ -57,7 +57,7 @@ export const AddCustomizationForm = () => {
   });
 
   const { mutate: createCustomizationOption } = useMutation(
-    trpc.adminProducts.createCustomizationOption.mutationOptions(),
+    trpc.admin.products.createCustomizationOption.mutationOptions(),
   );
 
   const onSubmit = (data: CustomizationFormData) => {
@@ -73,7 +73,7 @@ export const AddCustomizationForm = () => {
         onSuccess: () => {
           form.reset();
           queryClient.invalidateQueries({
-            queryKey: trpc.adminProducts.getCustomizationOptions.queryKey({
+            queryKey: trpc.admin.products.getCustomizationOptions.queryKey({
               productId: product.id,
             }),
           });

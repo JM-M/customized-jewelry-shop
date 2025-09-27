@@ -55,7 +55,7 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
 
   const { data: customizationOptions, isLoading: customizationOptionsLoading } =
     useQuery({
-      ...trpc.adminProducts.getCustomizationOptions.queryOptions({
+      ...trpc.admin.products.getCustomizationOptions.queryOptions({
         productId: product?.id || "",
       }),
       enabled: !!product?.id,
@@ -66,11 +66,11 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
     mutate: removeCustomizationOptionMutation,
     isPending: isRemovingCustomizationOption,
   } = useMutation(
-    trpc.adminProducts.removeCustomizationOption.mutationOptions({
+    trpc.admin.products.removeCustomizationOption.mutationOptions({
       onSuccess: () => {
         // Invalidate and refetch customization options
         queryClient.invalidateQueries({
-          queryKey: trpc.adminProducts.getCustomizationOptions.queryKey({
+          queryKey: trpc.admin.products.getCustomizationOptions.queryKey({
             productId: product?.id || "",
           }),
         });

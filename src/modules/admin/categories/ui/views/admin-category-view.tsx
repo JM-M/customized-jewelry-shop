@@ -2,11 +2,13 @@
 
 import { AdminPageHeader } from "@/components/admin/shared/page-header";
 import { useTRPC } from "@/trpc/client";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { notFound } from "next/navigation";
-import { CategoryDetailsCard } from "../components/category-details-card";
-import { CategoryImageCard } from "../components/category-image-card";
-import { SubcategoriesCard } from "../components/subcategories-card";
+import { useQuery } from "@tanstack/react-query";
+import {
+  CategoryOverviewCard,
+  CategoryProductsSection,
+  CategoryStatsDashboard,
+  SubcategoriesSection,
+} from "../components";
 
 interface AdminCategoryViewProps {
   categorySlug: string;
@@ -14,21 +16,26 @@ interface AdminCategoryViewProps {
 
 export const AdminCategoryView = ({ categorySlug }: AdminCategoryViewProps) => {
   const trpc = useTRPC();
-  const { data: categories } = useSuspenseQuery(
-    trpc.categories.getAll.queryOptions(),
+
+  const {
+    data: categoryData,
+    isLoading,
+    error,
+  } = useQuery(
+    trpc.admin.categories.getCategoryWithSubcategories.queryOptions({
+      categorySlug,
+    }),
   );
 
-  const category = categories.find((c) => c.slug === categorySlug);
-
-  if (!category) {
-    notFound();
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  const parentCategory = category.parentId
-    ? categories.find((c) => c.id === category.parentId)
-    : null;
+  if (error || !categoryData) {
+    return <div>Error loading category data</div>;
+  }
 
-  const subcategories = categories.filter((c) => c.parentId === category.id);
+  const { category, parentCategory, subcategories } = categoryData;
 
   return (
     <div className="space-y-6">
@@ -37,17 +44,27 @@ export const AdminCategoryView = ({ categorySlug }: AdminCategoryViewProps) => {
         description={`Manage category: ${category.name}`}
       />
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <CategoryDetailsCard
-          category={category}
-          parentCategory={parentCategory}
-        />
-        <CategoryImageCard category={category} />
-      </div>
+      {/* Category Overview */}
+      <CategoryOverviewCard
+        category={category}
+        parentCategory={parentCategory}
+      />
 
-      <SubcategoriesCard
-        subcategories={subcategories}
-        parentCategorySlug={category.slug}
+      {/* Stats Dashboard */}
+      <CategoryStatsDashboard categoryId={category.id} />
+
+      {/* Subcategories Section */}
+      {subcategories.length > 0 && (
+        <SubcategoriesSection
+          subcategories={subcategories}
+          categorySlug={categorySlug}
+        />
+      )}
+
+      {/* Products Section */}
+      <CategoryProductsSection
+        categorySlug={categorySlug}
+        includeSubcategories={!category.parentId} // Only include subcategories if this is a parent category
       />
     </div>
   );
