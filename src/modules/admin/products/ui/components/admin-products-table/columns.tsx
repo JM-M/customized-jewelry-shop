@@ -12,7 +12,7 @@ import {
   SortableHeader,
   StockCell,
 } from "@/components/shared";
-import { AdminGetProductsOutput } from "@/modules/admin/admin-products/types";
+import { AdminGetProductsOutput } from "@/modules/admin/products/types";
 
 type Product = AdminGetProductsOutput["items"][0];
 

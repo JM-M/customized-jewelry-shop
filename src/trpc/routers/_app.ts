@@ -1,4 +1,4 @@
-import { adminProductsRouter } from "@/modules/admin/admin-products/server/procedures";
+import { adminProductsRouter } from "@/modules/admin/products/server/procedures";
 import { cartRouter } from "@/modules/cart/server/procedures";
 import { categoriesRouter } from "@/modules/categories/server/procedures";
 import { checkoutRouter } from "@/modules/checkout/server/procedures";
