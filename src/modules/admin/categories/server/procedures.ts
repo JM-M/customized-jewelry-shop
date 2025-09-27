@@ -328,15 +328,15 @@ export const adminCategoriesRouter = createTRPCRouter({
         });
       }
 
-      // Check if category has products
-      const [{ count: productCount }] = await db
+      // Check if category has direct products
+      const [{ count: directProductCount }] = await db
         .select({
           count: sql<number>`count(*)`.as("count"),
         })
         .from(products)
         .where(eq(products.categoryId, id));
 
-      if (productCount > 0) {
+      if (directProductCount > 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Cannot delete category with existing products",
@@ -352,6 +352,25 @@ export const adminCategoriesRouter = createTRPCRouter({
         .where(eq(categories.parentId, id));
 
       if (subcategoryCount > 0) {
+        // Check if any subcategories have products
+        const [{ count: subcategoryProductCount }] = await db
+          .select({
+            count: sql<number>`count(*)`.as("count"),
+          })
+          .from(products)
+          .innerJoin(categories, eq(products.categoryId, categories.id))
+          .where(eq(categories.parentId, id));
+
+        if (subcategoryProductCount > 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "Cannot delete category with subcategories that contain products",
+          });
+        }
+
+        // If subcategories exist but are empty, still prevent deletion
+        // to maintain data integrity (user should explicitly delete subcategories first)
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Cannot delete category with existing subcategories",

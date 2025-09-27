@@ -1,10 +1,23 @@
 import { DataTable } from "@/components/shared/data-table";
+import { Spinner } from "@/components/shared/spinner";
 import { Spinner2 } from "@/components/shared/spinner-2";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TRPCClientError } from "@trpc/client";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { GetAllCategoriesOutput } from "@/modules/categories/types";
 import { CategoryFormDialog } from "../category-form-dialog";
@@ -18,6 +31,10 @@ export const AdminCategoriesTable = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
+    null,
+  );
 
   const {
     data: categoriesData,
@@ -59,23 +76,43 @@ export const AdminCategoriesTable = () => {
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = async (category: Category) => {
-    if (
-      confirm(
-        `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
-      )
-    ) {
-      try {
-        await deleteCategoryMutation.mutateAsync({ id: category.id });
-        handleSuccess();
-      } catch (error) {
-        console.error("Failed to delete category:", error);
-        alert("Failed to delete category. Please try again.");
+  const handleDelete = (category: Category) => {
+    setCategoryToDelete(category);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!categoryToDelete) return;
+
+    try {
+      await deleteCategoryMutation.mutateAsync({ id: categoryToDelete.id });
+      handleSuccess();
+      setIsDeleteDialogOpen(false);
+      setCategoryToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+      if (error instanceof TRPCClientError) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to delete category. Please try again.");
       }
     }
   };
 
-  const columns = createColumns(handleEdit, handleDelete);
+  const handleCancelDelete = () => {
+    // Only allow canceling if mutation is not pending
+    if (!deleteCategoryMutation.isPending) {
+      setIsDeleteDialogOpen(false);
+      setCategoryToDelete(null);
+    }
+  };
+
+  const columns = createColumns(
+    handleEdit,
+    handleDelete,
+    deleteCategoryMutation.isPending,
+    categoryToDelete?.id,
+  );
 
   return (
     <div className="space-y-4">
@@ -118,6 +155,48 @@ export const AdminCategoriesTable = () => {
           handleSuccess();
         }}
       />
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={(open) => {
+          // Only allow closing if mutation is not pending
+          if (!deleteCategoryMutation.isPending) {
+            setIsDeleteDialogOpen(open);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Category</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{categoryToDelete?.name}"? This
+              action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={handleCancelDelete}
+              disabled={deleteCategoryMutation.isPending}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={deleteCategoryMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteCategoryMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <Spinner className="h-4 w-4" />
+                  Deleting...
+                </div>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

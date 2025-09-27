@@ -70,7 +70,7 @@ export const categories = pgTable(
     image: text("image").notNull(),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     parentId: uuid("parent_id").references((): any => categories.id, {
-      onDelete: "cascade",
+      onDelete: "set null",
     }),
     isActive: boolean("is_active")
       .$defaultFn(() => true)
@@ -107,7 +107,7 @@ export const products = pgTable("products", {
   // originalPrice: decimal("original_price", { precision: 10, scale: 2 }),
   sku: text("sku").unique(),
   categoryId: uuid("category_id").references(() => categories.id, {
-    onDelete: "cascade",
+    onDelete: "set null",
   }),
   packagingId: text("packaging_id"), // References Terminal packaging.packaging_id
 

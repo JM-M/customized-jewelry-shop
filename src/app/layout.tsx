@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import { TRPCReactProvider } from "@/trpc/client";
 import type { Metadata } from "next";
 import { EB_Garamond, Geist_Mono, Niconne, Work_Sans } from "next/font/google";
@@ -44,6 +45,7 @@ export default function RootLayout({
           className={`${workSans.variable} ${geistMono.variable} ${niconne.variable} ${ebGaramond.variable} flex min-h-screen flex-col font-sans antialiased`}
         >
           <NuqsAdapter>{children}</NuqsAdapter>
+          <Toaster />
         </body>
       </html>
     </TRPCReactProvider>

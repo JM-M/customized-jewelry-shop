@@ -7,6 +7,7 @@ import {
   createSelectColumn,
   DateCell,
   SortableHeader,
+  Spinner,
 } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { GetAllCategoriesOutput } from "@/modules/categories/types";
@@ -35,14 +36,26 @@ const CategoryActionsCell = ({
   category,
   onEdit,
   onDelete,
+  isDeleting,
+  deletingCategoryId,
 }: {
   category: Category;
   onEdit: (category: Category) => void;
   onDelete: (category: Category) => void;
+  isDeleting: boolean;
+  deletingCategoryId?: string;
 }) => {
+  const isThisCategoryDeleting =
+    isDeleting && deletingCategoryId === category.id;
+
   return (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="sm" onClick={() => onEdit(category)}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onEdit(category)}
+        disabled={isThisCategoryDeleting}
+      >
         Edit
       </Button>
       <Button
@@ -50,8 +63,13 @@ const CategoryActionsCell = ({
         size="sm"
         onClick={() => onDelete(category)}
         className="text-red-600 hover:text-red-700"
+        disabled={isThisCategoryDeleting}
       >
-        <TrashIcon className="h-4 w-4" />
+        {isThisCategoryDeleting ? (
+          <Spinner className="h-4 w-4" />
+        ) : (
+          <TrashIcon className="h-4 w-4" />
+        )}
       </Button>
     </div>
   );
@@ -74,6 +92,8 @@ const CategoryStatusCell = ({ category }: { category: Category }) => {
 export const createColumns = (
   onEdit: (category: Category) => void,
   onDelete: (category: Category) => void,
+  isDeleting: boolean,
+  deletingCategoryId?: string,
 ): ColumnDef<Category>[] => [
   createSelectColumn<Category>(),
   {
@@ -114,6 +134,8 @@ export const createColumns = (
         category={row.original}
         onEdit={onEdit}
         onDelete={onDelete}
+        isDeleting={isDeleting}
+        deletingCategoryId={deletingCategoryId}
       />
     ),
   },
