@@ -1,11 +1,14 @@
 import { AdminCategoryView } from "@/modules/admin/categories/ui/views/admin-category-view";
 
 interface AdminCategoryPageProps {
-  params: {
+  params: Promise<{
     categorySlug: string;
-  };
+  }>;
 }
 
-export default function AdminCategoryPage({ params }: AdminCategoryPageProps) {
-  return <AdminCategoryView categorySlug={params.categorySlug} />;
+export default async function AdminCategoryPage({
+  params,
+}: AdminCategoryPageProps) {
+  const { categorySlug } = await params;
+  return <AdminCategoryView categorySlug={categorySlug} />;
 }

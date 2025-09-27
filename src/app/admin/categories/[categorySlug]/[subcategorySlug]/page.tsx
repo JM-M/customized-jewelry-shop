@@ -1,19 +1,20 @@
 import { AdminSubcategoryView } from "@/modules/admin/categories/ui/views/admin-subcategory-view";
 
 interface AdminSubcategoryPageProps {
-  params: {
+  params: Promise<{
     categorySlug: string;
     subcategorySlug: string;
-  };
+  }>;
 }
 
-export default function AdminSubcategoryPage({
+export default async function AdminSubcategoryPage({
   params,
 }: AdminSubcategoryPageProps) {
+  const { categorySlug, subcategorySlug } = await params;
   return (
     <AdminSubcategoryView
-      categorySlug={params.categorySlug}
-      subcategorySlug={params.subcategorySlug}
+      categorySlug={categorySlug}
+      subcategorySlug={subcategorySlug}
     />
   );
 }

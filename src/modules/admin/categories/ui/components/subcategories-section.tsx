@@ -30,104 +30,107 @@ const SubcategoryCard = ({
   categorySlug: string;
 }) => {
   return (
-    <Card className="group p-0 transition-shadow hover:shadow-md">
-      <div className="relative flex h-full flex-col">
-        {/* Subcategory Image */}
-        <div className="relative h-32 w-full">
-          <Image
-            src={subcategory.image}
-            alt={subcategory.name}
-            fill
-            className="rounded-t-lg object-cover"
-          />
-          <div className="absolute inset-0 rounded-t-lg bg-gradient-to-t from-black/60 to-transparent" />
+    <Link href={`/admin/categories/${categorySlug}/${subcategory.slug}`}>
+      <Card className="group cursor-pointer p-0 transition-shadow hover:shadow-md">
+        <div className="relative flex h-full flex-col">
+          {/* Subcategory Image */}
+          <div className="relative h-32 w-full">
+            <Image
+              src={subcategory.image}
+              alt={subcategory.name}
+              fill
+              className="rounded-t-lg object-cover"
+            />
+            <div className="absolute inset-0 rounded-t-lg bg-gradient-to-t from-black/60 to-transparent" />
 
-          {/* Status Badge */}
-          <div className="absolute top-2 right-2">
-            <Badge
-              variant={subcategory.isActive ? "default" : "secondary"}
-              className="text-xs"
-            >
-              {subcategory.isActive ? "Active" : "Inactive"}
-            </Badge>
+            {/* Status Badge */}
+            <div className="absolute top-2 right-2">
+              <Badge
+                variant={subcategory.isActive ? "default" : "secondary"}
+                className="text-xs"
+              >
+                {subcategory.isActive ? "Active" : "Inactive"}
+              </Badge>
+            </div>
           </div>
-        </div>
 
-        <CardContent className="flex-1 p-4">
-          {/* Subcategory Info */}
-          <div className="flex h-full flex-col gap-2">
-            <div className="flex items-start justify-between">
-              <div className="min-w-0 flex-1">
-                <h3 className="truncate font-semibold">{subcategory.name}</h3>
-                <p className="text-muted-foreground truncate text-sm">
-                  /{subcategory.slug}
+          <CardContent className="flex-1 p-4">
+            {/* Subcategory Info */}
+            <div className="flex h-full flex-col gap-2">
+              <div className="flex items-start justify-between">
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate font-semibold">{subcategory.name}</h3>
+                  <p className="text-muted-foreground truncate text-sm">
+                    /{subcategory.slug}
+                  </p>
+                </div>
+
+                {/* Actions Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/admin/categories/${categorySlug}/${subcategory.slug}`}
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Manage
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/categories/${categorySlug}/${subcategory.slug}`}
+                      >
+                        <Eye className="mr-2 h-4 w-4" />
+                        View Public
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-red-600">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              {/* Description */}
+              {subcategory.description && (
+                <p className="text-muted-foreground line-clamp-2 text-sm">
+                  {subcategory.description}
                 </p>
-              </div>
+              )}
 
-              {/* Actions Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 transition-opacity group-hover:opacity-100"
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={`/admin/categories/${categorySlug}/${subcategory.slug}`}
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      Manage
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={`/categories/${categorySlug}/${subcategory.slug}`}
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      View Public
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* Description */}
-            {subcategory.description && (
-              <p className="text-muted-foreground line-clamp-2 text-sm">
-                {subcategory.description}
-              </p>
-            )}
-
-            {/* Stats */}
-            <div className="text-muted-foreground mt-auto flex items-center space-x-4 text-xs">
-              <div className="flex items-center space-x-1">
-                <Package className="h-3 w-3" />
-                <span className="text-nowrap">
-                  {subcategory.productCount || 0} products
-                </span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <span>
-                  Created {new Date(subcategory.createdAt).toLocaleDateString()}
-                </span>
+              {/* Stats */}
+              <div className="text-muted-foreground mt-auto flex items-center space-x-4 text-xs">
+                <div className="flex items-center space-x-1">
+                  <Package className="h-3 w-3" />
+                  <span className="text-nowrap">
+                    {subcategory.productCount || 0} products
+                  </span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span>
+                    Created{" "}
+                    {new Date(subcategory.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </div>
-    </Card>
+          </CardContent>
+        </div>
+      </Card>
+    </Link>
   );
 };
 

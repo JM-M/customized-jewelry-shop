@@ -6,6 +6,7 @@ import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 
 import { AdminProductsTable } from "@/modules/admin/products/ui/components/admin-products-table";
+import { PackageIcon } from "lucide-react";
 
 interface CategoryProductsSectionProps {
   categorySlug: string;
@@ -87,7 +88,7 @@ export const CategoryProductsSection = ({
         ) : (
           <div className="py-8 text-center">
             <div className="text-muted-foreground mx-auto mb-4 h-12 w-12">
-              📦
+              <PackageIcon className="size-12" strokeWidth={1.2} />
             </div>
             <h3 className="text-muted-foreground mb-2 text-sm font-medium">
               No products found
