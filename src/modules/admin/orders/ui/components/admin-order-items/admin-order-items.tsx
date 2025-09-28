@@ -44,15 +44,19 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
                     {item.product?.name || "Unknown Product"}
                   </h3>
                   <div className="mt-1 space-y-1">
-                    <div className="min-[500px]:flex min-[500px]:items-center min-[500px]:gap-4">
+                    <div className="@min-[500px]:flex @min-[500px]:items-center @min-[500px]:gap-4">
                       <p className="text-muted-foreground text-sm">
-                        <span className="min-[500px]:hidden">SKU: </span>
-                        <span className="hidden min-[500px]:inline">SKU: </span>
+                        <span className="@min-[500px]:hidden">SKU: </span>
+                        <span className="hidden @min-[500px]:inline">
+                          SKU:{" "}
+                        </span>
                         {item.product?.sku || "N/A"}
                       </p>
                       <p className="text-muted-foreground text-sm">
-                        <span className="min-[500px]:hidden">Qty: </span>
-                        <span className="hidden min-[500px]:inline">Qty: </span>
+                        <span className="@min-[500px]:hidden">Qty: </span>
+                        <span className="hidden @min-[500px]:inline">
+                          Qty:{" "}
+                        </span>
                         {item.quantity}
                       </p>
                     </div>
@@ -63,7 +67,7 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
                     )}
                   </div>
                 </div>
-                <div className="hidden text-right min-[500px]:block">
+                <div className="hidden text-right @min-[500px]:block">
                   <p className="text-lg font-semibold text-gray-900">
                     {formatNaira(Number(item.totalPrice))}
                   </p>
@@ -74,7 +78,7 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
               </div>
 
               {/* Price section below image for screens < 500px */}
-              <div className="flex justify-end gap-3 min-[500px]:hidden">
+              <div className="flex justify-end gap-3 @min-[500px]:hidden">
                 <div className="text-right text-nowrap">
                   <p className="text-lg font-semibold text-gray-900">
                     {formatNaira(Number(item.totalPrice))}
@@ -86,7 +90,7 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
               </div>
 
               {/* Product Details - Mobile */}
-              <div className="hidden space-y-3 min-[500px]:block">
+              <div className="hidden space-y-3 @min-[500px]:block">
                 {/* Engravings - Mobile */}
                 {item.engravings && Object.keys(item.engravings).length > 0 && (
                   <div className="space-y-2">
@@ -274,7 +278,7 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
 
         {/* Order Items Summary */}
         <div className="border-t pt-4">
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 @sm:grid-cols-2">
             <div className="flex items-center justify-start gap-2 text-sm font-medium">
               <span>Total Items:</span>
               <span>{items.reduce((sum, item) => sum + item.quantity, 0)}</span>

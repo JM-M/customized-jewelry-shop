@@ -1,12 +1,15 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth";
+import { pickupAddresses, terminalAddresses } from "@/db/schema/logistics";
 import { orderItems, orders } from "@/db/schema/orders";
 import { materials, products } from "@/db/schema/shop";
+import { makeTerminalRequest, terminalClient } from "@/lib/terminal-client";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { z } from "zod";
+import { TerminalGetRateResponse } from "../../../terminal/types";
 
 export const adminOrdersRouter = createTRPCRouter({
   // Get all orders for admin
@@ -128,6 +131,7 @@ export const adminOrdersRouter = createTRPCRouter({
           deliveredAt: orders.deliveredAt,
           deliveryAddressId: orders.deliveryAddressId,
           pickupAddressId: orders.pickupAddressId,
+          rateId: orders.rateId,
           // User details
           customer: {
             id: user.id,
@@ -180,5 +184,75 @@ export const adminOrdersRouter = createTRPCRouter({
         ...order,
         items: orderItemsData,
       };
+    }),
+
+  // Get delivery address for an order
+  getDeliveryAddress: protectedProcedure
+    .input(
+      z.object({
+        addressId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const [address] = await db
+        .select()
+        .from(terminalAddresses)
+        .where(eq(terminalAddresses.address_id, input.addressId))
+        .limit(1);
+
+      return address || null;
+    }),
+
+  // Get pickup address for an order
+  getPickupAddress: protectedProcedure
+    .input(
+      z.object({
+        pickupAddressId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const [pickupAddress] = await db
+        .select({
+          id: pickupAddresses.id,
+          nickname: pickupAddresses.nickname,
+          isDefault: pickupAddresses.isDefault,
+          terminalAddress: getTableColumns(terminalAddresses),
+        })
+        .from(pickupAddresses)
+        .innerJoin(
+          terminalAddresses,
+          eq(pickupAddresses.terminalAddressId, terminalAddresses.address_id),
+        )
+        .where(eq(pickupAddresses.id, input.pickupAddressId))
+        .limit(1);
+
+      return pickupAddress || null;
+    }),
+
+  // Get rate details by rate ID
+  getRateDetails: protectedProcedure
+    .input(
+      z.object({
+        rateId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      if (!input.rateId || input.rateId === "N/A") {
+        return null;
+      }
+
+      try {
+        // Fetch rate details from Terminal API
+        const rateResult = await makeTerminalRequest<TerminalGetRateResponse>(
+          () => terminalClient.get(`/rates/${input.rateId}`),
+          "Failed to fetch rate details",
+        );
+
+        return rateResult?.data || null;
+      } catch (error) {
+        // If rate fetch fails, return null to handle gracefully
+        console.error("Failed to fetch rate details:", error);
+        return null;
+      }
     }),
 });

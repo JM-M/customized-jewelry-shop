@@ -198,21 +198,29 @@ export interface TerminalCreateParcelResponse {
 
 export interface TerminalRate {
   amount: number;
-  carrier_id: string;
+  breakdown: any[];
   carrier_logo: string;
   carrier_name: string;
   carrier_rate_description: string;
+  carrier_reference: string;
+  carrier_slug: string;
   currency: string;
+  delivery_address: string;
+  delivery_date: string;
+  delivery_eta: number;
   delivery_time: string;
-  id: string;
-  includes_insurance: boolean;
   insurance_coverage: number;
   insurance_fee: number;
+  includes_insurance: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
+  parcel: string;
+  pickup_address: string;
+  pickup_eta: number;
   pickup_time: string;
   rate_id: string;
-  shipment: string;
+  used: boolean;
+  user: string;
   created_at: string;
   updated_at: string;
 }
@@ -227,6 +235,12 @@ export interface TerminalGetRatesForShipmentResponse {
     page: number;
     pageCount: number;
   };
+}
+
+export interface TerminalGetRateResponse {
+  status: boolean;
+  message: string;
+  data: TerminalRate;
 }
 
 export interface TerminalGetDefaultSenderResponse {

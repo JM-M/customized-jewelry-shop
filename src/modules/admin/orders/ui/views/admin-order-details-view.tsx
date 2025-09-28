@@ -70,27 +70,33 @@ export const AdminOrderDetailsView = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <AdminPageHeader
         title={`Order ${order.orderNumber}`}
         description="View and manage order details."
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="@container grid grid-cols-1 gap-4 lg:grid-cols-5">
         {/* Main Content */}
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-4 @lg:col-span-3">
           {/* Order Overview */}
-          <AdminOrderOverview order={order} />
+          <div className="@container">
+            <AdminOrderOverview order={order} />
+          </div>
 
           {/* Customer Information */}
-          <AdminOrderCustomerInfo customer={order.customer} />
+          <div className="@container">
+            <AdminOrderCustomerInfo customer={order.customer} />
+          </div>
 
           {/* Order Items */}
-          <AdminOrderItems items={order.items} />
+          <div className="@container">
+            <AdminOrderItems items={order.items} />
+          </div>
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="@container space-y-4 @lg:col-span-2">
           {/* Shipping Information */}
           <AdminOrderShippingInfo order={order} />
         </div>

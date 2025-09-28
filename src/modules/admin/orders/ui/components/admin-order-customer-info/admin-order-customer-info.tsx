@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExternalLink, Mail, User } from "lucide-react";
 
-import { AdminOrderCustomer } from "../../types";
+import { AdminOrderCustomer } from "../../../types";
 
 interface AdminOrderCustomerInfoProps {
   customer: AdminOrderCustomer;
@@ -30,14 +30,14 @@ export const AdminOrderCustomerInfo = ({
 
       <CardContent className="space-y-4 px-0">
         {/* Customer Details */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <User className="text-muted-foreground size-4" />
               <p className="text-sm font-medium text-gray-900">Customer Name</p>
             </div>
             <p className="text-muted-foreground text-sm">
-              {customer.name || "N/A"}
+              {customer?.name || "N/A"}
             </p>
           </div>
 
@@ -46,19 +46,19 @@ export const AdminOrderCustomerInfo = ({
               <Mail className="text-muted-foreground size-4" />
               <p className="text-sm font-medium text-gray-900">Email Address</p>
             </div>
-            <CopyableText text={customer.email || "N/A"} />
+            <CopyableText text={customer?.email || "N/A"} />
           </div>
         </div>
 
         {/* Customer ID */}
         <div className="space-y-2">
           <p className="text-sm font-medium text-gray-900">Customer ID</p>
-          <CopyableText text={customer.id || "N/A"} />
+          <CopyableText text={customer?.id || "N/A"} />
         </div>
 
         {/* Quick Actions */}
         <div className="border-t pt-3">
-          <div className="flex flex-col gap-2 min-[400px]:flex-row min-[400px]:justify-end">
+          <div className="flex flex-col gap-2 @min-[400px]:flex-row @min-[400px]:justify-end">
             <Button variant="outline" size="sm">
               <Mail className="size-4" />
               Send Email
