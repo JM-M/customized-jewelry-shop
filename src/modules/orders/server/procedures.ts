@@ -160,6 +160,7 @@ export const ordersRouter = createTRPCRouter({
           deliveryAddressId: orders.deliveryAddressId,
           pickupAddressId: orders.pickupAddressId,
           shipmentId: orders.shipmentId,
+          rateId: orders.rateId,
           createdAt: orders.createdAt,
           updatedAt: orders.updatedAt,
           shippedAt: orders.shippedAt,
@@ -257,12 +258,12 @@ export const ordersRouter = createTRPCRouter({
         const totalPrice = unitPrice * quantity;
         subtotal += totalPrice;
 
-        // Calculate engraving additional costs
-        let engravingCost = 0;
-        if (item.engravings) {
-          Object.values(item.engravings).forEach((engraving) => {
-            if (engraving.additionalPrice) {
-              engravingCost += engraving.additionalPrice * quantity;
+        // Calculate customization additional costs
+        let customizationCost = 0;
+        if (item.customizations) {
+          Object.values(item.customizations).forEach((customization) => {
+            if (customization.additionalPrice) {
+              customizationCost += customization.additionalPrice * quantity;
             }
           });
         }
@@ -272,8 +273,8 @@ export const ordersRouter = createTRPCRouter({
           materialId: item.materialId,
           quantity: item.quantity,
           unitPrice: unitPrice.toString(),
-          totalPrice: (totalPrice + engravingCost).toString(),
-          engravings: item.engravings,
+          totalPrice: (totalPrice + customizationCost).toString(),
+          engravings: item.customizations,
           notes: item.notes,
         };
       });
@@ -315,6 +316,7 @@ export const ordersRouter = createTRPCRouter({
           paymentReference: input.paymentReference,
           deliveryAddressId: input.deliveryAddressId,
           pickupAddressId: input.pickupAddressId,
+          rateId: input.rateId,
         })
         .returning();
 

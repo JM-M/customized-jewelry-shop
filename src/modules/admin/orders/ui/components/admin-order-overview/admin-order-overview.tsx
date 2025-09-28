@@ -6,21 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatNaira } from "@/lib/utils";
 import { CalendarDays, Clock, CreditCard, Package } from "lucide-react";
 
+import { AdminOrderDetails } from "../../../types";
+
 interface AdminOrderOverviewProps {
-  order: {
-    id: string;
-    orderNumber: string;
-    status: string;
-    subtotal: string;
-    deliveryFee: string;
-    totalAmount: string;
-    paymentReference?: string;
-    trackingNumber?: string;
-    createdAt: string;
-    updatedAt: string;
-    shippedAt?: string | null;
-    deliveredAt?: string | null;
-  };
+  order: AdminOrderDetails;
 }
 
 const getStatusConfig = (status: string) => {

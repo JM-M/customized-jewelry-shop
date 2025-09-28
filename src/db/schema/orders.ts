@@ -54,6 +54,7 @@ export const orders = pgTable("orders", {
   // Terminal integration
   shipmentId: text("shipment_id"), // Terminal shipment ID
   trackingNumber: text("tracking_number"),
+  rateId: text("rate_id"), // Terminal rate ID used for delivery
 
   // // Metadata
   // notes: text("notes"), // Customer notes

@@ -5,12 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExternalLink, Mail, User } from "lucide-react";
 
+import { AdminOrderCustomer } from "../../types";
+
 interface AdminOrderCustomerInfoProps {
-  customer: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  customer: AdminOrderCustomer;
 }
 
 export const AdminOrderCustomerInfo = ({
@@ -38,7 +36,9 @@ export const AdminOrderCustomerInfo = ({
               <User className="text-muted-foreground size-4" />
               <p className="text-sm font-medium text-gray-900">Customer Name</p>
             </div>
-            <p className="text-muted-foreground text-sm">{customer.name}</p>
+            <p className="text-muted-foreground text-sm">
+              {customer.name || "N/A"}
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -46,14 +46,14 @@ export const AdminOrderCustomerInfo = ({
               <Mail className="text-muted-foreground size-4" />
               <p className="text-sm font-medium text-gray-900">Email Address</p>
             </div>
-            <CopyableText text={customer.email} />
+            <CopyableText text={customer.email || "N/A"} />
           </div>
         </div>
 
         {/* Customer ID */}
         <div className="space-y-2">
           <p className="text-sm font-medium text-gray-900">Customer ID</p>
-          <CopyableText text={customer.id} />
+          <CopyableText text={customer.id || "N/A"} />
         </div>
 
         {/* Quick Actions */}

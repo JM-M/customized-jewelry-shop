@@ -17,13 +17,10 @@ import {
   XCircle,
 } from "lucide-react";
 
+import { AdminOrderDetails } from "../../types";
+
 interface AdminOrderActionsProps {
-  order: {
-    id: string;
-    orderNumber: string;
-    status: string;
-    trackingNumber?: string;
-  };
+  order: AdminOrderDetails;
 }
 
 const getStatusActions = (status: string) => {

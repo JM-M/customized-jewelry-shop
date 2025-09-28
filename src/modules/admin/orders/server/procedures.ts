@@ -2,6 +2,7 @@ import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth";
 import { orderItems, orders } from "@/db/schema/orders";
+import { materials, products } from "@/db/schema/shop";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { and, count, desc, eq, sql } from "drizzle-orm";
@@ -99,5 +100,85 @@ export const adminOrdersRouter = createTRPCRouter({
       };
 
       return response;
+    }),
+
+  // Get single order by order number
+  getOrder: protectedProcedure
+    .input(
+      z.object({
+        orderNumber: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      // Get order with user details
+      const [order] = await db
+        .select({
+          id: orders.id,
+          orderNumber: orders.orderNumber,
+          status: orders.status,
+          subtotal: orders.subtotal,
+          deliveryFee: orders.deliveryFee,
+          totalAmount: orders.totalAmount,
+          paymentReference: orders.paymentReference,
+          trackingNumber: orders.trackingNumber,
+          shipmentId: orders.shipmentId,
+          createdAt: orders.createdAt,
+          updatedAt: orders.updatedAt,
+          shippedAt: orders.shippedAt,
+          deliveredAt: orders.deliveredAt,
+          deliveryAddressId: orders.deliveryAddressId,
+          pickupAddressId: orders.pickupAddressId,
+          // User details
+          customer: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+          },
+        })
+        .from(orders)
+        .leftJoin(user, eq(orders.userId, user.id))
+        .where(eq(orders.orderNumber, input.orderNumber))
+        .limit(1);
+
+      if (!order) {
+        return null;
+      }
+
+      // Get order items with product and material details
+      const orderItemsData = await db
+        .select({
+          id: orderItems.id,
+          productId: orderItems.productId,
+          materialId: orderItems.materialId,
+          quantity: orderItems.quantity,
+          unitPrice: orderItems.unitPrice,
+          totalPrice: orderItems.totalPrice,
+          engravings: orderItems.engravings,
+          notes: orderItems.notes,
+          // Product details
+          product: {
+            id: products.id,
+            name: products.name,
+            slug: products.slug,
+            sku: products.sku,
+            primaryImage: products.primaryImage,
+          },
+          // Material details
+          material: {
+            id: materials.id,
+            name: materials.name,
+            displayName: materials.displayName,
+            hexColor: materials.hexColor,
+          },
+        })
+        .from(orderItems)
+        .leftJoin(products, eq(orderItems.productId, products.id))
+        .leftJoin(materials, eq(orderItems.materialId, materials.id))
+        .where(eq(orderItems.orderId, order.id));
+
+      return {
+        ...order,
+        items: orderItemsData,
+      };
     }),
 });
