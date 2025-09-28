@@ -1,15 +1,18 @@
 import { DataTable } from "@/components/shared/data-table";
 import { Spinner2 } from "@/components/shared/spinner-2";
 import { useTRPC } from "@/trpc/client";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { columns } from "./columns";
+import { createColumns } from "./columns";
 
 export const PickupAddressesTable = () => {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
   const {
     data: pickupAddressesData,
     isLoading,
@@ -20,6 +23,29 @@ export const PickupAddressesTable = () => {
       limit: 20,
     }),
   );
+
+  const { mutate: markAsDefault, isPending: isMarkingAsDefault } = useMutation(
+    trpc.terminal.markDefaultPickupAddress.mutationOptions(),
+  );
+
+  const handleMarkAsDefault = (id: string) => {
+    markAsDefault(
+      { id },
+      {
+        onSuccess: (data) => {
+          toast.success(data.message);
+          queryClient.invalidateQueries({
+            queryKey: trpc.terminal.getPickupAddresses.queryKey(),
+          });
+        },
+        onError: (error) => {
+          toast.error(
+            error.message || "Failed to mark pickup address as default",
+          );
+        },
+      },
+    );
+  };
 
   if (isLoading)
     return (
@@ -59,7 +85,7 @@ export const PickupAddressesTable = () => {
   return (
     <div>
       <DataTable
-        columns={columns}
+        columns={createColumns(handleMarkAsDefault, isMarkingAsDefault)}
         data={pickupAddresses}
         searchKey="nickname"
         searchPlaceholder="Filter by nickname..."

@@ -3,12 +3,21 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import {
-  createActionsColumn,
   createSelectColumn,
   DateCell,
   SortableHeader,
 } from "@/components/shared";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { PickupAddress } from "@/modules/terminal/types";
+import { MoreHorizontal } from "lucide-react";
 
 const AddressCell = ({ pickupAddress }: { pickupAddress: PickupAddress }) => {
   const address = pickupAddress.terminalAddress;
@@ -45,7 +54,59 @@ const DefaultCell = ({ isDefault }: { isDefault: boolean }) => {
   );
 };
 
-export const columns: ColumnDef<PickupAddress>[] = [
+// Actions cell component
+const PickupAddressActionsCell = ({
+  pickupAddress,
+  onMarkAsDefault,
+  isMarkingAsDefault,
+}: {
+  pickupAddress: PickupAddress;
+  onMarkAsDefault: (id: string) => void;
+  isMarkingAsDefault: boolean;
+}) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuItem
+          onClick={() => navigator.clipboard.writeText(pickupAddress.id)}
+        >
+          Copy pickup address ID
+        </DropdownMenuItem>
+        {!pickupAddress.isDefault && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => onMarkAsDefault(pickupAddress.id)}
+              disabled={isMarkingAsDefault}
+            >
+              Mark as default
+            </DropdownMenuItem>
+          </>
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => {}}>View details</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {}}>
+          Edit pickup address
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {}} className="text-red-600">
+          Delete pickup address
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export const createColumns = (
+  onMarkAsDefault: (id: string) => void,
+  isMarkingAsDefault: boolean,
+): ColumnDef<PickupAddress>[] => [
   createSelectColumn<PickupAddress>(),
   {
     accessorKey: "nickname",
@@ -82,27 +143,15 @@ export const columns: ColumnDef<PickupAddress>[] = [
     ),
     cell: ({ row }) => <DateCell value={row.getValue("createdAt")} />,
   },
-  createActionsColumn<PickupAddress>({
-    actions: [
-      {
-        label: "Copy pickup address ID",
-        onClick: (pickupAddress) =>
-          navigator.clipboard.writeText(pickupAddress.id),
-      },
-      {
-        label: "View details",
-        onClick: () => {},
-        separator: true,
-      },
-      {
-        label: "Edit pickup address",
-        onClick: () => {},
-      },
-      {
-        label: "Delete pickup address",
-        onClick: () => {},
-        className: "text-red-600",
-      },
-    ],
-  }),
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <PickupAddressActionsCell
+        pickupAddress={row.original}
+        onMarkAsDefault={onMarkAsDefault}
+        isMarkingAsDefault={isMarkingAsDefault}
+      />
+    ),
+  },
 ];

@@ -159,6 +159,11 @@ const deletePickupAddressSchema = z.object({
   id: z.string().min(1, "Pickup address ID is required"),
 });
 
+// Schema for marking a pickup address as default
+const markDefaultPickupAddressSchema = z.object({
+  id: z.string().min(1, "Pickup address ID is required"),
+});
+
 // Schema for creating a parcel
 const createParcelSchema = z.object({
   description: z.string().optional(),
@@ -811,6 +816,75 @@ export const terminalRouter = createTRPCRouter({
       await db.delete(pickupAddresses).where(eq(pickupAddresses.id, input.id));
 
       return { success: true };
+    }),
+
+  markDefaultPickupAddress: adminProcedure
+    .input(markDefaultPickupAddressSchema)
+    .mutation(async ({ input }) => {
+      // Verify that the pickup address exists and get its terminal address ID
+      const existingPickupAddress = await db
+        .select({
+          id: pickupAddresses.id,
+          terminalAddressId: pickupAddresses.terminalAddressId,
+          isDefault: pickupAddresses.isDefault,
+        })
+        .from(pickupAddresses)
+        .where(eq(pickupAddresses.id, input.id))
+        .limit(1);
+
+      if (existingPickupAddress.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Pickup address not found",
+        });
+      }
+
+      const pickupAddress = existingPickupAddress[0];
+
+      // If already default, return success
+      if (pickupAddress.isDefault) {
+        return { success: true, message: "Address is already the default" };
+      }
+
+      // Unset all other pickup addresses as default
+      await db
+        .update(pickupAddresses)
+        .set({ isDefault: false })
+        .where(eq(pickupAddresses.isDefault, true));
+
+      // Set the specified pickup address as default
+      await db
+        .update(pickupAddresses)
+        .set({ isDefault: true })
+        .where(eq(pickupAddresses.id, input.id));
+
+      // Sync with Terminal API - set as default sender address
+      const terminalResult = await makeTerminalRequest<{ status: boolean }>(
+        () =>
+          terminalClient.post("/addresses/default/sender", {
+            address_id: pickupAddress.terminalAddressId,
+          }),
+        "Failed to set default sender address in Terminal",
+      );
+
+      if (!terminalResult.status) {
+        // If Terminal API call fails, rollback the database changes
+        await db
+          .update(pickupAddresses)
+          .set({ isDefault: false })
+          .where(eq(pickupAddresses.id, input.id));
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "Failed to sync with Terminal API. Changes have been rolled back.",
+        });
+      }
+
+      return {
+        success: true,
+        message: "Pickup address marked as default successfully",
+      };
     }),
 
   // Checkout Session procedures
