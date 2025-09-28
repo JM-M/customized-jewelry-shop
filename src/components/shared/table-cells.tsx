@@ -1,5 +1,6 @@
 "use client";
 
+import { formatNaira } from "@/lib/utils";
 import { format } from "date-fns";
 
 interface PriceCellProps {
@@ -12,7 +13,7 @@ export function PriceCell({
   className = "text-right font-medium",
 }: PriceCellProps) {
   const price = parseFloat(value.toString());
-  return <div className={className}>${price.toFixed(2)}</div>;
+  return <div className={className}>{formatNaira(price)}</div>;
 }
 
 interface StockCellProps {
