@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 
@@ -35,7 +36,7 @@ export const CopyableText = ({
   return (
     <button
       onClick={handleCopy}
-      className={`group flex items-center gap-2 rounded-md text-left transition-colors hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none ${className}`}
+      className="group flex items-center gap-2 rounded-md text-left transition-colors hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
       title={copied ? "Copied!" : "Click to copy"}
     >
       {showIcon && iconPosition === "left" && (
@@ -47,7 +48,12 @@ export const CopyableText = ({
           }`}
         />
       )}
-      <span className="flex-1 font-mono text-sm text-gray-700 group-hover:text-gray-900">
+      <span
+        className={cn(
+          "flex-1 font-mono text-sm text-gray-700 group-hover:text-gray-900",
+          className,
+        )}
+      >
         {children || text}
       </span>
       {showIcon && iconPosition === "right" && (
