@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+  bigint,
   decimal,
   integer,
   json,
@@ -15,7 +16,9 @@ export const transactions = pgTable("transactions", {
   id: uuid("id").primaryKey().defaultRandom(),
 
   // Payment processor references
-  paystackTransactionId: integer("paystack_transaction_id").notNull().unique(),
+  paystackTransactionId: bigint("paystack_transaction_id", { mode: "number" })
+    .notNull()
+    .unique(),
   paymentReference: text("payment_reference").notNull().unique(),
 
   // Order relationship

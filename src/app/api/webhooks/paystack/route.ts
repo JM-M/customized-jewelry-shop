@@ -71,10 +71,14 @@ async function handlePaymentSuccess(event: PaystackChargeSuccessEvent) {
   } = data;
 
   console.log(`Processing successful payment for reference: ${reference}`);
+  console.log(`Paystack transaction ID: ${id} (type: ${typeof id})`);
+  console.log(`Amount: ${amount} kobo (${amount / 100} ${currency})`);
+  console.log(`Customer: ${customer.email}`);
 
+  let order: any = null;
   try {
     // Find the order by payment reference with retry logic
-    let [order] = await db
+    [order] = await db
       .select()
       .from(orders)
       .where(eq(orders.paymentReference, reference))
@@ -105,6 +109,25 @@ async function handlePaymentSuccess(event: PaystackChargeSuccessEvent) {
     }
 
     // Create transaction record
+    console.log(`Creating transaction record for order: ${order.id}`);
+    console.log(`Transaction data:`, {
+      paystackTransactionId: id,
+      paymentReference: reference,
+      orderId: order.id,
+      amount: (amount / 100).toString(),
+      amountInKobo: amount,
+      currency: currency,
+      status: "success",
+      channel: channel,
+      cardType: authorization.card_type,
+      bank: authorization.bank,
+      last4: authorization.last4,
+      fees: (fees / 100).toString(),
+      customerEmail: customer.email,
+      customerPhone: customer.phone,
+      customerName: `${customer.first_name} ${customer.last_name}`,
+    });
+
     await db.insert(transactions).values({
       paystackTransactionId: id,
       paymentReference: reference,
@@ -129,8 +152,15 @@ async function handlePaymentSuccess(event: PaystackChargeSuccessEvent) {
       paidAt: new Date(paid_at),
     });
 
+    console.log(
+      `Transaction record created successfully for reference: ${reference}`,
+    );
+
     // Update order status to confirmed if it's still pending
     if (order.status === "pending") {
+      console.log(
+        `Updating order ${order.orderNumber} status from pending to confirmed`,
+      );
       await db
         .update(orders)
         .set({
@@ -153,6 +183,13 @@ async function handlePaymentSuccess(event: PaystackChargeSuccessEvent) {
     // TODO: Trigger any post-payment workflows
   } catch (error) {
     console.error(`Error processing payment success for ${reference}:`, error);
+    console.error(`Error details:`, {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      paystackTransactionId: id,
+      paymentReference: reference,
+      orderId: order?.id,
+    });
     throw error;
   }
 }
@@ -333,6 +370,10 @@ async function handleRefund(event: PaystackRefundProcessedEvent) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log(
+    `Received Paystack webhook request at ${new Date().toISOString()}`,
+  );
+
   try {
     // Get Paystack secret key from environment
     const secret = process.env.PAYSTACK_SECRET_KEY;
@@ -354,6 +395,9 @@ export async function POST(request: NextRequest) {
     const body = await request.text();
     const signature = request.headers.get("x-paystack-signature");
 
+    console.log(`Webhook body length: ${body.length} characters`);
+    console.log(`Signature present: ${!!signature}`);
+
     if (!signature) {
       console.error("Missing Paystack signature header");
       return NextResponse.json({ error: "Missing signature" }, { status: 400 });
@@ -368,13 +412,23 @@ export async function POST(request: NextRequest) {
     // Parse the event data
     const event: PaystackWebhookEvent = JSON.parse(body);
     console.log(`Received Paystack webhook event: ${event.event}`);
+    console.log(`Event data:`, JSON.stringify(event.data, null, 2));
 
     // Handle different event types with type safety
     if (isChargeSuccessEvent(event)) {
+      console.log(
+        `Processing charge success event for reference: ${event.data.reference}`,
+      );
       await handlePaymentSuccess(event);
     } else if (isChargeFailedEvent(event)) {
+      console.log(
+        `Processing charge failed event for reference: ${event.data.reference}`,
+      );
       await handlePaymentFailure(event);
     } else if (isRefundProcessedEvent(event)) {
+      console.log(
+        `Processing refund event for transaction: ${event.data.transaction}`,
+      );
       await handleRefund(event);
     } else if (isTransferSuccessEvent(event)) {
       console.log("Transfer successful:", event.data);
