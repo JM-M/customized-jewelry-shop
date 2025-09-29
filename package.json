@@ -11,7 +11,8 @@
     "db:push": "npx drizzle-kit push",
     "db:seed": "bun run src/scripts/db/seed.ts",
     "db:nuke": "bun run src/scripts/db/nuke.ts",
-    "db:reset": "bun run src/scripts/db/nuke.ts && timeout /t 1 /nobreak >nul && drizzle-kit push && timeout /t 1 /nobreak >nul && bun run src/scripts/db/seed/index.ts"
+    "db:reset": "bun run src/scripts/db/nuke.ts && timeout /t 1 /nobreak >nul && drizzle-kit push && timeout /t 1 /nobreak >nul && bun run src/scripts/db/seed/index.ts",
+    "dev:ngrok": "ngrok http --url=valued-resolved-prawn.ngrok-free.app 3000"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

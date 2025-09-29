@@ -93,7 +93,8 @@ export const CheckoutButton = () => {
           onSuccess={(data) => {
             console.log("Payment successful:", data);
 
-            // TODO: Move order creation into a webhook
+            // Order creation happens immediately for better UX
+            // Paystack webhook serves as backup confirmation
 
             // Create order from cart
             if (cart?.id && selectedAddressId) {
