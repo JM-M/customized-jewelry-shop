@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { pickupAddresses, terminalAddresses } from "./logistics";
+import { transactions } from "./payments";
 import { materials, products } from "./shop";
 
 // Order status enum
@@ -118,6 +119,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     references: [pickupAddresses.id],
   }),
   items: many(orderItems),
+  transactions: many(transactions),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({

@@ -312,7 +312,7 @@ export const ordersRouter = createTRPCRouter({
           subtotal: subtotal.toString(),
           deliveryFee: deliveryFee.toString(),
           totalAmount: totalAmount.toString(),
-          status: "confirmed",
+          status: "pending",
           paymentReference: input.paymentReference,
           deliveryAddressId: input.deliveryAddressId,
           pickupAddressId: input.pickupAddressId,

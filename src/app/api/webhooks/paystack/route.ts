@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { orders } from "@/db/schema/orders";
+import { transactions } from "@/db/schema/payments";
 import crypto from "crypto";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
@@ -38,28 +39,97 @@ function verifyPaystackSignature(
   return hash === signature;
 }
 
+// Helper function to find order by reference
+async function findOrderByReference(reference: string) {
+  const [order] = await db
+    .select()
+    .from(orders)
+    .where(eq(orders.paymentReference, reference))
+    .limit(1);
+
+  return order;
+}
+
 // Handle successful payment
 async function handlePaymentSuccess(event: PaystackChargeSuccessEvent) {
   const { data } = event;
-  const { reference, amount, customer, metadata } = data;
+  const {
+    id,
+    reference,
+    amount,
+    customer,
+    metadata,
+    authorization,
+    channel,
+    currency,
+    fees,
+    fees_breakdown,
+    gateway_response,
+    message,
+    ip_address,
+    paid_at,
+  } = data;
 
   console.log(`Processing successful payment for reference: ${reference}`);
 
   try {
-    // Find the order by payment reference
-    const [order] = await db
+    // Find the order by payment reference with retry logic
+    let [order] = await db
       .select()
       .from(orders)
       .where(eq(orders.paymentReference, reference))
       .limit(1);
 
     if (!order) {
-      console.error(`Order not found for payment reference: ${reference}`);
-      return;
+      console.log(
+        `Order not found for payment reference: ${reference}. Waiting for order creation...`,
+      );
+
+      // Wait a bit for the order to be created (race condition handling)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      [order] = await db
+        .select()
+        .from(orders)
+        .where(eq(orders.paymentReference, reference))
+        .limit(1);
+
+      if (!order) {
+        console.error(
+          `Order still not found for payment reference: ${reference} after retry`,
+        );
+        console.error(`This indicates a serious issue with the payment flow.`);
+        console.error(`Payment was successful but no order was created.`);
+        return;
+      }
     }
 
+    // Create transaction record
+    await db.insert(transactions).values({
+      paystackTransactionId: id,
+      paymentReference: reference,
+      orderId: order.id,
+      amount: (amount / 100).toString(), // Convert from kobo to main currency
+      amountInKobo: amount,
+      currency: currency,
+      status: "success",
+      channel: channel,
+      cardType: authorization.card_type,
+      bank: authorization.bank,
+      last4: authorization.last4,
+      fees: (fees / 100).toString(), // Convert from kobo to main currency
+      feesBreakdown: fees_breakdown ? [fees_breakdown] : null,
+      customerEmail: customer.email,
+      customerPhone: customer.phone,
+      customerName: `${customer.first_name} ${customer.last_name}`,
+      gatewayResponse: gateway_response,
+      message: message,
+      metadata: metadata,
+      ipAddress: ip_address,
+      paidAt: new Date(paid_at),
+    });
+
     // Update order status to confirmed if it's still pending
-    // This handles cases where the webhook is received after frontend order creation
     if (order.status === "pending") {
       await db
         .update(orders)
@@ -90,7 +160,20 @@ async function handlePaymentSuccess(event: PaystackChargeSuccessEvent) {
 // Handle failed payment
 async function handlePaymentFailure(event: PaystackChargeFailedEvent) {
   const { data } = event;
-  const { reference, message } = data;
+  const {
+    id,
+    reference,
+    amount,
+    customer,
+    metadata,
+    authorization,
+    channel,
+    currency,
+    fees,
+    gateway_response,
+    message,
+    ip_address,
+  } = data;
 
   console.log(
     `Processing failed payment for reference: ${reference}, reason: ${message}`,
@@ -108,6 +191,30 @@ async function handlePaymentFailure(event: PaystackChargeFailedEvent) {
       console.error(`Order not found for payment reference: ${reference}`);
       return;
     }
+
+    // Create transaction record for failed payment
+    await db.insert(transactions).values({
+      paystackTransactionId: id,
+      paymentReference: reference,
+      orderId: order.id,
+      amount: (amount / 100).toString(), // Convert from kobo to main currency
+      amountInKobo: amount,
+      currency: currency,
+      status: "failed",
+      channel: channel,
+      cardType: authorization?.card_type,
+      bank: authorization?.bank,
+      last4: authorization?.last4,
+      fees: (fees / 100).toString(), // Convert from kobo to main currency
+      customerEmail: customer.email,
+      customerPhone: customer.phone,
+      customerName: `${customer.first_name} ${customer.last_name}`,
+      gatewayResponse: gateway_response,
+      message: message,
+      metadata: metadata,
+      ipAddress: ip_address,
+      failedAt: new Date(),
+    });
 
     // Update order status to cancelled if it's still pending
     if (order.status === "pending") {
@@ -135,22 +242,82 @@ async function handlePaymentFailure(event: PaystackChargeFailedEvent) {
 // Handle refund events
 async function handleRefund(event: PaystackRefundProcessedEvent) {
   const { data } = event;
-  const { transaction, amount, reason } = data;
+  const {
+    id,
+    transaction,
+    amount,
+    reason,
+    currency,
+    status: refundStatus,
+    refunded_at,
+  } = data;
 
   console.log(
     `Processing refund for transaction: ${transaction}, amount: ${amount}, reason: ${reason}`,
   );
 
   try {
-    // For refunds, we need to find the order by the transaction ID
-    // Since refunds don't have a direct reference, we'll need to look up by transaction ID
-    // This is a limitation - we might need to store transaction IDs in orders table
-    console.log(`Refund processed for transaction ID: ${transaction}`);
+    // Find the original transaction by Paystack transaction ID
+    const [originalTransaction] = await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.paystackTransactionId, transaction))
+      .limit(1);
 
-    // TODO: Implement proper refund handling
-    // This requires either:
-    // 1. Storing transaction IDs in orders table, or
-    // 2. Using Paystack API to get transaction details by ID
+    if (!originalTransaction) {
+      console.error(
+        `Original transaction not found for Paystack ID: ${transaction}`,
+      );
+      return;
+    }
+
+    // Create a new transaction record for the refund
+    await db.insert(transactions).values({
+      paystackTransactionId: id, // Refund ID from Paystack
+      paymentReference: `refund_${id}`, // Create a unique reference for refund
+      orderId: originalTransaction.orderId,
+      amount: (amount / 100).toString(), // Convert from kobo to main currency
+      amountInKobo: amount,
+      currency: currency,
+      status: refundStatus === "success" ? "refunded" : "failed",
+      channel: originalTransaction.channel, // Inherit from original transaction
+      cardType: originalTransaction.cardType,
+      bank: originalTransaction.bank,
+      last4: originalTransaction.last4,
+      customerEmail: originalTransaction.customerEmail,
+      customerPhone: originalTransaction.customerPhone,
+      customerName: originalTransaction.customerName,
+      message: reason,
+      metadata: {
+        refund_reason: reason,
+        original_transaction_id: transaction,
+        refund_id: id,
+      },
+      refundedAt: new Date(refunded_at),
+    });
+
+    // Update the original transaction status if it was a full refund
+    if (
+      refundStatus === "success" &&
+      amount === originalTransaction.amountInKobo
+    ) {
+      await db
+        .update(transactions)
+        .set({
+          status: "refunded",
+          updatedAt: new Date(),
+        })
+        .where(eq(transactions.id, originalTransaction.id));
+    } else if (refundStatus === "success") {
+      // Partial refund - update to partially_refunded
+      await db
+        .update(transactions)
+        .set({
+          status: "partially_refunded",
+          updatedAt: new Date(),
+        })
+        .where(eq(transactions.id, originalTransaction.id));
+    }
 
     console.log(`Refund of ${amount} processed for transaction ${transaction}`);
 
