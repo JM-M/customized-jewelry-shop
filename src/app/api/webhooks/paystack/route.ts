@@ -75,6 +75,7 @@ async function handlePaymentSuccess(event: PaystackChargeSuccessEvent) {
   console.log(`Amount: ${amount} kobo (${amount / 100} ${currency})`);
   console.log(`Customer: ${customer.email}`);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let order: any = null;
   try {
     // Find the order by payment reference with retry logic
