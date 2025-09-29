@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFormContext } from "react-hook-form";
 
-import { CustomerSearchCommand } from "@/components/admin/shared";
+import { CustomerSearchCommand } from "@/components/admin/shared/customer-search-command";
 import { CustomerInfoFormValues } from "./schemas";
 
 export const CustomerInfoFields = () => {

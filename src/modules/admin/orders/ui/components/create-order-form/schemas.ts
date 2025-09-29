@@ -15,7 +15,6 @@ export const orderItemSchema = z.object({
   materialId: z.string().min(1, "Material is required"),
   quantity: z.number().min(1, "Quantity must be at least 1"),
   unitPrice: z.number().min(0, "Unit price must be positive"),
-  engravings: z.any().optional(),
   notes: z.string().optional(),
   customizations: z
     .record(z.string(), z.custom<CustomizationContent>())

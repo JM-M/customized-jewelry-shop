@@ -141,7 +141,7 @@ export const cartRouter = createTRPCRouter({
         productId: z.string(),
         materialId: z.string().optional(),
         quantity: z.number().min(1).default(1),
-        engravings: z
+        customizations: z
           .record(
             z.string(),
             z.object({
@@ -225,7 +225,7 @@ export const cartRouter = createTRPCRouter({
           .update(cartItems)
           .set({
             quantity: newQuantity,
-            engravings: input.engravings || existingItem.engravings,
+            customizations: input.customizations || existingItem.customizations,
             notes: input.notes || existingItem.notes,
             updatedAt: new Date(),
           })
@@ -241,7 +241,7 @@ export const cartRouter = createTRPCRouter({
           materialId: input.materialId,
           quantity: input.quantity,
           price: price.toString(),
-          engravings: input.engravings || {},
+          customizations: input.customizations || {},
           notes: input.notes,
         };
 

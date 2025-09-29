@@ -4,7 +4,7 @@ import { useCart } from "@/modules/cart/contexts";
 import { HiShoppingBag } from "react-icons/hi2";
 
 export const CartButton = () => {
-  const { setIsOpen, cartSummary, cart } = useCart();
+  const { setIsOpen, cartSummary } = useCart();
   const cartItemsCount = cartSummary.itemCount;
 
   return (

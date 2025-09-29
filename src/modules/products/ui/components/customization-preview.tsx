@@ -2,10 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
-  CustomizationContent,
-  CustomizationType,
-} from "@/modules/products/types";
+import { CustomizationContent, CustomizationType } from "@/modules/products/types";
 import { ImageIcon, QrCodeIcon, Type } from "lucide-react";
 
 interface CustomizationPreviewProps {
@@ -35,10 +32,7 @@ const getTypeLabel = (type: CustomizationType) => {
   }
 };
 
-export const CustomizationPreview = ({
-  content,
-  type,
-}: CustomizationPreviewProps) => {
+export const CustomizationPreview = ({ content, type }: CustomizationPreviewProps) => {
   if (!content) return null;
 
   return (

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
-import { ProductSearchCommand } from "@/components/admin/shared";
+import { ProductSearchCommand } from "@/components/admin/shared/product-search-command";
 import {
   OrderItemCustomization,
   OrderItemMaterialSelect,
@@ -127,7 +128,6 @@ export const OrderItemForm = ({
         materialId: "",
         quantity: 1,
         unitPrice: 0,
-        engravings: {},
         notes: "",
         customizations: {},
       };

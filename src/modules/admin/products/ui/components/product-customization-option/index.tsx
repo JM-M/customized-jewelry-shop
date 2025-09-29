@@ -1,5 +1,5 @@
 import { ProductCustomizationOptionType } from "../../../types";
-import { Material } from "../admin-product-material";
+import { AdminProductMaterial } from "../admin-product-material";
 import { Engraving } from "./engraving";
 import { TextShape } from "./text-shape";
 
@@ -11,22 +11,22 @@ export const ProductCustomizationOption = ({
   type,
 }: ProductCustomizationOptionProps) => {
   if (type === "material") {
-    return <Material />;
+    return <AdminProductMaterial />;
   }
 
   if (type === "text_shape") {
     return <TextShape />;
   }
 
-  if (type === "text_engraving") {
+  if (type === "text_customization") {
     return <Engraving type="text" />;
   }
 
-  if (type === "image_engraving") {
+  if (type === "image_customization") {
     return <Engraving type="image" />;
   }
 
-  if (type === "qr_code_engraving") {
+  if (type === "qr_code_customization") {
     return <Engraving type="qr_code" />;
   }
 

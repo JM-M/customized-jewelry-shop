@@ -11,7 +11,7 @@ import {
 } from "react";
 import { GetCartOutput } from "../types";
 
-// TODO: Verify that engravings implementation work for all types of engravings
+// TODO: Verify that customizations implementation work for all types of customizations
 
 type OptimisticUpdater = (
   oldData: GetCartOutput | null | undefined,

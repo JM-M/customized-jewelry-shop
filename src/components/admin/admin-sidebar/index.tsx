@@ -139,7 +139,7 @@ const sidebarConfig: SidebarGroup[] = [
 
 export function AdminSidebar() {
   const session = authClient.useSession();
-  const { isMobile, setOpenMobile, setOpen } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
   const handleLinkClick = () => {

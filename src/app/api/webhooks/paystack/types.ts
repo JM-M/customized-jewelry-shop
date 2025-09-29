@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Paystack Webhook Types
  * Based on official Paystack documentation and actual webhook payloads
@@ -6,7 +8,7 @@
 // Base webhook event structure
 export interface PaystackWebhookEvent {
   event: PaystackEventType;
-  data: PaystackTransactionData;
+  data: PaystackEventData;
 }
 
 // Supported event types
@@ -54,6 +56,12 @@ export type PaystackCardType =
 // Currency codes
 export type PaystackCurrency = "NGN" | "USD" | "GHS" | "ZAR" | "KES";
 
+// Union type for all possible event data
+export type PaystackEventData =
+  | PaystackTransactionData
+  | PaystackRefundData
+  | PaystackTransferData;
+
 // Main transaction data structure
 export interface PaystackTransactionData {
   id: number;
@@ -75,9 +83,9 @@ export interface PaystackTransactionData {
   fees_split: PaystackFeesSplit | null;
   authorization: PaystackAuthorization;
   customer: PaystackCustomer;
-  plan: PaystackPlan | {};
-  subaccount: PaystackSubaccount | {};
-  split: PaystackSplit | {};
+  plan: PaystackPlan | Record<string, never>;
+  subaccount: PaystackSubaccount | Record<string, never>;
+  split: PaystackSplit | Record<string, never>;
   order_id: string | null;
   paidAt: string; // ISO 8601 timestamp (duplicate of paid_at)
   requested_amount: number; // Amount in kobo
@@ -289,12 +297,6 @@ export interface PaystackTransferData {
   createdAt: string;
   updatedAt: string;
 }
-
-// Union type for all possible event data
-export type PaystackEventData =
-  | PaystackTransactionData
-  | PaystackRefundData
-  | PaystackTransferData;
 
 // Type guards for runtime type checking
 export function isChargeSuccessEvent(

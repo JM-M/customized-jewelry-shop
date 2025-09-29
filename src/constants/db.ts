@@ -1,1 +1,1 @@
-export const ENGRAVING_TYPES = ["text", "image", "qr_code"] as const;
+export const CUSTOMIZATION_TYPES = ["text", "image", "qr_code"] as const;

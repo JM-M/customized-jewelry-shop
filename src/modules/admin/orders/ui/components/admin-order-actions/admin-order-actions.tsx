@@ -17,7 +17,7 @@ import {
   XCircle,
 } from "lucide-react";
 
-import { AdminOrderDetails } from "../../types";
+import { AdminOrderDetails } from "../../../types";
 
 interface AdminOrderActionsProps {
   order: AdminOrderDetails;

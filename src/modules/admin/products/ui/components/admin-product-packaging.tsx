@@ -12,10 +12,6 @@ import { PackagingInfo } from "./packaging-info";
 
 export const AdminProductPackaging = () => {
   const { product } = useAdminProduct();
-
-  if (!product) {
-    return null;
-  }
   const trpc = useTRPC();
 
   const { data: packaging, isLoading } = useQuery(
@@ -24,6 +20,10 @@ export const AdminProductPackaging = () => {
       page: 1,
     }),
   );
+
+  if (!product) {
+    return null;
+  }
 
   if (isLoading) {
     return (
@@ -45,7 +45,7 @@ export const AdminProductPackaging = () => {
     (packaging) => packaging.default,
   );
 
-  let productPackaging = product.packagingId
+  const productPackaging = product.packagingId
     ? packaging.data.packaging.find(
         (packaging) => packaging.packaging_id === product.packagingId,
       )

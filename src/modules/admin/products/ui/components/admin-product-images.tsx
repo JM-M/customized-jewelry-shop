@@ -10,12 +10,12 @@ import { useAdminProduct } from "../../contexts/admin-product";
 
 export const AdminProductImages = () => {
   const { product } = useAdminProduct();
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const images = product ? [product.primaryImage, ...product.images] : [];
 
   if (!product) {
     return null;
   }
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const images = [product.primaryImage, ...product.images];
 
   return (
     <Card className="gap-3 p-3">

@@ -124,6 +124,7 @@ export function ProductProvider({ children }: ProductProviderProps) {
 
     // Check if all required customization options are filled
     const hasRequiredCustomizations = customizationOptions.every(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (option: any) => {
         // If there are customization options, they might be optional
         // You can add business logic here to determine which are required

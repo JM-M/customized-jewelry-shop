@@ -91,56 +91,60 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
 
               {/* Product Details - Mobile */}
               <div className="hidden space-y-3 @min-[500px]:block">
-                {/* Engravings - Mobile */}
-                {item.engravings && Object.keys(item.engravings).length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium text-gray-900">
-                      Customizations:
-                    </h4>
+                {/* Customizations - Mobile */}
+                {item.customizations &&
+                  Object.keys(item.customizations).length > 0 && (
                     <div className="space-y-2">
-                      {Object.entries(item.engravings).map(
-                        ([areaId, engraving]) => (
-                          <div
-                            key={areaId}
-                            className="rounded-md bg-gray-50 p-3"
-                          >
-                            <div className="space-y-2 min-[500px]:flex min-[500px]:items-start min-[500px]:justify-between min-[500px]:space-y-0">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <Badge
-                                    variant={
-                                      engraving.type === "text"
-                                        ? "default"
-                                        : engraving.type === "image"
-                                          ? "secondary"
-                                          : "outline"
-                                    }
-                                    className="text-xs"
-                                  >
-                                    {engraving.type.toUpperCase()}
-                                  </Badge>
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {areaId}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-gray-700 min-[500px]:mt-1">
-                                  {engraving.content}
-                                </p>
-                              </div>
-                              {engraving.additionalPrice && (
-                                <div className="min-[500px]:flex-shrink-0 min-[500px]:text-right">
-                                  <p className="text-sm font-medium text-green-600">
-                                    +{formatNaira(engraving.additionalPrice)}
+                      <h4 className="text-sm font-medium text-gray-900">
+                        Customizations:
+                      </h4>
+                      <div className="space-y-2">
+                        {Object.entries(item.customizations).map(
+                          ([optionId, customization]) => (
+                            <div
+                              key={optionId}
+                              className="rounded-md bg-gray-50 p-3"
+                            >
+                              <div className="space-y-2 min-[500px]:flex min-[500px]:items-start min-[500px]:justify-between min-[500px]:space-y-0">
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <Badge
+                                      variant={
+                                        customization.type === "text"
+                                          ? "default"
+                                          : customization.type === "image"
+                                            ? "secondary"
+                                            : "outline"
+                                      }
+                                      className="text-xs"
+                                    >
+                                      {customization.type.toUpperCase()}
+                                    </Badge>
+                                    <span className="text-sm font-medium text-gray-900">
+                                      {optionId}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-700 min-[500px]:mt-1">
+                                    {customization.content}
                                   </p>
                                 </div>
-                              )}
+                                {customization.additionalPrice && (
+                                  <div className="min-[500px]:flex-shrink-0 min-[500px]:text-right">
+                                    <p className="text-sm font-medium text-green-600">
+                                      +
+                                      {formatNaira(
+                                        customization.additionalPrice,
+                                      )}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ),
-                      )}
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Special Notes - Mobile */}
                 {item.notes && (
@@ -149,7 +153,9 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
                       Special Instructions:
                     </h4>
                     <p className="text-sm text-gray-700 italic">
-                      "{item.notes}"
+                      {'"'}
+                      {item.notes}
+                      {'"'}
                     </p>
                   </div>
                 )}
@@ -209,56 +215,60 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
                   )}
                 </div>
 
-                {/* Engravings */}
-                {item.engravings && Object.keys(item.engravings).length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium text-gray-900">
-                      Customizations:
-                    </h4>
+                {/* Customizations */}
+                {item.customizations &&
+                  Object.keys(item.customizations).length > 0 && (
                     <div className="space-y-2">
-                      {Object.entries(item.engravings).map(
-                        ([areaId, engraving]) => (
-                          <div
-                            key={areaId}
-                            className="rounded-md bg-gray-50 p-3"
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <Badge
-                                    variant={
-                                      engraving.type === "text"
-                                        ? "default"
-                                        : engraving.type === "image"
-                                          ? "secondary"
-                                          : "outline"
-                                    }
-                                    className="text-xs"
-                                  >
-                                    {engraving.type.toUpperCase()}
-                                  </Badge>
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {areaId}
-                                  </span>
-                                </div>
-                                <p className="mt-1 text-sm break-words text-gray-700">
-                                  {engraving.content}
-                                </p>
-                              </div>
-                              {engraving.additionalPrice && (
-                                <div className="ml-2 flex-shrink-0 text-right">
-                                  <p className="text-sm font-medium text-green-600">
-                                    +{formatNaira(engraving.additionalPrice)}
+                      <h4 className="text-sm font-medium text-gray-900">
+                        Customizations:
+                      </h4>
+                      <div className="space-y-2">
+                        {Object.entries(item.customizations).map(
+                          ([optionId, customization]) => (
+                            <div
+                              key={optionId}
+                              className="rounded-md bg-gray-50 p-3"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <Badge
+                                      variant={
+                                        customization.type === "text"
+                                          ? "default"
+                                          : customization.type === "image"
+                                            ? "secondary"
+                                            : "outline"
+                                      }
+                                      className="text-xs"
+                                    >
+                                      {customization.type.toUpperCase()}
+                                    </Badge>
+                                    <span className="text-sm font-medium text-gray-900">
+                                      {optionId}
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-sm break-words text-gray-700">
+                                    {customization.content}
                                   </p>
                                 </div>
-                              )}
+                                {customization.additionalPrice && (
+                                  <div className="ml-2 flex-shrink-0 text-right">
+                                    <p className="text-sm font-medium text-green-600">
+                                      +
+                                      {formatNaira(
+                                        customization.additionalPrice,
+                                      )}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ),
-                      )}
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Special Notes */}
                 {item.notes && (
@@ -267,7 +277,9 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
                       Special Instructions:
                     </h4>
                     <p className="text-sm break-words text-gray-700 italic">
-                      "{item.notes}"
+                      {'"'}
+                      {item.notes}
+                      {'"'}
                     </p>
                   </div>
                 )}
@@ -288,13 +300,14 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
               <span>
                 {formatNaira(
                   items.reduce((sum, item) => {
-                    if (item.engravings) {
+                    if (item.customizations) {
                       return (
                         sum +
-                        Object.values(item.engravings).reduce(
-                          (engravingSum, engraving) =>
-                            engravingSum +
-                            (engraving.additionalPrice || 0) * item.quantity,
+                        Object.values(item.customizations).reduce(
+                          (customizationSum, customization) =>
+                            customizationSum +
+                            (customization.additionalPrice || 0) *
+                              item.quantity,
                           0,
                         )
                       );

@@ -89,8 +89,8 @@ export const orderItems = pgTable("order_items", {
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
 
   // Customization data (snapshot at time of order)
-  engravings: json("engravings").$type<{
-    [engravingAreaId: string]: {
+  customizations: json("customizations").$type<{
+    [customizationOptionId: string]: {
       type: "text" | "image" | "qr_code";
       content: string;
       additionalPrice?: number;

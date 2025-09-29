@@ -11,16 +11,16 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { GetEngravingAreasByProductIdOutput } from "@/modules/products/types";
+import { GetProductCustomizationOptionsOutput } from "@/modules/products/types";
+import { CustomizationPreview } from "./customization-preview";
 import { ImageEngravingInput } from "./engraving-inputs/image-engraving-input";
 import { QREngravingInput } from "./engraving-inputs/qr-engraving-input";
 import { TextEngravingInput } from "./engraving-inputs/text-engraving-input";
-import { EngravingPreview } from "./engraving-preview";
 
 // TODO: Tailor this to fit the business need
 
-interface EngravingAreaCardProps {
-  area: GetEngravingAreasByProductIdOutput[0];
+interface CustomizationOptionCardProps {
+  option: GetProductCustomizationOptionsOutput[0];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content?: any; // You can type this properly based on your needs
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,14 +29,14 @@ interface EngravingAreaCardProps {
   setOpenDialog: (id: string | null) => void;
 }
 
-export const EngravingAreaCard = ({
-  area,
+export const CustomizationOptionCard = ({
+  option,
   content,
   onChange,
   openDialog,
   setOpenDialog,
-}: EngravingAreaCardProps) => {
-  const engravingType = area.engravingType as "text" | "image" | "qr_code";
+}: CustomizationOptionCardProps) => {
+  const customizationType = option.type as "text" | "image" | "qr_code";
 
   return (
     <Card
@@ -49,15 +49,11 @@ export const EngravingAreaCard = ({
         {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">
-              {area.engravingArea.name}
-            </Label>
-            {area.referenceImage && (
+            <Label className="text-sm font-medium">{option.name}</Label>
+            {option.sampleImage && (
               <Dialog
-                open={openDialog === area.engravingArea.id}
-                onOpenChange={(open) =>
-                  setOpenDialog(open ? area.engravingArea.id : null)
-                }
+                open={openDialog === option.id}
+                onOpenChange={(open) => setOpenDialog(open ? option.id : null)}
               >
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="sm">
@@ -67,54 +63,54 @@ export const EngravingAreaCard = ({
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>
-                      {area.engravingArea.name} - Engraving Example
+                      {option.name} - Customization Example
                     </DialogTitle>
                   </DialogHeader>
                   <div className="flex justify-center">
                     <img
-                      src={area.referenceImage}
-                      alt={`${area.engravingArea.name} engraving example`}
+                      src={option.sampleImage}
+                      alt={`${option.name} customization example`}
                       className="max-h-96 w-auto rounded-lg object-contain"
                     />
                   </div>
-                  {area.engravingArea.description && (
+                  {option.description && (
                     <p className="text-muted-foreground text-center text-sm">
-                      {area.engravingArea.description}
+                      {option.description}
                     </p>
                   )}
                 </DialogContent>
               </Dialog>
             )}
           </div>
-          {area.engravingArea.description && (
+          {option.description && (
             <p className="text-muted-foreground text-xs">
-              {area.engravingArea.description}
+              {option.description}
             </p>
           )}
         </div>
 
         {/* Type-specific input */}
-        {engravingType === "text" && (
+        {customizationType === "text" && (
           <TextEngravingInput
-            maxCharacters={area.maxCharacters ?? undefined}
+            maxCharacters={option.maxCharacters ?? undefined}
             value={content?.textContent || ""}
             onChange={(textContent) =>
               onChange({
-                id: area.engravingArea.id,
+                id: option.id,
                 type: "text",
                 textContent,
               })
             }
-            placeholder={`Enter text for ${area.engravingArea.name.toLowerCase()}`}
+            placeholder={`Enter text for ${option.name.toLowerCase()}`}
           />
         )}
 
-        {engravingType === "image" && (
+        {customizationType === "image" && (
           <ImageEngravingInput
             value={content?.imageUrl}
             onChange={(imageData) =>
               onChange({
-                id: area.engravingArea.id,
+                id: option.id,
                 type: "image",
                 ...imageData,
               })
@@ -122,13 +118,13 @@ export const EngravingAreaCard = ({
           />
         )}
 
-        {engravingType === "qr_code" && (
+        {customizationType === "qr_code" && (
           <QREngravingInput
             value={content?.qrData || ""}
             qrSize={content?.qrSize || 200}
             onChange={(qrData, qrSize) =>
               onChange({
-                id: area.engravingArea.id,
+                id: option.id,
                 type: "qr_code",
                 qrData,
                 qrSize,
@@ -138,7 +134,9 @@ export const EngravingAreaCard = ({
         )}
 
         {/* Preview */}
-        {content && <EngravingPreview content={content} type={engravingType} />}
+        {content && (
+          <CustomizationPreview content={content} type={customizationType} />
+        )}
       </div>
     </Card>
   );

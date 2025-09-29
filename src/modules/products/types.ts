@@ -16,7 +16,7 @@ export type GetProductMaterialsOutput =
 export type GetProductCustomizationOptionsOutput =
   inferRouterOutputs<AppRouter>["products"]["getProductCustomizationOptions"];
 
-// Customization types
+// Customization types - updated to match new schema
 export type CustomizationType = "text" | "image" | "qr_code";
 
 export interface CustomizationContent {
@@ -44,3 +44,9 @@ export interface CustomizationOption {
   createdAt: string;
   updatedAt: string;
 }
+
+// Legacy types for backward compatibility during migration
+// These will be removed once migration is complete
+export type EngravingType = CustomizationType;
+export type EngravingContent = CustomizationContent;
+export type GetEngravingAreasByProductIdOutput = GetProductCustomizationOptionsOutput;

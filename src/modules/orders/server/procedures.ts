@@ -191,7 +191,7 @@ export const ordersRouter = createTRPCRouter({
           quantity: orderItems.quantity,
           unitPrice: orderItems.unitPrice,
           totalPrice: orderItems.totalPrice,
-          engravings: orderItems.engravings,
+          customizations: orderItems.customizations,
           notes: orderItems.notes,
           createdAt: orderItems.createdAt,
         })
@@ -274,7 +274,7 @@ export const ordersRouter = createTRPCRouter({
           quantity: item.quantity,
           unitPrice: unitPrice.toString(),
           totalPrice: (totalPrice + customizationCost).toString(),
-          engravings: item.customizations,
+          customizations: item.customizations,
           notes: item.notes,
         };
       });
@@ -331,7 +331,7 @@ export const ordersRouter = createTRPCRouter({
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             totalPrice: item.totalPrice,
-            engravings: item.engravings,
+            customizations: item.customizations,
             notes: item.notes,
           })),
         )

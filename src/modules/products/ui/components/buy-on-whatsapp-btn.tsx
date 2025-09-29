@@ -17,7 +17,6 @@ export const BuyOnWhatsappBtn = () => {
     customizations,
   } = useProduct();
   const { cart } = useCart();
-  const cartItem = cart?.items.find((item) => item.productId === product.id);
 
   const handleWhatsAppClick = () => {
     const message = generateWhatsAppInterestMessage({

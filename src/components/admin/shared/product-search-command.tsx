@@ -44,7 +44,7 @@ export const ProductSearchCommand = forwardRef<
       debounce((query: string) => {
         setDebouncedQuery(query);
       }, 300),
-      [],
+      [setDebouncedQuery],
     );
 
     useEffect(() => {

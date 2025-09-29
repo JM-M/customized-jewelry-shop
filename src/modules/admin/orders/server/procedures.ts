@@ -157,7 +157,7 @@ export const adminOrdersRouter = createTRPCRouter({
           quantity: orderItems.quantity,
           unitPrice: orderItems.unitPrice,
           totalPrice: orderItems.totalPrice,
-          engravings: orderItems.engravings,
+          customizations: orderItems.customizations,
           notes: orderItems.notes,
           // Product details
           product: {

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import {
-  EngravingContent,
+  CustomizationContent,
   GetProductByIdOutput,
   GetProductMaterialsOutput,
 } from "../../products/types";
@@ -18,12 +18,12 @@ export const useCartOptimisticUpdates = () => {
   const optimisticallyAddToCart = ({
     product,
     materialId,
-    engravings,
+    customizations,
     productMaterials,
   }: {
     product: GetProductByIdOutput;
     materialId: string;
-    engravings: Record<string, EngravingContent>;
+    customizations: Record<string, CustomizationContent>;
     productMaterials: GetProductMaterialsOutput;
   }) => {
     const productId = product.id;
@@ -34,9 +34,9 @@ export const useCartOptimisticUpdates = () => {
     // Generate item ID for consistency between optimistic update and server
     const generatedItemId = uuidv4();
 
-    // Helper function to convert engravings to expected format
-    const convertEngravings = (
-      engravingsToConvert: Record<string, EngravingContent>,
+    // Helper function to convert customizations to expected format
+    const convertCustomizations = (
+      customizationsToConvert: Record<string, CustomizationContent>,
     ) => {
       const converted: Record<
         string,
@@ -46,23 +46,25 @@ export const useCartOptimisticUpdates = () => {
           additionalPrice?: number;
         }
       > = {};
-      Object.entries(engravingsToConvert).forEach(([areaId, engraving]) => {
-        let content = "";
-        let type: "text" | "image" | "qr_code" = "text";
+      Object.entries(customizationsToConvert).forEach(
+        ([optionId, customization]) => {
+          let content = "";
+          let type: "text" | "image" | "qr_code" = "text";
 
-        if (engraving.type === "text") {
-          content = engraving.textContent || "";
-          type = "text";
-        } else if (engraving.type === "image") {
-          content = engraving.imageUrl || "";
-          type = "image";
-        } else if (engraving.type === "qr_code") {
-          content = engraving.qrData || "";
-          type = "qr_code";
-        }
+          if (customization.type === "text") {
+            content = customization.textContent || "";
+            type = "text";
+          } else if (customization.type === "image") {
+            content = customization.imageUrl || "";
+            type = "image";
+          } else if (customization.type === "qr_code") {
+            content = customization.qrData || "";
+            type = "qr_code";
+          }
 
-        converted[areaId] = { type, content };
-      });
+          converted[optionId] = { type, content };
+        },
+      );
       return converted;
     };
 
@@ -99,7 +101,9 @@ export const useCartOptimisticUpdates = () => {
               materialId,
               quantity,
               price: price.toString(),
-              engravings: engravings ? convertEngravings(engravings) : {},
+              customizations: customizations
+                ? convertCustomizations(customizations)
+                : {},
               notes: null,
               createdAt: now,
               updatedAt: now,
@@ -125,9 +129,9 @@ export const useCartOptimisticUpdates = () => {
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
           quantity: updatedItems[existingItemIndex].quantity + quantity,
-          engravings: engravings
-            ? convertEngravings(engravings)
-            : updatedItems[existingItemIndex].engravings,
+          customizations: customizations
+            ? convertCustomizations(customizations)
+            : updatedItems[existingItemIndex].customizations,
           updatedAt: new Date().toISOString(),
         };
 
@@ -145,7 +149,9 @@ export const useCartOptimisticUpdates = () => {
           materialId,
           quantity,
           price: price.toString(),
-          engravings: engravings ? convertEngravings(engravings) : {},
+          customizations: customizations
+            ? convertCustomizations(customizations)
+            : {},
           notes: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),

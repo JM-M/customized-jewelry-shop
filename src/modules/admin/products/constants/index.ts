@@ -1,7 +1,7 @@
 export const CUSTOMIZATION_OPTIONS = [
   "material",
   "text_shape",
-  "text_engraving",
-  "image_engraving",
-  "qr_code_engraving",
+  "text_customization",
+  "image_customization",
+  "qr_code_customization",
 ] as const;

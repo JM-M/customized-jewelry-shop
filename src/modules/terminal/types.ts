@@ -198,6 +198,7 @@ export interface TerminalCreateParcelResponse {
 
 export interface TerminalRate {
   amount: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   breakdown: any[];
   carrier_logo: string;
   carrier_name: string;

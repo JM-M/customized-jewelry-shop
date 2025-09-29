@@ -20,7 +20,7 @@ export function AddToBagButton({ className }: AddToBagButtonProps) {
   const router = useRouter();
 
   const { addItemMutation } = useCart();
-  const { product, selectedMaterial, productMaterials, engravings } =
+  const { product, selectedMaterial, productMaterials, customizations } =
     useProduct();
   const productId = product.id;
   const materialId = selectedMaterial;
@@ -39,7 +39,7 @@ export function AddToBagButton({ className }: AddToBagButtonProps) {
     const { previousCartState, generatedItemId } = optimisticallyAddToCart({
       product,
       materialId,
-      engravings,
+      customizations,
       productMaterials,
     });
 

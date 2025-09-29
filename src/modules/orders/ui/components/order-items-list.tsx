@@ -53,24 +53,29 @@ export const OrderItemsList = ({ order }: OrderItemsListProps) => {
                         {/* Placeholder - will be replaced with actual material name */}
                       </p>
                     )}
-                    {item.engravings &&
-                      Object.keys(item.engravings).length > 0 && (
+                    {item.customizations &&
+                      Object.keys(item.customizations).length > 0 && (
                         <div className="mt-2">
                           <p className="text-xs font-medium text-gray-700">
-                            Engravings:
+                            Customizations:
                           </p>
                           <div className="space-y-1">
-                            {Object.entries(item.engravings).map(
-                              ([areaId, engraving]) => (
+                            {Object.entries(item.customizations).map(
+                              ([optionId, customization]) => (
                                 <div
-                                  key={areaId}
+                                  key={optionId}
                                   className="text-xs text-gray-600"
                                 >
-                                  <span className="font-medium">{areaId}:</span>{" "}
-                                  {engraving.content}
-                                  {engraving.additionalPrice && (
+                                  <span className="font-medium">
+                                    {optionId}:
+                                  </span>{" "}
+                                  {customization.content}
+                                  {customization.additionalPrice && (
                                     <span className="ml-1 text-green-600">
-                                      (+{formatNaira(engraving.additionalPrice)}
+                                      (+
+                                      {formatNaira(
+                                        customization.additionalPrice,
+                                      )}
                                       )
                                     </span>
                                   )}

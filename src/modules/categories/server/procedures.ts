@@ -134,7 +134,21 @@ export const categoriesRouter = createTRPCRouter({
       // Get products with pagination, including category info
       const categoryProducts = await db
         .select({
-          ...products,
+          id: products.id,
+          name: products.name,
+          slug: products.slug,
+          description: products.description,
+          price: products.price,
+          stockQuantity: products.stockQuantity,
+          categoryId: products.categoryId,
+          packagingId: products.packagingId,
+          primaryImage: products.primaryImage,
+          images: products.images,
+          sku: products.sku,
+          metaTitle: products.metaTitle,
+          metaDescription: products.metaDescription,
+          createdAt: products.createdAt,
+          updatedAt: products.updatedAt,
           // Include category info for better context
           categoryName: categories.name,
           categorySlug: categories.slug,
@@ -208,7 +222,21 @@ export const categoriesRouter = createTRPCRouter({
       // Get products with pagination, including category info
       const categoryProducts = await db
         .select({
-          ...products,
+          id: products.id,
+          name: products.name,
+          slug: products.slug,
+          description: products.description,
+          price: products.price,
+          stockQuantity: products.stockQuantity,
+          categoryId: products.categoryId,
+          packagingId: products.packagingId,
+          primaryImage: products.primaryImage,
+          images: products.images,
+          sku: products.sku,
+          metaTitle: products.metaTitle,
+          metaDescription: products.metaDescription,
+          createdAt: products.createdAt,
+          updatedAt: products.updatedAt,
           // Include category info for better context
           categoryName: categories.name,
           categorySlug: categories.slug,

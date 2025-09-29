@@ -94,7 +94,7 @@ export const CategoryProductsSection = ({
               No products found
             </h3>
             <p className="text-muted-foreground text-sm">
-              This category doesn't have any products yet.
+              This category doesn{"'"}t have any products yet.
             </p>
           </div>
         )}

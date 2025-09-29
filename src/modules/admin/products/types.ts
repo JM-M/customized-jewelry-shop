@@ -3,10 +3,10 @@ import { inferRouterOutputs } from "@trpc/server";
 import { CUSTOMIZATION_OPTIONS } from "./constants";
 
 export type AdminGetProductsOutput =
-  inferRouterOutputs<AppRouter>["adminProducts"]["getProducts"];
+  inferRouterOutputs<AppRouter>["admin"]["products"]["getProducts"];
 
 export type GetAllMaterialsOutput =
-  inferRouterOutputs<AppRouter>["adminProducts"]["getAllMaterials"];
+  inferRouterOutputs<AppRouter>["admin"]["products"]["getAllMaterials"];
 
 export type ProductCustomizationOptionType =
   (typeof CUSTOMIZATION_OPTIONS)[number];
