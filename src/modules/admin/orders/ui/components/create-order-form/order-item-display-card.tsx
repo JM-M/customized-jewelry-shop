@@ -85,14 +85,14 @@ export const OrderItemDisplayCard = ({
 }: OrderItemDisplayCardProps) => {
   const trpc = useTRPC();
 
-  // Get product details
+  // Only fetch product details if we don't have the product name stored
   const { data: product, isLoading: isProductLoading } = useQuery(
     trpc.products.getById.queryOptions(
       {
         id: item.productId,
       },
       {
-        enabled: !!item.productId,
+        enabled: !!item.productId && !item.productName, // Only fetch if no product name stored
       },
     ),
   );
@@ -109,6 +109,26 @@ export const OrderItemDisplayCard = ({
         },
       ),
     );
+
+  // Get product materials to display material information
+  const { data: productMaterials, isLoading: isMaterialsLoading } = useQuery(
+    trpc.products.getProductMaterials.queryOptions(
+      {
+        productId: item.productId,
+      },
+      {
+        enabled: !!item.productId,
+      },
+    ),
+  );
+
+  const getSelectedMaterial = () => {
+    if (!productMaterials || !item.materialId) return null;
+    const productMaterial = productMaterials.find(
+      (pm) => pm.material.id === item.materialId,
+    );
+    return productMaterial?.material || null;
+  };
 
   const formatCustomizationContent = (
     customizations: Record<string, CustomizationContent>,
@@ -147,19 +167,20 @@ export const OrderItemDisplayCard = ({
 
   const subtotal = item.quantity * item.unitPrice;
 
-  // Show skeleton while loading product or customization data
-  if (isProductLoading || isCustomizationLoading) {
+  // Show skeleton while loading product or customization data (only if we don't have product name)
+  if ((isProductLoading || isCustomizationLoading || isMaterialsLoading) && !item.productName) {
     return <OrderItemDisplayCardSkeleton canRemove={canRemove} />;
   }
+
+  // Use stored product name or fallback to fetched product name
+  const productName = item.productName || product?.name || "Unknown Product";
 
   return (
     <Card className="w-full gap-3 p-3 transition-shadow duration-200 hover:shadow-md">
       <CardHeader className="p-0">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-base">
-              {product?.name || "Unknown Product"}
-            </CardTitle>
+            <CardTitle className="text-base">{productName}</CardTitle>
             <div className="text-muted-foreground flex items-center gap-2 text-sm">
               <span>Qty: {item.quantity}</span>
               <span>•</span>
@@ -190,6 +211,26 @@ export const OrderItemDisplayCard = ({
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-3">
+          {/* Material */}
+          {getSelectedMaterial() && (
+            <div>
+              <div className="mb-2 text-sm font-medium">Material:</div>
+              <div className="flex items-center gap-2">
+                <div
+                  className="size-4 rounded-full border border-white/20"
+                  style={{ backgroundColor: getSelectedMaterial()?.hexColor }}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {getSelectedMaterial()?.name
+                    .replaceAll("_", " ")
+                    .split(" ")
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ")}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Customizations */}
           <div>
             <div className="mb-2 text-sm font-medium">Customizations:</div>

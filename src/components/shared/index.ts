@@ -6,6 +6,7 @@ export { DataTable } from "./data-table";
 export { Dropzone } from "./dropzone";
 export { InfiniteLoadingTrigger } from "./infinite-loading-trigger";
 export { OrderItemCustomization } from "./order-item-customization";
+export { OrderItemMaterialSelect } from "./order-item-material-select";
 export { PhoneInput } from "./phone-input";
 export { createSelectColumn } from "./select-column";
 export { SortableHeader } from "./sortable-header";

@@ -9,9 +9,7 @@ interface StepperNavigationProps {
   stepper: {
     all: Array<{ id: string; label: string }>;
     current: { id: string };
-    goTo: (
-      id: "customer-info" | "order-items" | "delivery-info" | "review",
-    ) => void;
+    goTo: (id: "customer-info" | "order-items" | "review") => void;
   };
   steps: Array<{ id: string; label: string }>;
   utils: {

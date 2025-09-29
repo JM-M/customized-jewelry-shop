@@ -13,7 +13,7 @@ export const DeliveryRates = ({ rates }: DeliveryRatesProps) => {
     <div className="space-y-3 py-4">
       {rates.map((rate) => (
         <DeliveryRateCard
-          key={rate.id}
+          key={rate.rate_id}
           rate={rate}
           isSelected={selectedRateId === rate.rate_id}
           onSelect={() => setSelectedRateId(rate.rate_id)}

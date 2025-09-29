@@ -131,6 +131,7 @@ export const OrderItemsFields = () => {
             item={{
               id: "new",
               productId: "",
+              productName: "", // Add product name to new item
               materialId: "",
               quantity: 1,
               unitPrice: 0,

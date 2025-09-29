@@ -4,7 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
 import { ProductSearchCommand } from "@/components/admin/shared";
-import { OrderItemCustomization } from "@/components/shared";
+import {
+  OrderItemCustomization,
+  OrderItemMaterialSelect,
+} from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CustomizationContent } from "@/modules/products/types";
@@ -35,9 +38,7 @@ export const OrderItemForm = ({
 }: OrderItemFormProps) => {
   const trpc = useTRPC();
   const productSearchRef = useRef<HTMLInputElement>(null);
-  const [searchQuery, setSearchQuery] = useState(
-    item.productId ? "Selected Product" : "",
-  );
+  const [searchQuery, setSearchQuery] = useState(item.productName || "");
   const [customizations, setCustomizations] = useState<
     Record<string, CustomizationContent>
   >(item.customizations || {});
@@ -58,6 +59,18 @@ export const OrderItemForm = ({
       ),
     );
 
+  // Get product materials for the selected product
+  const { data: productMaterials, isLoading: isMaterialsLoading } = useQuery(
+    trpc.products.getProductMaterials.queryOptions(
+      {
+        productId: formData.productId,
+      },
+      {
+        enabled: !!formData.productId,
+      },
+    ),
+  );
+
   // Handle customization changes
   const handleCustomizationChange = (
     optionId: string,
@@ -75,12 +88,26 @@ export const OrderItemForm = ({
     }
   };
 
+  // Handle material changes
+  const handleMaterialChange = (materialId: string | null) => {
+    const updatedFormData = { ...formData, materialId: materialId || "" };
+    setFormData(updatedFormData);
+    if (isEditing) {
+      onUpdate(item.id, "materialId", materialId || "");
+    }
+  };
+
   const handleProductSelect = (product: { id: string; name: string }) => {
-    const updatedFormData = { ...formData, productId: product.id };
+    const updatedFormData = {
+      ...formData,
+      productId: product.id,
+      productName: product.name, // Store product name
+    };
     setFormData(updatedFormData);
     setSearchQuery(product.name);
     if (isEditing) {
       onUpdate(item.id, "productId", product.id);
+      onUpdate(item.id, "productName", product.name);
     }
   };
 
@@ -96,6 +123,7 @@ export const OrderItemForm = ({
       const emptyItem: OrderItem = {
         id: "new",
         productId: "",
+        productName: "", // Add product name to empty item
         materialId: "",
         quantity: 1,
         unitPrice: 0,
@@ -122,6 +150,15 @@ export const OrderItemForm = ({
         />
       </div>
 
+      {/* Show material selection when a product is selected */}
+      {formData.productId && productMaterials && (
+        <OrderItemMaterialSelect
+          productMaterials={productMaterials}
+          selectedMaterialId={formData.materialId}
+          onMaterialChange={handleMaterialChange}
+        />
+      )}
+
       {/* Show customization UI when a product is selected */}
       {formData.productId && customizationOptions && (
         <OrderItemCustomization
@@ -135,10 +172,16 @@ export const OrderItemForm = ({
 
       {/* Action buttons */}
       <div className="flex justify-end gap-2 border-t pt-4">
-        <Button variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={handleSave} disabled={!formData.productId}>
+        {!!onCancel && (
+          <Button variant="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          onClick={handleSave}
+          disabled={!formData.productId}
+        >
           {isEditing ? "Update Item" : "Add Item"}
         </Button>
       </div>

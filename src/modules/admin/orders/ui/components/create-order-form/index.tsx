@@ -10,15 +10,9 @@ import { defineStepper } from "@stepperize/react";
 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CustomerInfoFields } from "./customer-info-fields";
-import { DeliveryInfoFields } from "./delivery-info-fields";
 import { OrderItemsFields } from "./order-items-fields";
 import { Review } from "./review";
-import {
-  customerInfoSchema,
-  deliveryInfoSchema,
-  orderItemsSchema,
-  reviewSchema,
-} from "./schemas";
+import { customerInfoSchema, orderItemsSchema, reviewSchema } from "./schemas";
 import { StepperNavigation } from "./stepper-navigation";
 
 // Define stepper
@@ -32,11 +26,6 @@ const { useStepper, steps, utils } = defineStepper(
     id: "order-items",
     label: "Order Items",
     schema: orderItemsSchema,
-  },
-  {
-    id: "delivery-info",
-    label: "Delivery",
-    schema: deliveryInfoSchema,
   },
   {
     id: "review",
@@ -108,7 +97,6 @@ export const CreateOrderForm = () => {
           {stepper.switch({
             "customer-info": () => <CustomerInfoFields />,
             "order-items": () => <OrderItemsFields />,
-            "delivery-info": () => <DeliveryInfoFields />,
             review: () => <Review />,
           })}
 
