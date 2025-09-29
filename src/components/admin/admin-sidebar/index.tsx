@@ -145,8 +145,6 @@ export function AdminSidebar() {
   const handleLinkClick = () => {
     if (isMobile) {
       setOpenMobile(false);
-    } else {
-      setOpen(false);
     }
   };
 

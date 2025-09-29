@@ -6,6 +6,7 @@ import { AdminPageHeader } from "@/components/admin/shared/page-header";
 import { useTRPC } from "@/trpc/client";
 
 import { AdminOrdersTable } from "../components/admin-orders-table";
+import { AdminOrdersViewHeader } from "../components/admin-orders-view-header";
 
 export const AdminOrdersView = () => {
   const trpc = useTRPC();
@@ -27,7 +28,8 @@ export const AdminOrdersView = () => {
         title="Orders"
         description="Manage and track customer orders."
       />
-      <div className="mt-6">
+      <div className="mt-6 space-y-4">
+        <AdminOrdersViewHeader />
         <AdminOrdersTable
           data={ordersData?.items || []}
           isLoading={isLoading}

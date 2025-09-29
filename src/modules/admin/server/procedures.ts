@@ -4,6 +4,7 @@ import { adminOrdersRouter } from "../orders/server/procedures";
 import { adminPackagingRouter } from "../packaging/server/procedures";
 import { adminPickupAddressesRouter } from "../pickup-addresses/server/procedures";
 import { adminProductsRouter } from "../products/server/procedures";
+import { adminUsersRouter } from "../users/server/procedures";
 
 // Create a nested admin router that combines all admin modules
 export const adminRouter = createTRPCRouter({
@@ -12,4 +13,5 @@ export const adminRouter = createTRPCRouter({
   orders: adminOrdersRouter,
   pickupAddresses: adminPickupAddressesRouter,
   packaging: adminPackagingRouter,
+  users: adminUsersRouter,
 });

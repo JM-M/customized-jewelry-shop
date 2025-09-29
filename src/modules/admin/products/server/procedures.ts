@@ -8,10 +8,36 @@ import {
 } from "@/db/schema/shop";
 import { adminProcedure, createTRPCRouter } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, ilike, sql } from "drizzle-orm";
 import z from "zod";
 
 export const adminProductsRouter = createTRPCRouter({
+  searchProducts: adminProcedure
+    .input(
+      z.object({
+        query: z.string().min(1, "Query is required"),
+        limit: z.number().min(1).max(20).default(10),
+      }),
+    )
+    .query(async ({ input }) => {
+      const searchResults = await db
+        .select({
+          id: products.id,
+          name: products.name,
+          slug: products.slug,
+          price: products.price,
+          primaryImage: products.primaryImage,
+        })
+        .from(products)
+        .where(ilike(products.name, `%${input.query}%`))
+        .limit(input.limit)
+        .orderBy(products.name);
+
+      return {
+        products: searchResults,
+      };
+    }),
+
   getProducts: adminProcedure
     .input(
       z.object({

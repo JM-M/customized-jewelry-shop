@@ -26,7 +26,7 @@ export const ProductCustomization = () => {
         />
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2">
-        <div className="space-y-6 rounded-md bg-gray-50/50 px-3 dark:bg-gray-800/30">
+        <div className="space-y-4">
           <ProductCustomizationOptions
             customizationOptions={customizationOptions}
             customizations={customizations}

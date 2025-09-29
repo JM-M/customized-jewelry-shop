@@ -34,6 +34,7 @@ export const AdminOrdersTable = ({
 
   return (
     <div>
+      {/* TODO: Add date range filter */}
       <DataTable
         columns={columns}
         data={data}
