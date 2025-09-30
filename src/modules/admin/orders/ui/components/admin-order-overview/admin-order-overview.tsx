@@ -4,7 +4,13 @@ import { CopyableText } from "@/components/shared/copyable-text";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatNaira } from "@/lib/utils";
-import { CalendarDays, Clock, CreditCard, Package } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  CreditCard,
+  CreditCardIcon,
+  Package,
+} from "lucide-react";
 
 import { AdminOrderDetails } from "../../../types";
 
@@ -146,7 +152,21 @@ export const AdminOrderOverview = ({ order }: AdminOrderOverviewProps) => {
         </div>
 
         {/* Payment & Tracking */}
-        <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4">
+          {order.status === "pending" && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CreditCardIcon className="text-muted-foreground size-4" />
+                <p className="text-sm font-medium text-gray-900">
+                  Fast Checkout Link
+                </p>
+              </div>
+              <CopyableText
+                text={`${process.env.NEXT_PUBLIC_WEBSITE_URL || "https://your-website.com"}/fast-checkout/${order.orderNumber}`}
+              />
+            </div>
+          )}
+
           {order.paymentReference && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
