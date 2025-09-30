@@ -1,7 +1,7 @@
 import { TerminalRate } from "@/modules/terminal/types";
 
+import { DeliveryRateCard } from "@/components/shared/delivery-rate-card";
 import { useCheckout } from "../../contexts/checkout";
-import { DeliveryRateCard } from "./delivery-rate-card";
 
 interface DeliveryRatesProps {
   rates: TerminalRate[];

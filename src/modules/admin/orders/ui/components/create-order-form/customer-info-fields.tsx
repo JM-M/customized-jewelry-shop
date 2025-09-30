@@ -22,7 +22,12 @@ export const CustomerInfoFields = () => {
     id: string;
   }) => {
     setValue("customerEmail", customer.email);
-    setValue("customerName", customer.name);
+    // Split the name into first and last name
+    const nameParts = customer.name.split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+    setValue("customerFirstName", firstName);
+    setValue("customerLastName", lastName);
     setValue("customerId", customer.id);
   };
 
@@ -46,17 +51,30 @@ export const CustomerInfoFields = () => {
             </span>
           )}
         </div>
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="customerName">Name</Label>
+            <Label htmlFor="customerFirstName">First Name</Label>
             <Input
-              id="customerName"
-              placeholder="Enter customer name..."
-              {...register("customerName")}
+              id="customerFirstName"
+              placeholder="Enter first name..."
+              {...register("customerFirstName")}
             />
-            {errors.customerName && (
+            {errors.customerFirstName && (
               <span className="text-destructive text-sm">
-                {errors.customerName.message}
+                {errors.customerFirstName.message}
+              </span>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="customerLastName">Last Name</Label>
+            <Input
+              id="customerLastName"
+              placeholder="Enter last name..."
+              {...register("customerLastName")}
+            />
+            {errors.customerLastName && (
+              <span className="text-destructive text-sm">
+                {errors.customerLastName.message}
               </span>
             )}
           </div>

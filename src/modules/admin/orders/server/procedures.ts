@@ -5,12 +5,15 @@ import { pickupAddresses, terminalAddresses } from "@/db/schema/logistics";
 import { orderItems, orders } from "@/db/schema/orders";
 import { materials, products } from "@/db/schema/shop";
 import { makeTerminalRequest, terminalClient } from "@/lib/terminal-client";
+import {
+  TerminalGetRateResponse,
+  TerminalRate,
+} from "@/modules/terminal/types";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { z } from "zod";
-import { TerminalGetRateResponse } from "../../../terminal/types";
 
 // Helper function to generate order number
 function generateOrderNumber(): string {
@@ -253,7 +256,8 @@ export const adminOrdersRouter = createTRPCRouter({
       z.object({
         customerId: z.string().optional(),
         customerEmail: z.string().email(),
-        customerName: z.string().min(1),
+        customerFirstName: z.string().min(2),
+        customerLastName: z.string().min(2),
         items: z
           .array(
             z.object({
@@ -277,9 +281,26 @@ export const adminOrdersRouter = createTRPCRouter({
             }),
           )
           .min(1, "At least one item is required"),
+        deliveryAddressId: z.string().min(1, "Delivery address is required"),
+        rateId: z.string().min(1, "Delivery rate is required"),
       }),
     )
     .mutation(async ({ input }) => {
+      // Fetch default pickup address
+      const [defaultPickupAddress] = await db
+        .select()
+        .from(pickupAddresses)
+        .where(eq(pickupAddresses.isDefault, true))
+        .limit(1);
+
+      if (!defaultPickupAddress) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message:
+            "No default pickup address found. Please set a default pickup address before creating orders.",
+        });
+      }
+
       // Verify customer exists (if customerId provided)
       let userId = input.customerId;
 
@@ -292,6 +313,7 @@ export const adminOrdersRouter = createTRPCRouter({
           .limit(1);
 
         if (!existingUser) {
+          // TODO: Create customer or at least create a user that can be merged when someone signs up with it.
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Customer not found. Please create the customer first.",
@@ -358,7 +380,26 @@ export const adminOrdersRouter = createTRPCRouter({
         };
       });
 
-      const totalAmount = subtotal;
+      // Fetch delivery fee from Terminal API
+      const rateResult = await makeTerminalRequest<{
+        status: boolean;
+        message: string;
+        data: TerminalRate;
+      }>(
+        () => terminalClient.get(`/rates/${input.rateId}`),
+        "Failed to get delivery rate",
+      );
+
+      if (!rateResult.status || !rateResult.data) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch delivery rate from Terminal API",
+        });
+      }
+
+      const deliveryFee = rateResult.data.amount;
+
+      const totalAmount = subtotal + deliveryFee;
 
       // Create order
       const [newOrder] = await db
@@ -367,9 +408,12 @@ export const adminOrdersRouter = createTRPCRouter({
           orderNumber: generateOrderNumber(),
           userId: userId,
           subtotal: subtotal.toString(),
-          deliveryFee: "0",
+          deliveryFee: deliveryFee.toString(),
           totalAmount: totalAmount.toString(),
           status: "pending",
+          deliveryAddressId: input.deliveryAddressId,
+          pickupAddressId: defaultPickupAddress.id,
+          rateId: input.rateId,
         })
         .returning();
 

@@ -15,11 +15,14 @@ import { defineStepper } from "@stepperize/react";
 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CustomerInfoFields } from "./customer-info-fields";
+import { DeliveryFields } from "./delivery-fields";
 import { OrderItemsFields } from "./order-items-fields";
 import { Review } from "./review";
 import {
   CustomerInfoFormValues,
   customerInfoSchema,
+  DeliveryInfoFormValues,
+  deliveryInfoSchema,
   OrderItemsFormValues,
   orderItemsSchema,
   reviewSchema,
@@ -39,6 +42,11 @@ const { useStepper, steps, utils } = defineStepper(
     schema: orderItemsSchema,
   },
   {
+    id: "delivery",
+    label: "Delivery",
+    schema: deliveryInfoSchema,
+  },
+  {
     id: "review",
     label: "Review",
     schema: reviewSchema,
@@ -54,11 +62,42 @@ export const CreateOrderForm = () => {
   const [accumulatedData, setAccumulatedData] = useState<{
     customerInfo?: CustomerInfoFormValues;
     orderItems?: OrderItemsFormValues;
+    delivery?: DeliveryInfoFormValues;
+    deliveryCache?: {
+      addressId: string;
+      addressData: {
+        phone: string;
+        line1: string;
+        line2?: string;
+        city: string;
+        state: string;
+        zip: string;
+        country: string;
+      };
+      rates?: Array<{
+        rate_id: string;
+        amount: number;
+        carrier_name: string;
+        delivery_time: string;
+        currency: string;
+      }>;
+    };
   }>({});
 
   const form = useForm({
     mode: "onTouched",
     resolver: zodResolver(stepper.current.schema),
+    defaultValues: {
+      phone: "",
+      line1: "",
+      line2: "",
+      city: "",
+      state: "",
+      zip: "",
+      country: "NG",
+      selectedRateId: "",
+      ...accumulatedData.delivery,
+    },
   });
   console.log(form.formState.errors);
 
@@ -81,6 +120,11 @@ export const CreateOrderForm = () => {
         ...prev,
         orderItems: values as OrderItemsFormValues,
       }));
+    } else if (stepper.current.id === "delivery") {
+      setAccumulatedData((prev) => ({
+        ...prev,
+        delivery: values as DeliveryInfoFormValues,
+      }));
     }
 
     if (stepper.isLast) {
@@ -90,11 +134,25 @@ export const CreateOrderForm = () => {
         return;
       }
 
+      const deliveryAddressId = accumulatedData.deliveryCache?.addressId;
+      const rateId = accumulatedData.delivery?.selectedRateId;
+
+      if (!deliveryAddressId) {
+        toast.error("Delivery address is required");
+        return;
+      }
+
+      if (!rateId) {
+        toast.error("Delivery rate is required");
+        return;
+      }
+
       createOrder(
         {
           customerId: accumulatedData.customerInfo.customerId,
           customerEmail: accumulatedData.customerInfo.customerEmail,
-          customerName: accumulatedData.customerInfo.customerName,
+          customerFirstName: accumulatedData.customerInfo.customerFirstName,
+          customerLastName: accumulatedData.customerInfo.customerLastName,
           items: accumulatedData.orderItems.items.map((item) => ({
             productId: item.productId,
             materialId: item.materialId,
@@ -103,6 +161,8 @@ export const CreateOrderForm = () => {
             notes: item.notes,
             customizations: item.customizations,
           })),
+          deliveryAddressId,
+          rateId,
         },
         {
           onSuccess: (data) => {
@@ -168,6 +228,27 @@ export const CreateOrderForm = () => {
           {stepper.switch({
             "customer-info": () => <CustomerInfoFields />,
             "order-items": () => <OrderItemsFields />,
+            delivery: () => (
+              <DeliveryFields
+                customerInfo={accumulatedData.customerInfo}
+                deliveryCache={accumulatedData.deliveryCache}
+                onCacheUpdate={(cache) => {
+                  setAccumulatedData((prev) => ({
+                    ...prev,
+                    deliveryCache: cache,
+                  }));
+                }}
+                onRatesUpdate={(rates) => {
+                  setAccumulatedData((prev) => ({
+                    ...prev,
+                    deliveryCache: {
+                      ...prev.deliveryCache!,
+                      rates,
+                    },
+                  }));
+                }}
+              />
+            ),
             review: () => <Review accumulatedData={accumulatedData} />,
           })}
 

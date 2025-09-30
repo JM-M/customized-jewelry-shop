@@ -1,5 +1,6 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
+import { pickupAddresses } from "@/db/schema/logistics";
 import { orderItems, orders } from "@/db/schema/orders";
 import { cartItems, carts } from "@/db/schema/shop";
 import { makeTerminalRequest, terminalClient } from "@/lib/terminal-client";
@@ -210,7 +211,6 @@ export const ordersRouter = createTRPCRouter({
       z.object({
         cartId: z.string(),
         deliveryAddressId: z.string().optional(),
-        pickupAddressId: z.string().optional(),
         paymentReference: z.string().optional(),
         rateId: z.string().optional(),
       }),
@@ -220,6 +220,21 @@ export const ordersRouter = createTRPCRouter({
       // TODO: Handle what should happen to the checkout session.
 
       const userId = ctx.auth.user.id;
+
+      // Fetch default pickup address
+      const [defaultPickupAddress] = await db
+        .select()
+        .from(pickupAddresses)
+        .where(eq(pickupAddresses.isDefault, true))
+        .limit(1);
+
+      if (!defaultPickupAddress) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message:
+            "No default pickup address found. Please set a default pickup address before creating orders.",
+        });
+      }
 
       // Verify cart ownership and get cart with items
       const [cart] = await db
@@ -315,7 +330,7 @@ export const ordersRouter = createTRPCRouter({
           status: "pending",
           paymentReference: input.paymentReference,
           deliveryAddressId: input.deliveryAddressId,
-          pickupAddressId: input.pickupAddressId,
+          pickupAddressId: defaultPickupAddress.id,
           rateId: input.rateId,
         })
         .returning();

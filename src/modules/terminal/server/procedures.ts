@@ -597,6 +597,23 @@ export const terminalRouter = createTRPCRouter({
       };
     }),
 
+  getDefaultPickupAddress: adminProcedure.query(async () => {
+    const [defaultPickup] = await db
+      .select({
+        ...getTableColumns(pickupAddresses),
+        terminalAddress: getTableColumns(terminalAddresses),
+      })
+      .from(pickupAddresses)
+      .innerJoin(
+        terminalAddresses,
+        eq(pickupAddresses.terminalAddressId, terminalAddresses.address_id),
+      )
+      .where(eq(pickupAddresses.isDefault, true))
+      .limit(1);
+
+    return defaultPickup || null;
+  }),
+
   getPickupAddress: adminProcedure
     .input(getPickupAddressSchema)
     .query(async ({ input }) => {

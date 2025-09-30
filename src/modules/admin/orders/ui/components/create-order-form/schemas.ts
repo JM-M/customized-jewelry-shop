@@ -3,7 +3,12 @@ import { z } from "zod";
 
 // Define Zod schemas for each step
 export const customerInfoSchema = z.object({
-  customerName: z.string().min(1, "Customer name is required"),
+  customerFirstName: z
+    .string()
+    .min(2, "First name must be at least 2 characters"),
+  customerLastName: z
+    .string()
+    .min(2, "Last name must be at least 2 characters"),
   customerEmail: z.string().min(1, "Customer email is required"),
   customerId: z.string().optional(),
 });
@@ -27,15 +32,6 @@ export const orderItemsSchema = z.object({
 
 export const deliveryInfoSchema = z.object({
   // Personal Information
-  firstName: z.string().min(2, {
-    message: "First name must be at least 2 characters.",
-  }),
-  lastName: z.string().min(2, {
-    message: "Last name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
   phone: z.string().min(1, {
     message: "Phone number is required.",
   }),
