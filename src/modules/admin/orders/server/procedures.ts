@@ -124,27 +124,10 @@ export const adminOrdersRouter = createTRPCRouter({
       // Get order with user details
       const [order] = await db
         .select({
-          id: orders.id,
-          orderNumber: orders.orderNumber,
-          status: orders.status,
-          subtotal: orders.subtotal,
-          deliveryFee: orders.deliveryFee,
-          totalAmount: orders.totalAmount,
-          paymentReference: orders.paymentReference,
-          trackingNumber: orders.trackingNumber,
-          shipmentId: orders.shipmentId,
-          createdAt: orders.createdAt,
-          updatedAt: orders.updatedAt,
-          shippedAt: orders.shippedAt,
-          deliveredAt: orders.deliveredAt,
-          deliveryAddressId: orders.deliveryAddressId,
-          pickupAddressId: orders.pickupAddressId,
-          rateId: orders.rateId,
+          ...getTableColumns(orders),
           // User details
           customer: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
+            ...getTableColumns(user),
           },
         })
         .from(orders)

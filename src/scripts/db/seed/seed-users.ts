@@ -5,7 +5,8 @@ import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 export interface UserData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   emailVerified: boolean;
   image: string | null;
@@ -18,7 +19,8 @@ export async function seedUsers() {
 
   const userData: UserData[] = [
     {
-      name: "Super Admin",
+      firstName: "Super",
+      lastName: "Admin",
       email: "superadmin@example.com",
       emailVerified: true,
       image:
@@ -26,7 +28,8 @@ export async function seedUsers() {
       role: "super_admin",
     },
     {
-      name: "Admin User",
+      firstName: "Admin",
+      lastName: "User",
       email: "admin@example.com",
       emailVerified: true,
       image:
@@ -34,7 +37,8 @@ export async function seedUsers() {
       role: "admin",
     },
     {
-      name: "John Doe",
+      firstName: "John",
+      lastName: "Doe",
       email: "john@example.com",
       emailVerified: true,
       image:
@@ -42,7 +46,8 @@ export async function seedUsers() {
       role: "user",
     },
     {
-      name: "Jane Smith",
+      firstName: "Jane",
+      lastName: "Smith",
       email: "jane@example.com",
       emailVerified: true,
       image:
@@ -59,9 +64,11 @@ export async function seedUsers() {
 
       // Use better-auth to create user with password
       const result = await authClient.signUp.email({
-        name: userInfo.name,
+        name: `${userInfo.firstName} ${userInfo.lastName}`,
         email: userInfo.email,
         password: password,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
       });
 
       if (result.error) {
@@ -74,7 +81,9 @@ export async function seedUsers() {
           .insert(user)
           .values({
             id: uuidv4(),
-            name: userInfo.name,
+            name: `${userInfo.firstName} ${userInfo.lastName}`,
+            firstName: userInfo.firstName,
+            lastName: userInfo.lastName,
             email: userInfo.email,
             emailVerified: userInfo.emailVerified,
             image: userInfo.image,
@@ -116,7 +125,9 @@ export async function seedUsers() {
         .insert(user)
         .values({
           id: uuidv4(),
-          name: userInfo.name,
+          name: `${userInfo.firstName} ${userInfo.lastName}`,
+          firstName: userInfo.firstName,
+          lastName: userInfo.lastName,
           email: userInfo.email,
           emailVerified: userInfo.emailVerified,
           image: userInfo.image,
@@ -133,7 +144,9 @@ export async function seedUsers() {
   console.log(`🔑 All users can now login with password: ${password}`);
   console.log("\n👥 Users created:");
   userData.forEach((u) => {
-    console.log(`- ${u.role.toUpperCase()}: ${u.email}`);
+    console.log(
+      `- ${u.role.toUpperCase()}: ${u.firstName} ${u.lastName} (${u.email})`,
+    );
   });
 
   return createdUsers;

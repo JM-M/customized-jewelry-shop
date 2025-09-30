@@ -26,7 +26,8 @@ import { SocialAuth } from "../components/social-auth";
 
 const formSchema = z
   .object({
-    name: z.string().min(1, "Name is required"),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
     email: z.string().email(),
     password: z.string().min(1, { message: "Password is required" }),
     confirmPassword: z
@@ -49,7 +50,8 @@ export const SignUpView = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -60,9 +62,14 @@ export const SignUpView = () => {
     setError(null);
     setPending(true);
 
+    // Programmatically generate the name field from firstName and lastName
+    const fullName = `${data.firstName.trim()} ${data.lastName.trim()}`;
+
     authClient.signUp.email(
       {
-        name: data.name,
+        name: fullName,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         password: data.password,
       },
@@ -92,15 +99,28 @@ export const SignUpView = () => {
                     Create your account
                   </p>
                 </div>
-                <div className="grid gap-3">
+                <div className="grid gap-3 md:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Name</FormLabel>
+                        <FormLabel>First name</FormLabel>
                         <FormControl>
-                          <Input placeholder="John Doe" {...field} />
+                          <Input placeholder="John" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Doe" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
