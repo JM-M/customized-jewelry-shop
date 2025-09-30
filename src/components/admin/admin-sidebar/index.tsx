@@ -105,9 +105,9 @@ const sidebarConfig: SidebarGroup[] = [
         icon: CreditCardIcon,
       },
       {
-        id: "users",
-        label: "Users",
-        href: "/admin/users",
+        id: "customers",
+        label: "Customers",
+        href: "/admin/customers",
         icon: UserIcon,
       },
     ],
