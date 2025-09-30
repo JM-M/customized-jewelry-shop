@@ -19,11 +19,7 @@ import { useGetStates } from "@/modules/terminal/hooks/use-get-states";
 import { useFormContext } from "react-hook-form";
 import { DeliveryInfoFormValues } from "./schemas";
 
-interface DeliveryFormProps {
-  // Add any props you might need in the future
-}
-
-export const AdminOrderDeliveryForm = ({}: DeliveryFormProps) => {
+export const AdminOrderDeliveryForm = () => {
   const form = useFormContext<DeliveryInfoFormValues>();
   const countryCode = form.watch("country");
   const stateName = form.watch("state");
