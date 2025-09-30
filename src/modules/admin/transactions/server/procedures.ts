@@ -166,4 +166,68 @@ export const adminTransactionsRouter = createTRPCRouter({
 
       return transaction || null;
     }),
+
+  // Get single transaction by payment reference
+  getTransactionByPaymentReference: protectedProcedure
+    .input(
+      z.object({
+        paymentReference: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      // Get transaction with order and user details
+      const [transaction] = await db
+        .select({
+          id: transactions.id,
+          paystackTransactionId: transactions.paystackTransactionId,
+          paymentReference: transactions.paymentReference,
+          amount: transactions.amount,
+          amountInKobo: transactions.amountInKobo,
+          currency: transactions.currency,
+          status: transactions.status,
+          channel: transactions.channel,
+          cardType: transactions.cardType,
+          bank: transactions.bank,
+          last4: transactions.last4,
+          fees: transactions.fees,
+          feesBreakdown: transactions.feesBreakdown,
+          customerEmail: transactions.customerEmail,
+          customerPhone: transactions.customerPhone,
+          customerName: transactions.customerName,
+          gatewayResponse: transactions.gatewayResponse,
+          message: transactions.message,
+          metadata: transactions.metadata,
+          ipAddress: transactions.ipAddress,
+          userAgent: transactions.userAgent,
+          createdAt: transactions.createdAt,
+          updatedAt: transactions.updatedAt,
+          paidAt: transactions.paidAt,
+          failedAt: transactions.failedAt,
+          refundedAt: transactions.refundedAt,
+          // Order details
+          order: {
+            id: orders.id,
+            orderNumber: orders.orderNumber,
+            status: orders.status,
+            subtotal: orders.subtotal,
+            deliveryFee: orders.deliveryFee,
+            totalAmount: orders.totalAmount,
+            trackingNumber: orders.trackingNumber,
+            createdAt: orders.createdAt,
+          },
+          // User details
+          customer: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+          },
+        })
+        .from(transactions)
+        .leftJoin(orders, eq(transactions.orderId, orders.id))
+        .leftJoin(user, eq(orders.userId, user.id))
+        .where(eq(transactions.paymentReference, input.paymentReference))
+        .limit(1);
+
+      return transaction || null;
+    }),
 });

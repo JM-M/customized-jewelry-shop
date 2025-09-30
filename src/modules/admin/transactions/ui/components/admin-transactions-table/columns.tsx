@@ -23,7 +23,7 @@ const PaymentReferenceCell = ({
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/admin/transactions/${transaction.id}`);
+    router.push(`/admin/transactions/${transaction.paymentReference}`);
   };
 
   return (
