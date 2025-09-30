@@ -76,8 +76,8 @@ export const AdminTransactionCustomerInfo = ({
                 <div className="mt-1 text-sm text-yellow-700">
                   <p>
                     This customer information was captured at the time of the
-                    transaction. The customer's current profile may have been
-                    updated since then.
+                    transaction. The customer{"'"}s current profile may have
+                    been updated since then.
                   </p>
                 </div>
               </div>
