@@ -10,7 +10,9 @@ import {
   OrderItemMaterialSelect,
 } from "@/components/shared";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatNaira } from "@/lib/utils";
 import { CustomizationContent } from "@/modules/products/types";
 import { useTRPC } from "@/trpc/client";
 
@@ -72,6 +74,28 @@ export const OrderItemForm = ({
     ),
   );
 
+  // Calculate unit price based on selected material
+  const selectedProductMaterial = productMaterials?.find(
+    (pm) => pm.materialId === formData.materialId,
+  );
+  const calculatedUnitPrice = selectedProductMaterial
+    ? Number(selectedProductMaterial.price)
+    : 0;
+
+  // Calculate customization additional costs
+  let customizationCost = 0;
+  if (formData.customizations) {
+    Object.values(formData.customizations).forEach((customization) => {
+      if (customization.additionalPrice) {
+        customizationCost += customization.additionalPrice * formData.quantity;
+      }
+    });
+  }
+
+  // Calculate total price (base price + customization costs)
+  const totalPrice =
+    calculatedUnitPrice * formData.quantity + customizationCost;
+
   // Handle customization changes
   const handleCustomizationChange = (
     optionId: string,
@@ -89,12 +113,32 @@ export const OrderItemForm = ({
     }
   };
 
-  // Handle material changes
-  const handleMaterialChange = (materialId: string | null) => {
-    const updatedFormData = { ...formData, materialId: materialId || "" };
+  // Handle quantity changes
+  const handleQuantityChange = (quantity: number) => {
+    const updatedFormData = { ...formData, quantity };
     setFormData(updatedFormData);
     if (isEditing) {
-      onUpdate(item.id, "materialId", materialId || "");
+      onUpdate(item.id, "quantity", quantity);
+    }
+  };
+
+  // Handle material changes
+  const handleMaterialChange = (materialId: string | null) => {
+    const newMaterialId = materialId || "";
+    const selectedMaterial = productMaterials?.find(
+      (pm) => pm.materialId === newMaterialId,
+    );
+    const newUnitPrice = selectedMaterial ? Number(selectedMaterial.price) : 0;
+
+    const updatedFormData = {
+      ...formData,
+      materialId: newMaterialId,
+      unitPrice: newUnitPrice,
+    };
+    setFormData(updatedFormData);
+    if (isEditing) {
+      onUpdate(item.id, "materialId", newMaterialId);
+      onUpdate(item.id, "unitPrice", newUnitPrice);
     }
   };
 
@@ -103,12 +147,16 @@ export const OrderItemForm = ({
       ...formData,
       productId: product.id,
       productName: product.name, // Store product name
+      materialId: "", // Reset material selection
+      unitPrice: 0, // Reset unit price
     };
     setFormData(updatedFormData);
     setSearchQuery(product.name);
     if (isEditing) {
       onUpdate(item.id, "productId", product.id);
       onUpdate(item.id, "productName", product.name);
+      onUpdate(item.id, "materialId", "");
+      onUpdate(item.id, "unitPrice", 0);
     }
   };
 
@@ -116,6 +164,7 @@ export const OrderItemForm = ({
     const itemToSave = {
       ...formData,
       id: formData.id === "new" ? Date.now().toString() : formData.id,
+      unitPrice: calculatedUnitPrice, // Use calculated unit price
     };
     onSave(itemToSave);
 
@@ -157,6 +206,46 @@ export const OrderItemForm = ({
           selectedMaterialId={formData.materialId}
           onMaterialChange={handleMaterialChange}
         />
+      )}
+
+      {/* Quantity field */}
+      <div className="space-y-2">
+        <Label>Quantity</Label>
+        <Input
+          type="number"
+          min="1"
+          value={formData.quantity}
+          onChange={(e) => handleQuantityChange(Number(e.target.value))}
+          className="w-24"
+        />
+      </div>
+
+      {/* Price display */}
+      {formData.productId && formData.materialId && (
+        <div className="space-y-2 rounded-lg border bg-gray-50 p-3 dark:bg-gray-800">
+          <div className="flex justify-between text-sm">
+            <span>Unit Price:</span>
+            <span className="font-medium">
+              {formatNaira(calculatedUnitPrice)}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Quantity:</span>
+            <span className="font-medium">{formData.quantity}</span>
+          </div>
+          {customizationCost > 0 && (
+            <div className="flex justify-between text-sm">
+              <span>Customization Cost:</span>
+              <span className="font-medium">
+                {formatNaira(customizationCost)}
+              </span>
+            </div>
+          )}
+          <div className="flex justify-between border-t pt-2 text-base font-semibold">
+            <span>Total Price:</span>
+            <span>{formatNaira(totalPrice)}</span>
+          </div>
+        </div>
       )}
 
       {/* Show customization UI when a product is selected */}

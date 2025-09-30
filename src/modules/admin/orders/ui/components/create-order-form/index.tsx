@@ -1,18 +1,29 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { useTRPC } from "@/trpc/client";
 import { defineStepper } from "@stepperize/react";
 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CustomerInfoFields } from "./customer-info-fields";
 import { OrderItemsFields } from "./order-items-fields";
 import { Review } from "./review";
-import { customerInfoSchema, orderItemsSchema, reviewSchema } from "./schemas";
+import {
+  CustomerInfoFormValues,
+  customerInfoSchema,
+  OrderItemsFormValues,
+  orderItemsSchema,
+  reviewSchema,
+} from "./schemas";
 import { StepperNavigation } from "./stepper-navigation";
 
 // Define stepper
@@ -36,6 +47,14 @@ const { useStepper, steps, utils } = defineStepper(
 
 export const CreateOrderForm = () => {
   const stepper = useStepper();
+  const router = useRouter();
+  const trpc = useTRPC();
+
+  // State to accumulate form data from all steps
+  const [accumulatedData, setAccumulatedData] = useState<{
+    customerInfo?: CustomerInfoFormValues;
+    orderItems?: OrderItemsFormValues;
+  }>({});
 
   const form = useForm({
     mode: "onTouched",
@@ -43,12 +62,64 @@ export const CreateOrderForm = () => {
   });
   console.log(form.formState.errors);
 
+  // Create order mutation
+  const {
+    mutate: createOrder,
+    isPending,
+    error,
+  } = useMutation(trpc.admin.orders.createOrder.mutationOptions());
+
   const onSubmit = (values: z.infer<typeof stepper.current.schema>) => {
-    console.log(`Form values for step ${stepper.current.id}:`, values);
+    // Store the current step's data
+    if (stepper.current.id === "customer-info") {
+      setAccumulatedData((prev) => ({
+        ...prev,
+        customerInfo: values as CustomerInfoFormValues,
+      }));
+    } else if (stepper.current.id === "order-items") {
+      setAccumulatedData((prev) => ({
+        ...prev,
+        orderItems: values as OrderItemsFormValues,
+      }));
+    }
+
     if (stepper.isLast) {
-      // Handle final submission
-      console.log("Creating order with all data:", values);
-      stepper.reset();
+      // Handle final submission - create the order
+      if (!accumulatedData.customerInfo || !accumulatedData.orderItems) {
+        toast.error("Missing order information");
+        return;
+      }
+
+      createOrder(
+        {
+          customerId: accumulatedData.customerInfo.customerId,
+          customerEmail: accumulatedData.customerInfo.customerEmail,
+          customerName: accumulatedData.customerInfo.customerName,
+          items: accumulatedData.orderItems.items.map((item) => ({
+            productId: item.productId,
+            materialId: item.materialId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            notes: item.notes,
+            customizations: item.customizations,
+          })),
+        },
+        {
+          onSuccess: (data) => {
+            toast.success(
+              `Order ${data.order.orderNumber} created successfully!`,
+            );
+            stepper.reset();
+            setAccumulatedData({});
+            form.reset();
+            // Navigate to the order details page
+            router.push(`/admin/orders/${data.order.orderNumber}`);
+          },
+          onError: (error) => {
+            toast.error(error.message || "Failed to create order");
+          },
+        },
+      );
     } else {
       stepper.next();
     }
@@ -97,20 +168,30 @@ export const CreateOrderForm = () => {
           {stepper.switch({
             "customer-info": () => <CustomerInfoFields />,
             "order-items": () => <OrderItemsFields />,
-            review: () => <Review />,
+            review: () => <Review accumulatedData={accumulatedData} />,
           })}
+
+          {error && stepper.isLast && (
+            <div className="border-destructive bg-destructive/10 text-destructive rounded-md border p-3 text-sm">
+              {error.message || "Failed to create order. Please try again."}
+            </div>
+          )}
 
           <div className="flex justify-end gap-4">
             <Button
               type="button"
               variant="secondary"
               onClick={stepper.prev}
-              disabled={stepper.isFirst}
+              disabled={stepper.isFirst || isPending}
             >
               Back
             </Button>
-            <Button type="submit">
-              {stepper.isLast ? "Create Order" : "Next"}
+            <Button type="submit" disabled={isPending}>
+              {isPending
+                ? "Creating..."
+                : stepper.isLast
+                  ? "Create Order"
+                  : "Next"}
             </Button>
           </div>
         </div>

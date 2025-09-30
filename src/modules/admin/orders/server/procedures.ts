@@ -7,9 +7,17 @@ import { materials, products } from "@/db/schema/shop";
 import { makeTerminalRequest, terminalClient } from "@/lib/terminal-client";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
+import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { z } from "zod";
 import { TerminalGetRateResponse } from "../../../terminal/types";
+
+// Helper function to generate order number
+function generateOrderNumber(): string {
+  const timestamp = Date.now().toString();
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `ORD-${timestamp.slice(-6)}-${random}`;
+}
 
 export const adminOrdersRouter = createTRPCRouter({
   // Get all orders for admin
@@ -254,5 +262,154 @@ export const adminOrdersRouter = createTRPCRouter({
         console.error("Failed to fetch rate details:", error);
         return null;
       }
+    }),
+
+  // Create order (admin)
+  createOrder: protectedProcedure
+    .input(
+      z.object({
+        customerId: z.string().optional(),
+        customerEmail: z.string().email(),
+        customerName: z.string().min(1),
+        items: z
+          .array(
+            z.object({
+              productId: z.string(),
+              materialId: z.string(),
+              quantity: z.number().min(1),
+              unitPrice: z.number().min(0),
+              notes: z.string().optional(),
+              customizations: z
+                .record(
+                  z.string(),
+                  z.object({
+                    type: z.enum(["text", "image", "qr_code"]),
+                    textContent: z.string().optional(),
+                    imageUrl: z.string().optional(),
+                    qrData: z.string().optional(),
+                    additionalPrice: z.number().optional(),
+                  }),
+                )
+                .optional(),
+            }),
+          )
+          .min(1, "At least one item is required"),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      // Verify customer exists (if customerId provided)
+      let userId = input.customerId;
+
+      if (!userId) {
+        // If no customerId, look up user by email
+        const [existingUser] = await db
+          .select()
+          .from(user)
+          .where(eq(user.email, input.customerEmail))
+          .limit(1);
+
+        if (!existingUser) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Customer not found. Please create the customer first.",
+          });
+        }
+
+        userId = existingUser.id;
+      }
+
+      // Calculate totals
+      let subtotal = 0;
+      const orderItemsData = input.items.map((item) => {
+        const unitPrice = item.unitPrice;
+        const quantity = item.quantity;
+        const totalPrice = unitPrice * quantity;
+        subtotal += totalPrice;
+
+        // Calculate customization additional costs
+        let customizationCost = 0;
+        if (item.customizations) {
+          Object.values(item.customizations).forEach((customization) => {
+            if (customization.additionalPrice) {
+              customizationCost += customization.additionalPrice * quantity;
+            }
+          });
+        }
+
+        // Convert customizations to database format
+        const dbCustomizations: {
+          [key: string]: {
+            type: "text" | "image" | "qr_code";
+            content: string;
+            additionalPrice?: number;
+          };
+        } = {};
+
+        if (item.customizations) {
+          Object.entries(item.customizations).forEach(([key, value]) => {
+            let content = "";
+            if (value.type === "text") {
+              content = value.textContent || "";
+            } else if (value.type === "image") {
+              content = value.imageUrl || "";
+            } else if (value.type === "qr_code") {
+              content = value.qrData || "";
+            }
+
+            dbCustomizations[key] = {
+              type: value.type,
+              content,
+              additionalPrice: value.additionalPrice,
+            };
+          });
+        }
+
+        return {
+          productId: item.productId,
+          materialId: item.materialId,
+          quantity: item.quantity,
+          unitPrice: unitPrice.toString(),
+          totalPrice: (totalPrice + customizationCost).toString(),
+          customizations: dbCustomizations,
+          notes: item.notes,
+        };
+      });
+
+      const totalAmount = subtotal;
+
+      // Create order
+      const [newOrder] = await db
+        .insert(orders)
+        .values({
+          orderNumber: generateOrderNumber(),
+          userId: userId,
+          subtotal: subtotal.toString(),
+          deliveryFee: "0",
+          totalAmount: totalAmount.toString(),
+          status: "pending",
+        })
+        .returning();
+
+      // Create order items
+      const newOrderItems = await db
+        .insert(orderItems)
+        .values(
+          orderItemsData.map((item) => ({
+            orderId: newOrder.id,
+            productId: item.productId,
+            materialId: item.materialId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            totalPrice: item.totalPrice,
+            customizations: item.customizations,
+            notes: item.notes,
+          })),
+        )
+        .returning();
+
+      return {
+        order: newOrder,
+        items: newOrderItems,
+      };
     }),
 });

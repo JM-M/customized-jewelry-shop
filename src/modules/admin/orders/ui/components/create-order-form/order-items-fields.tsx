@@ -126,7 +126,7 @@ export const OrderItemsFields = () => {
         })}
 
         {/* Add new item form */}
-        <div className="animate-in slide-in-from-top-2 mt-8 flex flex-col gap-3 border p-3 duration-200">
+        <div className="animate-in slide-in-from-top-2 flex flex-col gap-3 border p-3 duration-200">
           <h3 className="text-lg font-medium">Add New Item</h3>
 
           <OrderItemForm
