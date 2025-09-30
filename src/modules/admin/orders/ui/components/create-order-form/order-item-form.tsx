@@ -82,19 +82,8 @@ export const OrderItemForm = ({
     ? Number(selectedProductMaterial.price)
     : 0;
 
-  // Calculate customization additional costs
-  let customizationCost = 0;
-  if (formData.customizations) {
-    Object.values(formData.customizations).forEach((customization) => {
-      if (customization.additionalPrice) {
-        customizationCost += customization.additionalPrice * formData.quantity;
-      }
-    });
-  }
-
-  // Calculate total price (base price + customization costs)
-  const totalPrice =
-    calculatedUnitPrice * formData.quantity + customizationCost;
+  // Calculate total price (base price only - customization costs not supported in current type)
+  const totalPrice = calculatedUnitPrice * formData.quantity;
 
   // Handle customization changes
   const handleCustomizationChange = (
@@ -233,14 +222,6 @@ export const OrderItemForm = ({
             <span>Quantity:</span>
             <span className="font-medium">{formData.quantity}</span>
           </div>
-          {customizationCost > 0 && (
-            <div className="flex justify-between text-sm">
-              <span>Customization Cost:</span>
-              <span className="font-medium">
-                {formatNaira(customizationCost)}
-              </span>
-            </div>
-          )}
           <div className="flex justify-between border-t pt-2 text-base font-semibold">
             <span>Total Price:</span>
             <span>{formatNaira(totalPrice)}</span>
