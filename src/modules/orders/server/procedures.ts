@@ -205,6 +205,43 @@ export const ordersRouter = createTRPCRouter({
       };
     }),
 
+  // Update order payment reference
+  updatePaymentReference: protectedProcedure
+    .input(
+      z.object({
+        orderNumber: z.string(),
+        paymentReference: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      // const userId = ctx.auth.user.id;
+      // TODO: Add some sort of verification so that only the user who owns the order can update the payment reference
+      // Perhaps using a hash of the order number to create a unique identifier for the order
+
+      // Verify order ownership and update payment reference
+      const [updatedOrder] = await db
+        .update(orders)
+        .set({
+          paymentReference: input.paymentReference,
+          updatedAt: new Date(),
+        })
+        .where(eq(orders.orderNumber, input.orderNumber))
+        .returning({
+          id: orders.id,
+          orderNumber: orders.orderNumber,
+          paymentReference: orders.paymentReference,
+        });
+
+      if (!updatedOrder) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Order not found or not accessible",
+        });
+      }
+
+      return updatedOrder;
+    }),
+
   // Create order from cart
   createOrder: protectedProcedure
     .input(

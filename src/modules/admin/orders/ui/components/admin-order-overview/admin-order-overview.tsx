@@ -162,7 +162,7 @@ export const AdminOrderOverview = ({ order }: AdminOrderOverviewProps) => {
                 </p>
               </div>
               <CopyableText
-                text={`${process.env.NEXT_PUBLIC_WEBSITE_URL || "https://your-website.com"}/fast-checkout/${order.orderNumber}`}
+                text={`${process.env.NEXT_PUBLIC_WEBSITE_URL!}/checkout/fast/${order.orderNumber}`}
               />
             </div>
           )}

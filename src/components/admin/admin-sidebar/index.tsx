@@ -12,7 +12,6 @@ import {
   MapPinIcon,
   PackageIcon,
   ShoppingBagIcon,
-  ShoppingCartIcon,
   TruckIcon,
   UserIcon,
 } from "lucide-react";
@@ -91,12 +90,6 @@ const sidebarConfig: SidebarGroup[] = [
         label: "Categories",
         href: "/admin/categories",
         icon: FolderIcon,
-      },
-      {
-        id: "fast-checkout",
-        label: "Fast Checkout",
-        href: "/admin/fast-checkout",
-        icon: ShoppingCartIcon,
       },
       {
         id: "transactions",
