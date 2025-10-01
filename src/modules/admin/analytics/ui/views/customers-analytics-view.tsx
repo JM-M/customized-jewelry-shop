@@ -1,23 +1,26 @@
 "use client";
 
 import { AdminPageHeader } from "@/components/admin/shared/page-header";
+import { CustomerSourceCards } from "../components/customer-source-cards";
+import { CustomerSourceChart } from "../components/customer-source-chart";
 
 export const CustomersAnalyticsView = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <AdminPageHeader
         title="Customers Analytics"
         description="Understand customer behavior and demographics"
       />
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-3">
-          <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-gray-300">
-            <p className="text-gray-500">
-              Customer charts and metrics will be implemented here
-            </p>
-          </div>
-        </div>
+      {/* Customer Source Overview */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">Customer Sources</h2>
+        <CustomerSourceCards />
+      </div>
+
+      {/* Customer Source Distribution */}
+      <div className="space-y-4">
+        <CustomerSourceChart />
       </div>
     </div>
   );
