@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BarChart3Icon,
   ChartBarIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -12,8 +13,9 @@ import {
   MapPinIcon,
   PackageIcon,
   ShoppingBagIcon,
+  TrendingUpIcon,
   TruckIcon,
-  UserIcon,
+  UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -70,8 +72,39 @@ const sidebarConfig: SidebarGroup[] = [
       {
         id: "analytics",
         label: "Analytics",
-        href: "/admin/analytics",
         icon: ChartBarIcon,
+        children: [
+          {
+            id: "sales-analytics",
+            label: "Sales",
+            href: "/admin/analytics/sales",
+            icon: TrendingUpIcon,
+          },
+          {
+            id: "orders-analytics",
+            label: "Orders",
+            href: "/admin/analytics/orders",
+            icon: ShoppingBagIcon,
+          },
+          {
+            id: "customers-analytics",
+            label: "Customers",
+            href: "/admin/analytics/customers",
+            icon: UsersIcon,
+          },
+          {
+            id: "products-analytics",
+            label: "Products",
+            href: "/admin/analytics/products",
+            icon: GiftIcon,
+          },
+          {
+            id: "inventory-analytics",
+            label: "Inventory",
+            href: "/admin/analytics/inventory",
+            icon: BarChart3Icon,
+          },
+        ],
       },
       {
         id: "orders",
@@ -101,7 +134,7 @@ const sidebarConfig: SidebarGroup[] = [
         id: "customers",
         label: "Customers",
         href: "/admin/customers",
-        icon: UserIcon,
+        icon: UsersIcon,
       },
     ],
   },
