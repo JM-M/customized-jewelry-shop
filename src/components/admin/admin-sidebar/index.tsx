@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BarChart3Icon,
   ChartBarIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -86,23 +85,23 @@ const sidebarConfig: SidebarGroup[] = [
             href: "/admin/analytics/orders",
             icon: ShoppingBagIcon,
           },
+          // {
+          //   id: "products-analytics",
+          //   label: "Products",
+          //   href: "/admin/analytics/products",
+          //   icon: GiftIcon,
+          // },
+          // {
+          //   id: "inventory-analytics",
+          //   label: "Inventory",
+          //   href: "/admin/analytics/inventory",
+          //   icon: BarChart3Icon,
+          // },
           {
             id: "customers-analytics",
             label: "Customers",
             href: "/admin/analytics/customers",
             icon: UsersIcon,
-          },
-          {
-            id: "products-analytics",
-            label: "Products",
-            href: "/admin/analytics/products",
-            icon: GiftIcon,
-          },
-          {
-            id: "inventory-analytics",
-            label: "Inventory",
-            href: "/admin/analytics/inventory",
-            icon: BarChart3Icon,
           },
         ],
       },
