@@ -1,4 +1,7 @@
+import { AdminDashboardView } from "@/modules/admin/dashboard/ui/views/admin-dashboard-view";
+
 const AdminDashboardPage = () => {
-  return <div>AdminDashboardPage</div>;
+  return <AdminDashboardView />;
 };
+
 export default AdminDashboardPage;
