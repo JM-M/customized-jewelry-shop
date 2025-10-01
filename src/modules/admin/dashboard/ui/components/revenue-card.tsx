@@ -39,7 +39,9 @@ export const RevenueCard = ({
   return (
     <Card className="gap-2">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-sm font-medium">Today's Revenue</CardTitle>
+        <CardTitle className="text-sm font-medium">
+          Today{"'"}s Revenue
+        </CardTitle>
         <DollarSign className="text-muted-foreground h-4 w-4" />
       </CardHeader>
       <CardContent>
