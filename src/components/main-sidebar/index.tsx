@@ -72,6 +72,8 @@ export function MainSidebar() {
     }
   };
 
+  if (!isMobile) return null;
+
   return (
     <Sidebar side="right">
       <SidebarHeader className="text-sidebar-accent-foreground h-17 justify-center border-b">

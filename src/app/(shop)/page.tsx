@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 export default async function Home() {
-  prefetch(trpc.categories.getAll.queryOptions());
   prefetch(
     trpc.products.getNewArrivals.queryOptions({ limit: DEFAULT_PAGE_SIZE }),
   );

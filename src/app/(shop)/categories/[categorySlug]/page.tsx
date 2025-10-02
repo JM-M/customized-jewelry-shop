@@ -10,8 +10,6 @@ const CategoryPage = async ({
 }) => {
   const { categorySlug } = await params;
 
-  prefetch(trpc.categories.getAll.queryOptions());
-
   prefetch(
     trpc.products.getManyByCategorySlug.infiniteQueryOptions({
       categorySlug,
