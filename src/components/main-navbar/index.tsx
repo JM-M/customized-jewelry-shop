@@ -37,64 +37,62 @@ export const MainNavbar = () => {
           Temmy Accessories
         </Link>
       </h1>
-      {!isMobile && (
-        <div className="mx-auto flex items-center gap-5">
-          {parentCategories.map((parentCategory) => {
-            const childCategories = categories.filter(
-              (c) => c.parentId === parentCategory.id,
-            );
-            const isActive = activeParentCategory?.id === parentCategory.id;
+      <div className="mx-auto hidden items-center gap-5 md:flex">
+        {parentCategories.map((parentCategory) => {
+          const childCategories = categories.filter(
+            (c) => c.parentId === parentCategory.id,
+          );
+          const isActive = activeParentCategory?.id === parentCategory.id;
 
-            return (
-              <DropdownMenu key={parentCategory.id}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "hover:text-primary flex items-center gap-1 text-base font-medium",
-                      {
-                        "ring-primary/50 ring-[2px]": isActive,
-                      },
-                    )}
-                  >
-                    {parentCategory.name}
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48 rounded-2xl">
-                  <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link
-                      href={`/categories/${parentCategory.slug}`}
-                      className="w-full"
-                    >
-                      All {parentCategory.name}
-                    </Link>
-                  </DropdownMenuItem>
-                  {childCategories.length > 0 && (
-                    <>
-                      <div className="my-1 border-t" />
-                      {childCategories.map((childCategory) => (
-                        <DropdownMenuItem
-                          key={childCategory.id}
-                          asChild
-                          className="cursor-pointer"
-                        >
-                          <Link
-                            href={`/categories/${childCategory.slug}`}
-                            className="w-full"
-                          >
-                            {childCategory.name}
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </>
+          return (
+            <DropdownMenu key={parentCategory.id}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "hover:text-primary flex items-center gap-1 text-base font-medium",
+                    {
+                      "ring-primary/50 ring-[2px]": isActive,
+                    },
                   )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            );
-          })}
-        </div>
-      )}
+                >
+                  {parentCategory.name}
+                  <ChevronDownIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48 rounded-2xl">
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link
+                    href={`/categories/${parentCategory.slug}`}
+                    className="w-full"
+                  >
+                    All {parentCategory.name}
+                  </Link>
+                </DropdownMenuItem>
+                {childCategories.length > 0 && (
+                  <>
+                    <div className="my-1 border-t" />
+                    {childCategories.map((childCategory) => (
+                      <DropdownMenuItem
+                        key={childCategory.id}
+                        asChild
+                        className="cursor-pointer"
+                      >
+                        <Link
+                          href={`/categories/${childCategory.slug}`}
+                          className="w-full"
+                        >
+                          {childCategory.name}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        })}
+      </div>
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon">
           <SearchIcon strokeWidth={1.2} />
