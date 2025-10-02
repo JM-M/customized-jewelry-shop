@@ -1,12 +1,15 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Minus, Plus } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+import { SiInstagram, SiTiktok, SiWhatsapp } from "react-icons/si";
 
 interface FooterSection {
   title: string;
@@ -123,6 +126,54 @@ export const Footer = () => {
               <a href="#" className="transition-colors hover:text-gray-900">
                 Contact
               </a>
+            </div>
+          </div>
+
+          {/* Social Media Section */}
+          <div className="mt-6 flex flex-col items-center space-y-3">
+            <h3 className="font-niconne text-lg font-medium text-gray-700">
+              Follow Us
+            </h3>
+            <div className="flex justify-center gap-4">
+              <Button
+                asChild
+                size="icon"
+                className="bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:scale-110 hover:from-pink-600 hover:to-purple-700"
+              >
+                <Link
+                  href="https://www.instagram.com/_temmyaccessories"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <SiInstagram size={20} />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="icon"
+                className="bg-black text-white hover:scale-110 hover:bg-gray-800"
+              >
+                <Link
+                  href="https://www.tiktok.com/@_temmyaccessories"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <SiTiktok size={20} />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="icon"
+                className="bg-green-600 text-white hover:scale-110 hover:bg-green-700"
+              >
+                <Link
+                  href="https://wa.me/2348109525002"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <SiWhatsapp size={20} />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
