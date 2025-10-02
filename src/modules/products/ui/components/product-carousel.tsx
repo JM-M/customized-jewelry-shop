@@ -6,10 +6,17 @@ import {
 import Link from "next/link";
 import { ProductCard } from "./product-card";
 
-import { GetNewArrivalsOutput } from "../../types";
+import {
+  GetNewArrivalsOutput,
+  GetProductsByCategorySlugOutput,
+} from "../../types";
+
+type ProductItem =
+  | GetNewArrivalsOutput["items"][0]
+  | GetProductsByCategorySlugOutput["items"][0];
 
 interface ProductCarouselProps {
-  products: GetNewArrivalsOutput["items"];
+  products: ProductItem[];
   title: string;
   viewAllLink: string;
 }
@@ -22,8 +29,8 @@ export const ProductCarousel = ({
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="gap-3 font-serif text-2xl font-medium">{title}</h3>
-        <Link href={viewAllLink} className="text-sm underline">
+        <h3 className="font-niconne gap-3 text-2xl font-medium">{title}</h3>
+        <Link href={viewAllLink} className="text-sm hover:underline">
           View All
         </Link>
       </div>
@@ -32,7 +39,7 @@ export const ProductCarousel = ({
           {products.map((product) => (
             <CarouselItem
               key={product.id}
-              className="basis-1/3 pl-2 md:basis-1/4 md:pl-4"
+              className="basis-1/2 pl-2 min-[500px]:basis-1/3 md:basis-1/4 md:pl-4"
             >
               <div className="p-1">
                 <ProductCard product={product} />

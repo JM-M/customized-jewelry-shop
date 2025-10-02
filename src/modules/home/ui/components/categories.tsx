@@ -1,5 +1,4 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -54,9 +53,7 @@ export const Categories = () => {
           className="mx-auto flex h-12 w-fit !px-6"
           asChild
         >
-          <Link href="/categories">
-            See All Categories <ArrowRightIcon />
-          </Link>
+          <Link href="/categories">See All Categories</Link>
         </Button>
       </div>
     </section>

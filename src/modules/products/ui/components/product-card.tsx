@@ -2,10 +2,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatNaira } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { GetProductByIdOutput } from "../../types";
+import {
+  GetNewArrivalsOutput,
+  GetProductsByCategorySlugOutput,
+} from "../../types";
+
+type ProductItem =
+  | GetNewArrivalsOutput["items"][0]
+  | GetProductsByCategorySlugOutput["items"][0];
 
 interface ProductCardProps {
-  product: GetProductByIdOutput;
+  product: ProductItem;
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
