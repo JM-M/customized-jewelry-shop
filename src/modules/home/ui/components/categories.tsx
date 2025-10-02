@@ -1,8 +1,16 @@
-import { Button } from "@/components/ui/button";
-import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { useTRPC } from "@/trpc/client";
 import { CategoryCard } from "./category-card";
 
 export const Categories = () => {
@@ -12,20 +20,34 @@ export const Categories = () => {
   );
 
   // Show only 4 of the top categories
-  const topCategories = categories.filter((c) => !c.parentId).slice(0, 4) || [];
+  const parentCategories = categories.filter((c) => !c.parentId);
 
   return (
     <section className="space-y-5 p-3">
-      <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-4">
-        {topCategories.map((category) => (
-          <CategoryCard
-            key={category.name}
-            href={`/categories/${category.slug}`}
-            name={category.name}
-            image={category.image}
-          />
-        ))}
-      </div>
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+        className="w-full"
+      >
+        <CarouselContent>
+          {parentCategories.map((category) => (
+            <CarouselItem
+              key={category.name}
+              className="basis-1/2 min-[400px]:basis-1/3 sm:basis-1/4 md:basis-1/5"
+            >
+              <CategoryCard
+                href={`/categories/${category.slug}`}
+                name={category.name}
+                image={category.image}
+              />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="bg-background/80 left-1 -translate-y-[25px]" />
+        <CarouselNext className="bg-background/80 right-1 -translate-y-[25px]" />
+      </Carousel>
       <div>
         <Button
           variant="secondary"

@@ -11,7 +11,7 @@ export const CategoryCard = ({ name, image, href }: CategoryCardProps) => {
   return (
     <div className="space-y-2">
       <Link href={href} className="block cursor-pointer space-y-1">
-        <div className="aspect-[17/21] overflow-hidden">
+        <div className="aspect-square overflow-hidden">
           {image && (
             <Image
               src={image} // TODO: Implement proper fallback image url
@@ -22,7 +22,7 @@ export const CategoryCard = ({ name, image, href }: CategoryCardProps) => {
             />
           )}
         </div>
-        <div className="text-center">
+        <div className="text-center text-sm">
           <span className="underline underline-offset-2">{name}</span>
         </div>
       </Link>
