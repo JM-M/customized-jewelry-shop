@@ -15,9 +15,18 @@ export const ProductCustomization = () => {
     useProduct();
   const [isOpen, setIsOpen] = useState(true);
 
+  // Return null if there are no customization options
+  if (!customizationOptions || customizationOptions.length === 0) {
+    return null;
+  }
+
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-y">
-      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50">
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="border-y p-4"
+    >
+      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md text-left hover:bg-gray-50 dark:hover:bg-gray-800/50">
         <span>Customize Your Jewelry</span>
         <ChevronDownIcon
           className={`h-4 w-4 transition-transform ${

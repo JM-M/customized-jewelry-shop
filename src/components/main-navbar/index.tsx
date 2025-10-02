@@ -37,7 +37,7 @@ export const MainNavbar = () => {
           Temmy Accessories
         </Link>
       </h1>
-      <div className="mx-auto hidden items-center gap-5 md:flex">
+      <div className="mx-auto hidden items-center gap-4 md:flex">
         {parentCategories.map((parentCategory) => {
           const childCategories = categories.filter(
             (c) => c.parentId === parentCategory.id,
@@ -50,7 +50,7 @@ export const MainNavbar = () => {
                 <Button
                   variant="ghost"
                   className={cn(
-                    "hover:text-primary flex items-center gap-1 text-base font-medium",
+                    "hover:text-primary flex items-center gap-1 text-sm font-medium",
                     {
                       "ring-primary/50 ring-[2px]": isActive,
                     },
