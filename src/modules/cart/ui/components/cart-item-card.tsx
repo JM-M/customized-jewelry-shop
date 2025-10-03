@@ -38,7 +38,7 @@ export const CartItemCard = ({
   return (
     <Card>
       <CardContent className="flex items-center justify-between gap-3">
-        <div className="bg-secondary relative aspect-[6/7] h-[120px] overflow-hidden rounded-lg">
+        <div className="bg-secondary relative mb-auto aspect-[6/7] h-[120px] overflow-hidden rounded-lg">
           <Image
             src={product.primaryImage}
             alt={product.name}

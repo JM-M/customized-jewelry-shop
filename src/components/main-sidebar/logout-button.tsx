@@ -7,9 +7,13 @@ import { Spinner2 } from "../shared/spinner-2";
 
 interface LogoutButtonProps {
   onClick?: () => void;
+  isIconOnly?: boolean;
 }
 
-export const LogoutButton = ({ onClick }: LogoutButtonProps) => {
+export const LogoutButton = ({
+  onClick,
+  isIconOnly = false,
+}: LogoutButtonProps) => {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
@@ -29,15 +33,16 @@ export const LogoutButton = ({ onClick }: LogoutButtonProps) => {
   return (
     <Button
       variant="ghost"
-      className="flex w-full justify-start"
+      className={isIconOnly ? undefined : "flex w-full justify-start"}
       onClick={() => {
         handleLogout();
         onClick?.();
       }}
       disabled={pending}
+      size={isIconOnly ? "icon" : "default"}
     >
-      {pending ? <Spinner2 /> : <LogOutIcon />}
-      Logout
+      {pending ? <Spinner2 /> : <LogOutIcon strokeWidth={1.2} />}
+      {isIconOnly ? null : "Logout"}
     </Button>
   );
 };

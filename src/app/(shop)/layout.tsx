@@ -23,9 +23,9 @@ const ShopLayout = async ({ children }: Props) => {
             <div className="flex min-h-screen max-w-full flex-1 flex-col">
               <MainNavbar />
               <main className="flex-1">{children}</main>
+              <Footer />
             </div>
           </SidebarProvider>
-          <Footer />
         </ShopProviders>
       </Suspense>
     </HydrateClient>

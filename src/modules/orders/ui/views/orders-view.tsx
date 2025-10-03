@@ -41,12 +41,14 @@ export const OrdersView = () => {
   return (
     <div className="space-y-4 p-4">
       <ShopPageHeader title="Your Orders" />
-      <OrdersList
-        orders={data}
-        hasNextPage={hasNextPage}
-        isFetchingNextPage={isFetchingNextPage}
-        fetchNextPage={fetchNextPage}
-      />
+      <div className="mx-auto max-w-[500px]">
+        <OrdersList
+          orders={data}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
+        />
+      </div>
     </div>
   );
 };

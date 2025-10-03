@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronDownIcon, MenuIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
@@ -16,8 +17,14 @@ import {
 } from "../ui/dropdown-menu";
 import { useSidebar } from "../ui/sidebar";
 import { CartButton } from "./cart-button";
+import { HistoryButton } from "./history-button";
+import { NavAuthButton } from "./nav-auth-button";
+import { UserDropdown } from "./user-dropdown";
 
 export const MainNavbar = () => {
+  const session = authClient.useSession();
+  const isLoggedIn = !!session.data;
+
   const pathname = usePathname();
   const { toggleSidebar, isMobile } = useSidebar();
 
@@ -93,11 +100,24 @@ export const MainNavbar = () => {
           );
         })}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Button variant="ghost" size="icon">
           <SearchIcon strokeWidth={1.2} />
         </Button>
+        {!isMobile && <HistoryButton />}
         <CartButton />
+        {!isMobile && (isLoggedIn ? <UserDropdown /> : <NavAuthButton />)}
+        {/* {!isMobile &&
+          (isLoggedIn ? (
+            <UserDropdown />
+          ) : (
+            <Button asChild>
+              <Link href="/sign-in">
+                <UserIcon strokeWidth={1.2} />
+                Sign in
+              </Link>
+            </Button>
+          ))} */}
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={toggleSidebar}>
             <MenuIcon className="size-5" strokeWidth={1.2} />
