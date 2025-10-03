@@ -19,7 +19,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <Link href={`/products/${product.slug}`} className="block">
       <Card className="cursor-pointer p-0 transition-all duration-300 hover:scale-105 hover:shadow-lg">
-        <CardContent className="relative flex aspect-[3/4] items-center justify-center p-0">
+        <CardContent className="relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg p-0">
           <Image
             src={product.primaryImage}
             alt={product.name}
