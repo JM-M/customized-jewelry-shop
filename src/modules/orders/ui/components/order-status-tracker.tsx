@@ -94,7 +94,7 @@ export const OrderStatusTracker = ({ order }: OrderStatusTrackerProps) => {
 
   return (
     <Card className="h-fit">
-      <CardHeader className="pb-4">
+      <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">
           Order Status
         </CardTitle>

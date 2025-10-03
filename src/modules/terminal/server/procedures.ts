@@ -29,6 +29,7 @@ import {
   TerminalGetCountriesResponse,
   TerminalGetDefaultSenderResponse,
   TerminalGetPackagingsResponse,
+  TerminalGetRateResponse,
   TerminalGetRatesForShipmentResponse,
   TerminalGetStatesResponse,
 } from "../types";
@@ -1253,5 +1254,23 @@ export const terminalRouter = createTRPCRouter({
         rates: ratesResult.data,
         parcelId,
       };
+    }),
+
+  getRate: protectedProcedure
+    .input(
+      z.object({
+        rateId: z.string().min(1, "Rate ID is required"),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { rateId } = input;
+
+      // Get rate details from Terminal API using the correct endpoint
+      const rateResult = await makeTerminalRequest<TerminalGetRateResponse>(
+        () => terminalClient.get(`/rates/${rateId}`),
+        "Failed to get rate details",
+      );
+
+      return rateResult.data;
     }),
 });

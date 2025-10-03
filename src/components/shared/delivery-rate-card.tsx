@@ -9,12 +9,14 @@ interface DeliveryRateCardProps {
   rate: TerminalRate;
   isSelected?: boolean;
   onSelect?: () => void;
+  displayOnly?: boolean;
 }
 
 export const DeliveryRateCard = ({
   rate,
   isSelected = false,
   onSelect,
+  displayOnly = false,
 }: DeliveryRateCardProps) => {
   const {
     carrier_name,
@@ -27,10 +29,14 @@ export const DeliveryRateCard = ({
 
   return (
     <Card
-      className={`cursor-pointer gap-3 p-3 transition-all duration-200 hover:shadow-md ${
-        isSelected ? "border-primary" : "hover:border-primary/50"
+      className={`gap-3 p-3 transition-all duration-200 ${
+        displayOnly
+          ? ""
+          : `cursor-pointer hover:shadow-md ${
+              isSelected ? "border-primary" : "hover:border-primary/50"
+            }`
       }`}
-      onClick={onSelect}
+      onClick={displayOnly ? undefined : onSelect}
     >
       <div className="space-y-1">
         <div className="flex items-center gap-3">
@@ -45,11 +51,13 @@ export const DeliveryRateCard = ({
             <h3 className="font-medium">{carrier_name}</h3>
             <p className="text-sm text-gray-500">{formatNaira(amount)}</p>
           </div>
-          <div className="mb-auto ml-auto h-full w-fit">
-            <Badge variant={isSelected ? "default" : "outline"}>
-              {isSelected ? "Selected" : "Select"}
-            </Badge>
-          </div>
+          {!displayOnly && (
+            <div className="mb-auto ml-auto h-full w-fit">
+              <Badge variant={isSelected ? "default" : "outline"}>
+                {isSelected ? "Selected" : "Select"}
+              </Badge>
+            </div>
+          )}
         </div>
 
         <div className="ml-auto w-fit">
