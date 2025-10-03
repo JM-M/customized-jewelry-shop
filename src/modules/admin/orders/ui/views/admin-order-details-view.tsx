@@ -84,14 +84,14 @@ export const AdminOrderDetailsView = () => {
             <AdminOrderOverview order={order} />
           </div>
 
-          {/* Customer Information */}
-          <div className="@container">
-            <AdminOrderCustomerInfo customer={order.customer} />
-          </div>
-
           {/* Order Items */}
           <div className="@container">
             <AdminOrderItems items={order.items} />
+          </div>
+
+          {/* Customer Information */}
+          <div className="@container">
+            <AdminOrderCustomerInfo customer={order.customer} />
           </div>
         </div>
 

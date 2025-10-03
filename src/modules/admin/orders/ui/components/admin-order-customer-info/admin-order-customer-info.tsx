@@ -30,7 +30,7 @@ export const AdminOrderCustomerInfo = ({
 
       <CardContent className="space-y-4 px-0">
         {/* Customer Details */}
-        <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @md:grid-cols-2">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <User className="text-muted-foreground size-4" />

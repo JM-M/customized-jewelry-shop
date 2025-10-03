@@ -1,7 +1,9 @@
 "use client";
 
+import { Spinner } from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useUploadFileToBucket } from "@/hooks/use-upload-file-to-bucket";
 import { Edit3, UploadIcon, X } from "lucide-react";
 import { forwardRef, useState } from "react";
 
@@ -17,6 +19,13 @@ interface DropzoneProps {
   onDrop?: (e: React.DragEvent<HTMLLabelElement>) => void;
   showPreview?: boolean;
   previewClassName?: string;
+  // Upload-related props
+  enableUpload?: boolean;
+  bucket?: string;
+  onUploadSuccess?: (url: string) => void;
+  onUploadError?: (error: string) => void;
+  maxSizeMB?: number;
+  allowedFormats?: string[];
 }
 
 export const Dropzone = forwardRef<HTMLLabelElement, DropzoneProps>(
@@ -33,21 +42,49 @@ export const Dropzone = forwardRef<HTMLLabelElement, DropzoneProps>(
       onDrop,
       showPreview = false,
       previewClassName = "",
+      enableUpload = false,
+      bucket = "images",
+      onUploadSuccess,
+      onUploadError,
+      maxSizeMB = 5,
+      allowedFormats = ["jpg", "jpeg", "png", "svg", "webp"],
     },
     ref,
   ) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+    const {
+      uploadFile,
+      isUploading,
+      error: uploadError,
+      data: uploadedUrl,
+      reset: resetUpload,
+    } = useUploadFileToBucket({
+      bucket,
+      maxSizeMB,
+      allowedFormats,
+      onSuccess: onUploadSuccess,
+      onError: onUploadError,
+    });
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0] || null;
       setSelectedFile(file);
 
-      if (file && showPreview) {
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
+      if (file) {
+        if (showPreview) {
+          const url = URL.createObjectURL(file);
+          setPreviewUrl(url);
+        }
+
+        // If upload is enabled, upload immediately
+        if (enableUpload) {
+          uploadFile(file);
+        }
       } else {
         setPreviewUrl(null);
+        resetUpload();
       }
 
       onFileChange?.(file);
@@ -59,6 +96,7 @@ export const Dropzone = forwardRef<HTMLLabelElement, DropzoneProps>(
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);
       }
+      resetUpload();
       onFileChange?.(null);
     };
 
@@ -85,10 +123,17 @@ export const Dropzone = forwardRef<HTMLLabelElement, DropzoneProps>(
       const file = e.dataTransfer.files[0];
       if (file) {
         setSelectedFile(file);
+
         if (showPreview) {
           const url = URL.createObjectURL(file);
           setPreviewUrl(url);
         }
+
+        // If upload is enabled, upload immediately
+        if (enableUpload) {
+          uploadFile(file);
+        }
+
         onFileChange?.(file);
       }
       onDrop?.(e);
@@ -106,15 +151,36 @@ export const Dropzone = forwardRef<HTMLLabelElement, DropzoneProps>(
           className="hidden"
         />
 
-        {showPreview && previewUrl ? (
+        {showPreview && (previewUrl || uploadedUrl) ? (
           <div className={`relative w-full ${previewClassName}`}>
             <img
-              src={previewUrl}
+              src={uploadedUrl || previewUrl || ""}
               alt="Preview"
               className="h-32 w-full cursor-pointer rounded-lg object-contain transition-opacity hover:opacity-90"
               onClick={handleChangeFile}
               title="Click to change image"
             />
+
+            {/* Upload error message */}
+            {uploadError && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-red-500/90 text-white">
+                <div className="text-center">
+                  <p className="text-sm font-medium">Upload Failed</p>
+                  <p className="text-xs">{uploadError}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Uploading spinner overlay */}
+            {isUploading && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50">
+                <div className="flex flex-col items-center gap-2 text-white">
+                  <Spinner className="h-6 w-6" />
+                  <p className="text-sm">Uploading...</p>
+                </div>
+              </div>
+            )}
+
             {/* Remove button - top right */}
             <div className="absolute top-2 right-2">
               <Button
@@ -122,7 +188,7 @@ export const Dropzone = forwardRef<HTMLLabelElement, DropzoneProps>(
                 variant="secondary"
                 size="icon"
                 onClick={handleRemoveFile}
-                disabled={disabled}
+                disabled={disabled || isUploading}
                 className="h-8 w-8"
                 title="Remove image"
               >
@@ -137,42 +203,65 @@ export const Dropzone = forwardRef<HTMLLabelElement, DropzoneProps>(
                 variant="default"
                 size="icon"
                 onClick={handleChangeFile}
-                disabled={disabled}
+                disabled={disabled || isUploading}
                 className="h-8 w-8"
                 title="Change image"
               >
                 <Edit3 className="h-4 w-4" />
               </Button>
             </div>
+
             {/* Change image hint */}
             <div className="absolute right-12 bottom-2 left-2 rounded bg-black/50 px-2 py-1 text-center text-xs text-white opacity-0 transition-opacity hover:opacity-100">
               Click image or button to change
             </div>
           </div>
         ) : (
-          <label
-            ref={ref}
-            htmlFor={id}
-            className={`border-muted-foreground/25 hover:bg-muted/50 flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
-              disabled ? "cursor-not-allowed opacity-50" : ""
-            } ${className}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            {children || (
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <UploadIcon
-                  className="text-muted-foreground mb-2 h-8 w-8"
-                  strokeWidth={1.2}
-                />
-                <p className="text-muted-foreground mb-2 text-sm">
-                  <span className="font-semibold">Click to upload</span> or drag
-                  and drop
-                </p>
+          <div className="relative">
+            <label
+              ref={ref}
+              htmlFor={id}
+              className={`border-muted-foreground/25 hover:bg-muted/50 flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
+                disabled || isUploading ? "cursor-not-allowed opacity-50" : ""
+              } ${className}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {children || (
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <UploadIcon
+                    className="text-muted-foreground mb-2 h-8 w-8"
+                    strokeWidth={1.2}
+                  />
+                  <p className="text-muted-foreground mb-2 text-sm">
+                    <span className="font-semibold">Click to upload</span> or
+                    drag and drop
+                  </p>
+                </div>
+              )}
+            </label>
+
+            {/* Uploading spinner overlay for dropzone */}
+            {isUploading && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50">
+                <div className="flex flex-col items-center gap-2 text-white">
+                  <Spinner className="h-6 w-6" />
+                  <p className="text-sm">Uploading...</p>
+                </div>
               </div>
             )}
-          </label>
+
+            {/* Upload error message for dropzone */}
+            {uploadError && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-red-500/90 text-white">
+                <div className="text-center">
+                  <p className="text-sm font-medium">Upload Failed</p>
+                  <p className="text-xs">{uploadError}</p>
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
     );

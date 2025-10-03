@@ -2,6 +2,7 @@
 
 import { Dropzone } from "@/components/shared";
 import { Input } from "@/components/ui/input";
+import { BUCKETS } from "@/constants/storage";
 import { useProduct } from "../../contexts/product";
 
 export const ProductCustomizationOptions = () => {
@@ -51,6 +52,10 @@ export const ProductCustomizationOptions = () => {
                 id={`image-upload-${option.id}`}
                 accept="image/*"
                 showPreview={true}
+                enableUpload={true}
+                bucket={BUCKETS.PRODUCT_CUSTOMIZATIONS}
+                maxSizeMB={10}
+                allowedFormats={["jpg", "jpeg", "png", "webp", "svg"]}
                 onFileChange={(file) =>
                   updateCustomization(option.id, {
                     id: option.id,
@@ -58,10 +63,27 @@ export const ProductCustomizationOptions = () => {
                     imageFile: file,
                   })
                 }
+                onUploadSuccess={(url) =>
+                  updateCustomization(option.id, {
+                    id: option.id,
+                    type: "image",
+                    imageUrl: url,
+                    imageFile: customizations[option.id]?.imageFile,
+                  })
+                }
+                onUploadError={(error) => {
+                  console.error("Image upload failed:", error);
+                  // You could add toast notifications here
+                }}
               />
               {customizations[option.id]?.imageFile && (
                 <p className="text-xs text-green-600 dark:text-green-400">
                   Image selected: {customizations[option.id].imageFile?.name}
+                </p>
+              )}
+              {customizations[option.id]?.imageUrl && (
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  ✓ Image uploaded successfully
                 </p>
               )}
             </div>
