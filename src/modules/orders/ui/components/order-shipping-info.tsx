@@ -2,7 +2,10 @@ import { DeliveryRateCard } from "@/components/shared/delivery-rate-card";
 import { Spinner2 } from "@/components/shared/spinner-2";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GetUserOrderOutput } from "@/modules/orders/types";
-import { TerminalRate } from "@/modules/terminal/types";
+import {
+  TerminalGetAddressResponse,
+  TerminalRate,
+} from "@/modules/terminal/types";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Phone, Truck } from "lucide-react";
@@ -41,7 +44,7 @@ export const OrderShippingInfo = ({ order }: OrderShippingInfoProps) => {
     ),
   );
 
-  const formatAddress = (addressData: any) => {
+  const formatAddress = (addressData: TerminalGetAddressResponse) => {
     if (!addressData?.data) return null;
 
     const { line1, line2, city, state, country, zip, phone } = addressData.data;
