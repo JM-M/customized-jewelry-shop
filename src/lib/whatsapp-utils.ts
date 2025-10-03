@@ -2,7 +2,7 @@
 
 import { formatNaira } from "@/lib/utils";
 import {
-  CustomizationContent,
+  CartCustomization,
   GetProductCustomizationOptionsOutput,
   GetProductMaterialsOutput,
 } from "@/modules/products/types";
@@ -16,7 +16,7 @@ interface WhatsAppMessageData {
   productDescription?: string;
   selectedMaterial: string | null;
   productMaterials: GetProductMaterialsOutput;
-  customizations: Record<string, CustomizationContent>;
+  customizations: Record<string, CartCustomization>;
   customizationOptions: GetProductCustomizationOptionsOutput;
 }
 
@@ -81,18 +81,18 @@ export function generateWhatsAppInterestMessage(
 
       switch (customization.type) {
         case "text":
-          if (customization.textContent) {
-            message += `  Text: "${customization.textContent}"\n`;
+          if (customization.content) {
+            message += `  Text: "${customization.content}"\n`;
           }
           break;
         case "image":
-          if (customization.imageFilename) {
-            message += `  Image: ${customization.imageFilename}\n`;
+          if (customization.content) {
+            message += `  Image: ${customization.content}\n`;
           }
           break;
         case "qr_code":
-          if (customization.qrData) {
-            message += `  QR Code Data: ${customization.qrData}\n`;
+          if (customization.content) {
+            message += `  QR Code Data: ${customization.content}\n`;
           }
           break;
       }

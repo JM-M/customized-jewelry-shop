@@ -228,9 +228,7 @@ export const CategoryForm = ({
                   />
                   <Dropzone
                     id="category-image"
-                    onFileChange={(e) => {
-                      // Handle file upload - you may want to implement actual upload logic
-                      const file = e.target.files?.[0];
+                    onFileChange={(file) => {
                       if (file) {
                         form.setValue("image", file.name);
                       }

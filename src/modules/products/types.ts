@@ -26,3 +26,7 @@ export type CartCustomization = {
 
 // Type for customization state in product context
 export type CustomizationState = Record<string, CartCustomization>;
+
+// Re-export cart types for convenience
+export type GetCartOutput = inferRouterOutputs<AppRouter>["cart"]["getCart"];
+export type CartItem = NonNullable<GetCartOutput>["items"][number];

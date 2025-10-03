@@ -344,6 +344,7 @@ export const adminOrdersRouter = createTRPCRouter({
         // Convert customizations to database format
         const dbCustomizations: {
           [key: string]: {
+            name: string;
             type: "text" | "image" | "qr_code";
             content: string;
             additionalPrice?: number;
@@ -362,6 +363,7 @@ export const adminOrdersRouter = createTRPCRouter({
             }
 
             dbCustomizations[key] = {
+              name: key, // Use the key as the name
               type: value.type,
               content,
               additionalPrice: value.additionalPrice,

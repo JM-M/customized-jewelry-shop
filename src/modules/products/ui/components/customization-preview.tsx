@@ -2,15 +2,15 @@
 
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { CustomizationContent, CustomizationType } from "@/modules/products/types";
+import { CartCustomization } from "@/modules/products/types";
 import { ImageIcon, QrCodeIcon, Type } from "lucide-react";
 
 interface CustomizationPreviewProps {
-  content?: CustomizationContent;
-  type: CustomizationType;
+  content?: CartCustomization;
+  type: CartCustomization["type"];
 }
 
-const getTypeIcon = (type: CustomizationType) => {
+const getTypeIcon = (type: CartCustomization["type"]) => {
   switch (type) {
     case "text":
       return <Type className="h-4 w-4" />;
@@ -21,7 +21,7 @@ const getTypeIcon = (type: CustomizationType) => {
   }
 };
 
-const getTypeLabel = (type: CustomizationType) => {
+const getTypeLabel = (type: CartCustomization["type"]) => {
   switch (type) {
     case "text":
       return "Text Customization";
@@ -32,7 +32,10 @@ const getTypeLabel = (type: CustomizationType) => {
   }
 };
 
-export const CustomizationPreview = ({ content, type }: CustomizationPreviewProps) => {
+export const CustomizationPreview = ({
+  content,
+  type,
+}: CustomizationPreviewProps) => {
   if (!content) return null;
 
   return (
@@ -43,36 +46,31 @@ export const CustomizationPreview = ({ content, type }: CustomizationPreviewProp
           <Label className="text-xs font-medium">{getTypeLabel(type)}</Label>
         </div>
 
-        {type === "text" && content.textContent && (
+        {type === "text" && content.content && (
           <div className="space-y-1">
             <p className="text-sm font-medium">
               {'"'}
-              {content.textContent}
+              {content.content}
               {'"'}
             </p>
             <p className="text-muted-foreground text-xs">
-              {content.textContent.length} characters
+              {content.content.length} characters
             </p>
           </div>
         )}
 
-        {type === "image" && content.imageUrl && (
+        {type === "image" && content.content && (
           <div className="space-y-1">
-            <img
-              src={content.imageUrl}
-              alt="Customization preview"
-              className="h-20 w-full rounded border object-cover"
-            />
-            <p className="text-muted-foreground text-xs">
-              {content.imageFilename}
-              {content.imageSizeBytes && (
-                <span> • {(content.imageSizeBytes / 1024).toFixed(1)}KB</span>
-              )}
-            </p>
+            <div className="bg-muted/20 flex h-20 w-full items-center justify-center rounded border">
+              <span className="text-muted-foreground text-sm">
+                Image uploaded
+              </span>
+            </div>
+            <p className="text-muted-foreground text-xs">{content.content}</p>
           </div>
         )}
 
-        {type === "qr_code" && content.qrData && (
+        {type === "qr_code" && content.content && (
           <div className="space-y-1">
             <div className="bg-muted/20 flex justify-center rounded border p-2">
               <div className="flex h-16 w-16 items-center justify-center rounded bg-black">
@@ -80,15 +78,10 @@ export const CustomizationPreview = ({ content, type }: CustomizationPreviewProp
               </div>
             </div>
             <p className="text-muted-foreground text-center text-xs">
-              {content.qrData.length > 25
-                ? `${content.qrData.substring(0, 25)}...`
-                : content.qrData}
+              {content.content.length > 25
+                ? `${content.content.substring(0, 25)}...`
+                : content.content}
             </p>
-            {content.qrSize && (
-              <p className="text-muted-foreground text-center text-xs">
-                Size: {content.qrSize}px
-              </p>
-            )}
           </div>
         )}
       </div>

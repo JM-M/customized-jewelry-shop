@@ -10,18 +10,15 @@ import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import {
-  CustomizationContent,
-  CustomizationOption,
+  CartCustomization,
+  GetProductCustomizationOptionsOutput,
 } from "@/modules/products/types";
 import { Dropzone } from "./dropzone";
 
 interface OrderItemCustomizationProps {
-  customizationOptions: CustomizationOption[];
-  customizations: Record<string, CustomizationContent>;
-  onCustomizationChange: (
-    optionId: string,
-    content: CustomizationContent,
-  ) => void;
+  customizationOptions: GetProductCustomizationOptionsOutput;
+  customizations: Record<string, CartCustomization>;
+  onCustomizationChange: (optionId: string, content: CartCustomization) => void;
   title?: string;
   defaultOpen?: boolean;
   className?: string;
@@ -78,12 +75,12 @@ export const OrderItemCustomization = ({
                     type="text"
                     placeholder="Enter text..."
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    value={customizations[option.id]?.textContent || ""}
+                    value={customizations[option.id]?.content || ""}
                     onChange={(e) =>
                       onCustomizationChange(option.id, {
-                        id: option.id,
+                        name: option.name,
                         type: "text",
-                        textContent: e.target.value,
+                        content: e.target.value,
                       })
                     }
                   />

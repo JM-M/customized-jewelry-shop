@@ -2,10 +2,10 @@ import { Trash2 } from "lucide-react";
 
 import { Spinner } from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
-import { CustomizationOption } from "@/modules/products/types";
+import { GetProductCustomizationOptionsOutput } from "@/modules/products/types";
 
 interface CustomizationOptionItemProps {
-  option: CustomizationOption;
+  option: GetProductCustomizationOptionsOutput[number];
   onRemove: () => void;
   isRemoving?: boolean;
 }

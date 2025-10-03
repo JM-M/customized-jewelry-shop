@@ -1,4 +1,4 @@
-import { CustomizationContent } from "@/modules/products/types";
+import { CartCustomization } from "@/modules/products/types";
 import { z } from "zod";
 
 // Define Zod schemas for each step
@@ -22,7 +22,7 @@ export const orderItemSchema = z.object({
   unitPrice: z.number().min(0, "Unit price must be positive"),
   notes: z.string().optional(),
   customizations: z
-    .record(z.string(), z.custom<CustomizationContent>())
+    .record(z.string(), z.custom<CartCustomization>())
     .optional(),
 });
 

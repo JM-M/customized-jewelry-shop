@@ -37,10 +37,14 @@ export const CheckoutButton = () => {
       },
       {
         onSuccess: () => {
-          updateCartOptimistically((oldData) => ({
-            ...oldData,
-            items: [],
-          }));
+          updateCartOptimistically((oldData) => {
+            if (!oldData) return null;
+            return {
+              ...oldData,
+              items: [],
+              updatedAt: new Date().toISOString(),
+            };
+          });
         },
       },
     );
