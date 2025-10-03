@@ -3,6 +3,7 @@ import { Building, EditIcon, Home, MapPin, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { TerminalGetAddressResponse } from "@/modules/terminal/types";
 
 interface DeliveryAddressCardProps {
@@ -37,11 +38,12 @@ export const DeliveryAddressCard = ({
 
   return (
     <Card
-      className={`cursor-pointer gap-3 p-3 transition-all duration-200 hover:shadow-md ${
-        isSelected
-          ? "ring-primary border-primary ring-2"
-          : "hover:border-primary/50"
-      }`}
+      className={cn(
+        "cursor-pointer gap-3 border-2 p-3 transition-all duration-200",
+        {
+          "border-primary": isSelected,
+        },
+      )}
       onClick={onSelect}
     >
       <CardHeader className="p-0">

@@ -85,6 +85,8 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
   initialValues,
 }) => {
   const session = authClient.useSession();
+  const firstName = session.data?.user?.firstName;
+  const lastName = session.data?.user?.lastName;
   const email = session.data?.user?.email;
   const userId = session.data?.user?.id;
 
@@ -99,8 +101,8 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
   const form = useForm<DeliveryFormValues>({
     resolver: zodResolver(deliveryFormSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      firstName: firstName || "",
+      lastName: lastName || "",
       email,
       phone: "",
       line1: "",
@@ -344,11 +346,7 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
         </div>
         {/* Submit Button */}
         <div className="flex justify-end pt-4">
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="h-12 w-full md:w-auto"
-          >
+          <Button type="submit" disabled={isLoading} className="h-12 w-full">
             {isLoading ? (
               <>
                 Processing...
@@ -356,7 +354,7 @@ export const DeliveryForm: React.FC<DeliveryFormProps> = ({
               </>
             ) : (
               <>
-                Create Address and Continue
+                Proceed
                 <ArrowRightIcon />
               </>
             )}

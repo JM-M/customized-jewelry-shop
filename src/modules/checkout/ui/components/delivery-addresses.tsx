@@ -76,28 +76,25 @@ export const DeliveryAddresses = ({ onProceed }: DeliveryAddressesProps) => {
         </CarouselContent>
       </Carousel>
       <CarouselIndicators api={api} count={addresses?.length ?? 0} />
-      {selectedAddressId && (
-        <div className="flex justify-end pt-4">
-          <Button
-            variant="secondary"
-            disabled={isLoading}
-            className="h-12 w-full md:w-auto"
-            onClick={onProceed}
-          >
-            {isLoading ? (
-              <>
-                Processing...
-                <Spinner2 />
-              </>
-            ) : (
-              <>
-                Continue with Selected Address
-                <ArrowRightIcon />
-              </>
-            )}
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-end pt-4">
+        <Button
+          className="h-12 w-full"
+          onClick={onProceed}
+          disabled={!selectedAddressId || isLoading}
+        >
+          {isLoading ? (
+            <>
+              Processing...
+              <Spinner2 />
+            </>
+          ) : (
+            <>
+              Proceed
+              <ArrowRightIcon />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
