@@ -9,8 +9,31 @@ import { ChevronDown, ChevronUp, XIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
+// Minimal interface with only the props actually used by the component
+interface MinimalCartItem {
+  product: {
+    price: string;
+    primaryImage: string;
+    name: string;
+  };
+  quantity: number;
+  customizations?: Record<
+    string | number,
+    {
+      name: string;
+      type: "text" | "image" | "qr_code";
+      content: string;
+      additionalPrice?: number;
+    }
+  > | null;
+  material?: {
+    name: string;
+    hexColor: string;
+  } | null;
+}
+
 interface CartItemCardProps {
-  item: CartItem;
+  item: MinimalCartItem | CartItem; // Accept both minimal and full CartItem for backward compatibility
   hideCounter?: boolean;
   hideCustomizations?: boolean;
 }
@@ -34,6 +57,9 @@ export const CartItemCard = ({
 
   const customizationsArray = Object.values(customizations || {});
   const hasCustomizations = !!customizationsArray.length;
+
+  // Check if we have a full CartItem (with id) for counter functionality
+  const hasFullCartItem = "id" in item && "cartId" in item;
 
   return (
     <Card>
@@ -62,10 +88,10 @@ export const CartItemCard = ({
               {formattedMaterialName}
             </div>
           )}
-          {!hideCounter && (
+          {!hideCounter && hasFullCartItem && (
             <div className="mt-auto flex items-center justify-end">
               <AddToBagCounter
-                cartItem={item}
+                cartItem={item as CartItem}
                 buttonProps={{ className: "size-8", variant: "secondary" }}
               />
             </div>
