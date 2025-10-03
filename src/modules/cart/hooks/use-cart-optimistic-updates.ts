@@ -1,19 +1,18 @@
 import { v4 as uuidv4 } from "uuid";
 import {
-  CustomizationContent,
+  CustomizationState,
   GetProductByIdOutput,
   GetProductMaterialsOutput,
 } from "../../products/types";
 import { useCart } from "../contexts";
-import { GetCartOutput } from "../types";
 
 export const useCartOptimisticUpdates = () => {
   const { cart, updateCartOptimistically } = useCart();
 
   // Rollback function to restore cart state on failure
-  const rollbackCart = (previousCartState: GetCartOutput | null) => {
-    updateCartOptimistically(() => previousCartState);
-  };
+  // const rollbackCart = (previousCartState: GetCartOutput | null) => {
+  //   updateCartOptimistically(() => previousCartState);
+  // };
 
   const optimisticallyAddToCart = ({
     product,
@@ -23,7 +22,7 @@ export const useCartOptimisticUpdates = () => {
   }: {
     product: GetProductByIdOutput;
     materialId: string;
-    customizations: Record<string, CustomizationContent>;
+    customizations: CustomizationState;
     productMaterials: GetProductMaterialsOutput;
   }) => {
     const productId = product.id;
@@ -33,40 +32,6 @@ export const useCartOptimisticUpdates = () => {
 
     // Generate item ID for consistency between optimistic update and server
     const generatedItemId = uuidv4();
-
-    // Helper function to convert customizations to expected format
-    const convertCustomizations = (
-      customizationsToConvert: Record<string, CustomizationContent>,
-    ) => {
-      const converted: Record<
-        string,
-        {
-          type: "text" | "image" | "qr_code";
-          content: string;
-          additionalPrice?: number;
-        }
-      > = {};
-      Object.entries(customizationsToConvert).forEach(
-        ([optionId, customization]) => {
-          let content = "";
-          let type: "text" | "image" | "qr_code" = "text";
-
-          if (customization.type === "text") {
-            content = customization.textContent || "";
-            type = "text";
-          } else if (customization.type === "image") {
-            content = customization.imageUrl || "";
-            type = "image";
-          } else if (customization.type === "qr_code") {
-            content = customization.qrData || "";
-            type = "qr_code";
-          }
-
-          converted[optionId] = { type, content };
-        },
-      );
-      return converted;
-    };
 
     // Find the selected product material for pricing
     const selectedProductMaterial = productMaterials.find(
@@ -101,9 +66,7 @@ export const useCartOptimisticUpdates = () => {
               materialId,
               quantity,
               price: price.toString(),
-              customizations: customizations
-                ? convertCustomizations(customizations)
-                : {},
+              customizations: customizations || {},
               notes: null,
               createdAt: now,
               updatedAt: now,
@@ -129,9 +92,8 @@ export const useCartOptimisticUpdates = () => {
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
           quantity: updatedItems[existingItemIndex].quantity + quantity,
-          customizations: customizations
-            ? convertCustomizations(customizations)
-            : updatedItems[existingItemIndex].customizations,
+          customizations:
+            customizations || updatedItems[existingItemIndex].customizations,
           updatedAt: new Date().toISOString(),
         };
 
@@ -149,9 +111,7 @@ export const useCartOptimisticUpdates = () => {
           materialId,
           quantity,
           price: price.toString(),
-          customizations: customizations
-            ? convertCustomizations(customizations)
-            : {},
+          customizations: customizations || {},
           notes: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -247,6 +207,6 @@ export const useCartOptimisticUpdates = () => {
     optimisticallyAddToCart,
     optimisticallyRemoveFromCart,
     optimisticallyUpdateQuantity,
-    rollbackCart,
+    // rollbackCart,
   };
 };

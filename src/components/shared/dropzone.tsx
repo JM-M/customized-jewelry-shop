@@ -210,14 +210,9 @@ export const Dropzone = forwardRef<HTMLLabelElement, DropzoneProps>(
                 <Edit3 className="h-4 w-4" />
               </Button>
             </div>
-
-            {/* Change image hint */}
-            <div className="absolute right-12 bottom-2 left-2 rounded bg-black/50 px-2 py-1 text-center text-xs text-white opacity-0 transition-opacity hover:opacity-100">
-              Click image or button to change
-            </div>
           </div>
         ) : (
-          <div className="relative">
+          <div className="relative w-full">
             <label
               ref={ref}
               htmlFor={id}

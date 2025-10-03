@@ -16,39 +16,12 @@ export type GetProductMaterialsOutput =
 export type GetProductCustomizationOptionsOutput =
   inferRouterOutputs<AppRouter>["products"]["getProductCustomizationOptions"];
 
-// Customization types - updated to match new schema
-export type CustomizationType = "text" | "image" | "qr_code";
+// Use inferred types from cart procedures for customizations
+export type CartCustomization = {
+  type: "text" | "image" | "qr_code";
+  content: string;
+  additionalPrice?: number;
+};
 
-export interface CustomizationContent {
-  id: string;
-  type: CustomizationType;
-  textContent?: string;
-  imageFile?: File | null;
-  imageUrl?: string;
-  imageFilename?: string;
-  imageSizeBytes?: number;
-  qrData?: string;
-  qrSize?: number;
-  qrErrorCorrection?: string;
-}
-
-export interface CustomizationOption {
-  id: string;
-  name: string;
-  description: string | null;
-  type: CustomizationType;
-  sampleImage: string | null;
-  maxCharacters: number | null;
-  displayOrder: number | null;
-  isActive: boolean;
-  productId: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Legacy types for backward compatibility during migration
-// These will be removed once migration is complete
-export type EngravingType = CustomizationType;
-export type EngravingContent = CustomizationContent;
-export type GetEngravingAreasByProductIdOutput =
-  GetProductCustomizationOptionsOutput;
+// Type for customization state in product context
+export type CustomizationState = Record<string, CartCustomization>;

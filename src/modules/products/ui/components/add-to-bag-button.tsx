@@ -19,13 +19,13 @@ export function AddToBagButton({ className }: AddToBagButtonProps) {
 
   const router = useRouter();
 
-  const { addItemMutation } = useCart();
+  const { addItemMutation, setIsOpen: setIsCartOpen } = useCart();
   const { product, selectedMaterial, productMaterials, customizations } =
     useProduct();
   const productId = product.id;
   const materialId = selectedMaterial;
 
-  const { optimisticallyAddToCart, rollbackCart } = useCartOptimisticUpdates();
+  const { optimisticallyAddToCart } = useCartOptimisticUpdates();
 
   const handleAddToBag = () => {
     if (!isLoggedIn) {
@@ -36,24 +36,27 @@ export function AddToBagButton({ className }: AddToBagButtonProps) {
     if (!materialId) return;
 
     // Perform optimistic update and capture previous state
-    const { previousCartState, generatedItemId } = optimisticallyAddToCart({
+    const { generatedItemId } = optimisticallyAddToCart({
       product,
       materialId,
       customizations,
       productMaterials,
     });
 
+    setIsCartOpen(true);
+
     addItemMutation.mutate(
       {
         productId,
         materialId,
         quantity: 1,
+        customizations,
         itemId: generatedItemId, // Pass the generated item ID to maintain consistency
       },
       {
         onError: () => {
           // Rollback the optimistic update on failure
-          rollbackCart(previousCartState);
+          // rollbackCart(previousCartState);
           console.error(
             "Failed to add item to cart. Changes have been reverted.",
           );

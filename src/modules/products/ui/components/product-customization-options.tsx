@@ -35,12 +35,11 @@ export const ProductCustomizationOptions = () => {
               placeholder="Enter text..."
               // maxLength={option.maxCharacters} TODO: Either remove max length from schema or implement it
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              value={customizations[option.id]?.textContent || ""}
+              value={customizations[option.id]?.content || ""}
               onChange={(e) =>
                 updateCustomization(option.id, {
-                  id: option.id,
                   type: "text",
-                  textContent: e.target.value,
+                  content: e.target.value,
                 })
               }
             />
@@ -56,19 +55,14 @@ export const ProductCustomizationOptions = () => {
                 bucket={BUCKETS.PRODUCT_CUSTOMIZATIONS}
                 maxSizeMB={10}
                 allowedFormats={["jpg", "jpeg", "png", "webp", "svg"]}
-                onFileChange={(file) =>
-                  updateCustomization(option.id, {
-                    id: option.id,
-                    type: "image",
-                    imageFile: file,
-                  })
-                }
+                onFileChange={(file) => {
+                  // Store the file temporarily, but don't update customization until upload succeeds
+                  console.log("File selected:", file?.name);
+                }}
                 onUploadSuccess={(url) =>
                   updateCustomization(option.id, {
-                    id: option.id,
                     type: "image",
-                    imageUrl: url,
-                    imageFile: customizations[option.id]?.imageFile,
+                    content: url,
                   })
                 }
                 onUploadError={(error) => {
@@ -76,14 +70,9 @@ export const ProductCustomizationOptions = () => {
                   // You could add toast notifications here
                 }}
               />
-              {customizations[option.id]?.imageFile && (
-                <p className="text-xs text-green-600 dark:text-green-400">
-                  Image selected: {customizations[option.id].imageFile?.name}
-                </p>
-              )}
-              {customizations[option.id]?.imageUrl && (
-                <p className="text-xs text-blue-600 dark:text-blue-400">
-                  ✓ Image uploaded successfully
+              {customizations[option.id]?.content && (
+                <p className="text-xs text-green-600">
+                  Image uploaded successfully
                 </p>
               )}
             </div>

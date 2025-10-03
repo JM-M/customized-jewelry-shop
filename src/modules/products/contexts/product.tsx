@@ -12,7 +12,7 @@ import {
   useState,
 } from "react";
 import {
-  CustomizationContent,
+  CustomizationState,
   GetProductByIdOutput,
   GetProductCustomizationOptionsOutput,
   GetProductMaterialsOutput,
@@ -29,13 +29,17 @@ interface ProductContextType {
 
   // Customization State
   selectedMaterial: string | null;
-  customizations: Record<string, CustomizationContent>;
+  customizations: CustomizationState;
 
   // Actions
   setSelectedMaterial: (materialId: string | null) => void;
   updateCustomization: (
     optionId: string,
-    content: CustomizationContent,
+    customization: {
+      type: "text" | "image" | "qr_code";
+      content: string;
+      additionalPrice?: number;
+    },
   ) => void;
   clearCustomizations: () => void;
   resetCustomization: () => void;
@@ -59,9 +63,7 @@ export function ProductProvider({ children }: ProductProviderProps) {
 
   // State management for customization
   const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
-  const [customizations, setCustomizations] = useState<
-    Record<string, CustomizationContent>
-  >({});
+  const [customizations, setCustomizations] = useState<CustomizationState>({});
 
   // Query product data
   const { data: product, isLoading: productLoading } = useSuspenseQuery(
@@ -96,11 +98,15 @@ export function ProductProvider({ children }: ProductProviderProps) {
   // Action handlers
   const updateCustomization = (
     optionId: string,
-    content: CustomizationContent,
+    customization: {
+      type: "text" | "image" | "qr_code";
+      content: string;
+      additionalPrice?: number;
+    },
   ) => {
     setCustomizations((prev) => ({
       ...prev,
-      [optionId]: content,
+      [optionId]: customization,
     }));
   };
 

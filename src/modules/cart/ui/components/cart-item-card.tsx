@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { formatNaira } from "@/lib/utils";
 import { CartItem } from "@/modules/cart/types";
 import { AddToBagCounter } from "@/modules/products/ui/components/add-to-bag-counter";
@@ -10,24 +10,41 @@ interface CartItemCardProps {
 }
 
 export const CartItemCard = ({ item }: CartItemCardProps) => {
-  const { product, price, quantity } = item;
-  const { name, primaryImage } = product;
+  const { product, quantity, customizations } = item;
+  const price = Number(product.price);
+  const totalPrice = price * quantity;
+  console.log(customizations);
   return (
-    <Card className="flex flex-row items-center justify-between gap-0 p-0 shadow-none">
-      <div className="relative aspect-[6/7] h-40">
-        <Image src={primaryImage} alt={name} fill className="object-cover" />
-      </div>
-      <div className="flex-1 self-stretch px-3 py-2">
-        <h3 className="font-medium">{name}</h3>
-        <p className="text-sm text-gray-500">{formatNaira(Number(price))}</p>
-        <div className="flex items-center gap-1 text-sm text-gray-500">
-          <XIcon className="size-3" strokeWidth={1.2} />
-          {quantity}
+    <Card>
+      <CardContent className="flex items-center justify-between gap-3">
+        <div className="bg-secondary relative aspect-[6/7] h-[120px] overflow-hidden rounded-lg">
+          <Image
+            src={product.primaryImage}
+            alt={product.name}
+            fill
+            className="object-cover"
+          />
         </div>
-        <div className="mt-auto flex items-center justify-end pt-2">
-          <AddToBagCounter cartItem={item} />
+        <div className="flex flex-1 flex-col gap-1 self-stretch">
+          <h4 className="text-lg font-medium">{product.name}</h4>
+          <div className="flex items-center gap-1 text-sm text-gray-500">
+            <span>{formatNaira(price)}</span> <XIcon className="size-3" />{" "}
+            <span>{quantity}</span>
+          </div>
+          <div className="font-medium">{formatNaira(totalPrice)}</div>
+          <div className="mt-auto flex items-center justify-end">
+            <AddToBagCounter
+              cartItem={item}
+              buttonProps={{ className: "size-8", variant: "secondary" }}
+            />
+          </div>
         </div>
-      </div>
+      </CardContent>
+      <CardFooter>
+        <h4 className="text-muted-foreground text-sm font-medium">
+          Customizations
+        </h4>
+      </CardFooter>
     </Card>
   );
 };

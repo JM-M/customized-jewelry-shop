@@ -2,7 +2,6 @@ import { formatNaira } from "@/lib/utils";
 import { useCart } from "@/modules/cart/contexts";
 import { AddToBagButton } from "@/modules/products/ui/components/add-to-bag-button";
 import { useProduct } from "../../contexts/product";
-import { AddToBagCounter } from "./add-to-bag-counter";
 import { BuyOnWhatsappBtn } from "./buy-on-whatsapp-btn";
 
 export const BuyProduct = () => {
@@ -16,11 +15,7 @@ export const BuyProduct = () => {
         <span>Subtotal:</span>
         <span>{formatNaira(+product.price)}</span>
       </div>
-      {cartItem ? (
-        <AddToBagCounter cartItem={cartItem} />
-      ) : (
-        <AddToBagButton className="flex h-12 w-full rounded-full" />
-      )}
+      <AddToBagButton className="flex h-12 w-full rounded-full" />
       <BuyOnWhatsappBtn />
     </div>
   );

@@ -2,25 +2,27 @@ import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { ComponentProps } from "react";
 import { useCart } from "../../../cart/contexts";
 import { useCartOptimisticUpdates } from "../../../cart/hooks/use-cart-optimistic-updates";
 import { CartItem } from "../../../cart/types";
 
 interface AddToBagCounterProps {
   cartItem: CartItem;
+  buttonProps?: ComponentProps<typeof Button>;
 }
-export const AddToBagCounter = ({ cartItem }: AddToBagCounterProps) => {
+export const AddToBagCounter = ({
+  cartItem,
+  buttonProps,
+}: AddToBagCounterProps) => {
   const session = authClient.useSession();
   const isLoggedIn = !!session.data;
 
   const router = useRouter();
 
   const { updateQuantityMutation, removeItemMutation } = useCart();
-  const {
-    optimisticallyUpdateQuantity,
-    optimisticallyRemoveFromCart,
-    rollbackCart,
-  } = useCartOptimisticUpdates();
+  const { optimisticallyUpdateQuantity, optimisticallyRemoveFromCart } =
+    useCartOptimisticUpdates();
 
   const handleAddItem = () => {
     if (!isLoggedIn) {
@@ -44,7 +46,7 @@ export const AddToBagCounter = ({ cartItem }: AddToBagCounterProps) => {
       {
         onError: () => {
           // Rollback on failure
-          rollbackCart(previousCartState);
+          // rollbackCart(previousCartState);
           console.error(
             "Failed to update quantity. Changes have been reverted.",
           );
@@ -67,7 +69,7 @@ export const AddToBagCounter = ({ cartItem }: AddToBagCounterProps) => {
         {
           onError: () => {
             // Rollback on failure
-            rollbackCart(previousCartState);
+            // rollbackCart(previousCartState);
             console.error("Failed to remove item. Changes have been reverted.");
           },
         },
@@ -87,7 +89,7 @@ export const AddToBagCounter = ({ cartItem }: AddToBagCounterProps) => {
         {
           onError: () => {
             // Rollback on failure
-            rollbackCart(previousCartState);
+            // rollbackCart(previousCartState);
             console.error(
               "Failed to update quantity. Changes have been reverted.",
             );
@@ -102,11 +104,15 @@ export const AddToBagCounter = ({ cartItem }: AddToBagCounterProps) => {
 
   return (
     <div className="flex items-center justify-between gap-2">
-      <Button size="icon" onClick={handleDecreaseQuantity}>
+      <Button
+        size="icon"
+        onClick={handleDecreaseQuantity}
+        {...buttonProps}
+      >
         <MinusIcon />
       </Button>
       <span>{cartItem.quantity}</span>
-      <Button size="icon" onClick={handleAddItem}>
+      <Button size="icon" onClick={handleAddItem} {...buttonProps}>
         <PlusIcon />
       </Button>
     </div>
