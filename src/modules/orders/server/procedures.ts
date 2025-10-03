@@ -2,13 +2,13 @@ import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
 import { pickupAddresses } from "@/db/schema/logistics";
 import { orderItems, orders } from "@/db/schema/orders";
-import { cartItems } from "@/db/schema/shop";
+import { cartItems, materials, products } from "@/db/schema/shop";
 import { makeTerminalRequest, terminalClient } from "@/lib/terminal-client";
 import { TerminalRate } from "@/modules/terminal/types";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { z } from "zod";
 
 // Helper function to generate order number
@@ -186,17 +186,13 @@ export const ordersRouter = createTRPCRouter({
       // Get order items with product and material details
       const orderItemsData = await db
         .select({
-          id: orderItems.id,
-          productId: orderItems.productId,
-          materialId: orderItems.materialId,
-          quantity: orderItems.quantity,
-          unitPrice: orderItems.unitPrice,
-          totalPrice: orderItems.totalPrice,
-          customizations: orderItems.customizations,
-          notes: orderItems.notes,
-          createdAt: orderItems.createdAt,
+          ...getTableColumns(orderItems),
+          product: getTableColumns(products),
+          material: getTableColumns(materials),
         })
         .from(orderItems)
+        .innerJoin(products, eq(orderItems.productId, products.id))
+        .leftJoin(materials, eq(orderItems.materialId, materials.id))
         .where(eq(orderItems.orderId, order.id));
 
       return {

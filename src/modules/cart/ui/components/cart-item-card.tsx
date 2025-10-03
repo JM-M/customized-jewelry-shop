@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { formatNaira } from "@/lib/utils";
 import { CartItem } from "@/modules/cart/types";
 import { AddToBagCounter } from "@/modules/products/ui/components/add-to-bag-counter";
+import { capitalize } from "lodash-es";
 import { ChevronDown, ChevronUp, XIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -19,11 +20,17 @@ export const CartItemCard = ({
   hideCounter = false,
   hideCustomizations = false,
 }: CartItemCardProps) => {
-  const { product, quantity, customizations } = item;
+  const { product, quantity, customizations, material } = item;
   const price = Number(product.price);
   const totalPrice = price * quantity;
   const [showCustomizations, setShowCustomizations] =
     useState(!hideCustomizations);
+
+  const formattedMaterialName = material?.name
+    .replaceAll("_", " ")
+    .split(" ")
+    .map(capitalize)
+    .join(" ");
 
   return (
     <Card>
@@ -43,6 +50,15 @@ export const CartItemCard = ({
             <span>{quantity}</span>
           </div>
           <div className="font-medium">{formatNaira(totalPrice)}</div>
+          {material && (
+            <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <span
+                className="inline-block size-4 rounded-full"
+                style={{ backgroundColor: material.hexColor }}
+              />
+              {formattedMaterialName}
+            </div>
+          )}
           {!hideCounter && (
             <div className="mt-auto flex items-center justify-end">
               <AddToBagCounter

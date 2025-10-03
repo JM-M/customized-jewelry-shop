@@ -10,18 +10,18 @@ interface OrderDetailsProps {
 
 export const OrderDetails = ({ order }: OrderDetailsProps) => {
   return (
-    <div className="space-y-4">
-      {/* Order Information */}
-      <OrderInfoSection order={order} />
+    <div className="space-y-6">
+      {/* Top Section - Order Info and Status Tracker */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <OrderInfoSection order={order} />
+        <OrderStatusTracker order={order} />
+      </div>
 
-      {/* Order Status Tracker */}
-      <OrderStatusTracker order={order} />
-
-      {/* Order Items */}
-      <OrderItemsList order={order} />
-
-      {/* Shipping Information */}
-      <OrderShippingInfo order={order} />
+      {/* Bottom Section - Order Items and Shipping Info */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <OrderItemsList order={order} />
+        <OrderShippingInfo order={order} />
+      </div>
     </div>
   );
 };

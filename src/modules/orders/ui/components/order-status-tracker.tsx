@@ -93,14 +93,14 @@ export const OrderStatusTracker = ({ order }: OrderStatusTrackerProps) => {
   const steps = getStatusSteps();
 
   return (
-    <Card className="gap-3 p-3">
-      <CardHeader className="p-0">
+    <Card className="h-fit">
+      <CardHeader className="pb-4">
         <CardTitle className="text-lg font-semibold text-gray-900">
           Order Status
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="space-y-3">
+      <CardContent className="pt-0">
+        <div className="space-y-2">
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (
@@ -119,13 +119,13 @@ export const OrderStatusTracker = ({ order }: OrderStatusTrackerProps) => {
                   </div>
                   {index < steps.length - 1 && (
                     <div
-                      className={`mt-2 h-8 w-0.5 ${
+                      className={`mt-2 h-4 w-0.5 ${
                         step.completed ? "bg-green-500" : "bg-gray-300"
                       }`}
                     />
                   )}
                 </div>
-                <div className="flex-1 pb-4">
+                <div className="flex-1 pb-2">
                   <h4
                     className={`text-sm font-medium ${
                       step.completed || step.current

@@ -1,107 +1,54 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatNaira } from "@/lib/utils";
+import { CartItem } from "@/modules/cart/types";
+import { CartItemCard } from "@/modules/cart/ui/components/cart-item-card";
 import { GetUserOrderOutput } from "@/modules/orders/types";
-import { XIcon } from "lucide-react";
-import Image from "next/image";
 
 interface OrderItemsListProps {
   order: GetUserOrderOutput;
 }
 
+// Transform order item to CartItem structure
+const transformOrderItemToCartItem = (
+  orderItem: GetUserOrderOutput["items"][number],
+): CartItem => {
+  return {
+    id: orderItem.id,
+    cartId: "", // Not needed for display
+    productId: orderItem.productId,
+    materialId: orderItem.materialId,
+    quantity: orderItem.quantity,
+    price: orderItem.unitPrice, // Map unitPrice to price
+    customizations: orderItem.customizations || {},
+    notes: orderItem.notes,
+    createdAt: orderItem.createdAt,
+    updatedAt: orderItem.createdAt, // Use createdAt as fallback
+    product: {
+      ...orderItem.product,
+      materials: [], // Empty array as it's not available in order items
+    },
+    material: orderItem.material,
+  };
+};
+
 export const OrderItemsList = ({ order }: OrderItemsListProps) => {
   const { items } = order;
 
   return (
-    <Card className="gap-3 p-3">
-      <CardHeader className="p-0">
+    <Card>
+      <CardHeader className="pb-4">
         <CardTitle className="text-lg font-semibold text-gray-900">
           Order Items ({items.length})
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="space-y-3">
+      <CardContent className="pt-0">
+        <div className="space-y-5">
           {items.map((item) => (
-            <div
+            <CartItemCard
               key={item.id}
-              className="flex flex-row items-center gap-0 rounded-lg border"
-            >
-              <div className="relative aspect-[6/7] h-24 w-20 flex-shrink-0">
-                <Image
-                  src="/images/sample-product/1.jpg" // Placeholder - will be replaced with actual product image
-                  alt="Product"
-                  fill
-                  className="rounded-md object-cover"
-                />
-              </div>
-              <div className="flex-1 self-stretch px-3 py-2">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">
-                      Product Name{" "}
-                      {/* Placeholder - will be replaced with actual product name */}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {formatNaira(Number(item.unitPrice))} each
-                    </p>
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <XIcon className="size-3" strokeWidth={1.2} />
-                      {item.quantity}
-                    </div>
-                    {item.materialId && (
-                      <p className="text-xs text-gray-500">
-                        Material:{" "}
-                        {/* Placeholder - will be replaced with actual material name */}
-                      </p>
-                    )}
-                    {item.customizations &&
-                      Object.keys(item.customizations).length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-xs font-medium text-gray-700">
-                            Customizations:
-                          </p>
-                          <div className="space-y-1">
-                            {Object.entries(item.customizations).map(
-                              ([optionId, customization]) => (
-                                <div
-                                  key={optionId}
-                                  className="text-xs text-gray-600"
-                                >
-                                  <span className="font-medium">
-                                    {customization.name}:
-                                  </span>{" "}
-                                  {customization.content}
-                                  {customization.additionalPrice && (
-                                    <span className="ml-1 text-green-600">
-                                      (+
-                                      {formatNaira(
-                                        customization.additionalPrice,
-                                      )}
-                                      )
-                                    </span>
-                                  )}
-                                </div>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    {item.notes && (
-                      <div className="mt-2">
-                        <p className="text-xs font-medium text-gray-700">
-                          Notes:
-                        </p>
-                        <p className="text-xs text-gray-600">{item.notes}</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-semibold text-gray-900">
-                      {formatNaira(Number(item.totalPrice))}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+              item={transformOrderItemToCartItem(item)}
+              hideCounter
+              hideCustomizations
+            />
           ))}
         </div>
       </CardContent>

@@ -55,27 +55,25 @@ export const OrderInfoSection = ({ order }: OrderInfoSectionProps) => {
   } = order;
 
   return (
-    <Card className="gap-3 p-3">
-      <CardHeader className="p-0">
-        <div>
-          <CardTitle className="text-xl font-semibold text-gray-900">
-            Order #{orderNumber}
-          </CardTitle>
-          <div className="mt-2 flex items-center gap-2">
-            <Badge
-              variant="outline"
-              className={`text-sm font-medium ${getStatusColor(status)}`}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </Badge>
-          </div>
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold text-gray-900">
+          Order #{orderNumber}
+        </CardTitle>
+        <div className="flex items-center gap-2">
+          <Badge
+            variant="outline"
+            className={`text-sm font-medium ${getStatusColor(status)}`}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3 p-0">
+      <CardContent className="space-y-4 pt-0">
         {/* Order Dates */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
           <div className="flex items-center gap-3">
-            <CalendarDays className="size-5 text-gray-400" />
+            <CalendarDays className="size-5 text-gray-400" strokeWidth={1.2} />
             <div>
               <p className="text-sm font-medium text-gray-900">Order Date</p>
               <p className="text-sm text-gray-600">
@@ -83,39 +81,13 @@ export const OrderInfoSection = ({ order }: OrderInfoSectionProps) => {
               </p>
             </div>
           </div>
-          {shippedAt && (
-            <div className="flex items-center gap-3">
-              <Package className="size-5 text-gray-400" />
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  Shipped Date
-                </p>
-                <p className="text-sm text-gray-600">
-                  {formatDate(shippedAt as string)}
-                </p>
-              </div>
-            </div>
-          )}
-          {deliveredAt && (
-            <div className="flex items-center gap-3">
-              <Package className="size-5 text-gray-400" />
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  Delivered Date
-                </p>
-                <p className="text-sm text-gray-600">
-                  {formatDate(deliveredAt as string)}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Payment & Tracking Info */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
           {paymentReference && (
             <div className="flex items-center gap-3">
-              <CreditCard className="size-5 text-gray-400" />
+              <CreditCard className="size-5 text-gray-400" strokeWidth={1.2} />
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">
                   Payment Reference

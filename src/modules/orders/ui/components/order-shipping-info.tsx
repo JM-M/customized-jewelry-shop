@@ -11,13 +11,13 @@ export const OrderShippingInfo = ({ order }: OrderShippingInfoProps) => {
     order;
 
   return (
-    <Card className="gap-3 p-3">
-      <CardHeader className="p-0">
+    <Card>
+      <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">
           Shipping Information
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 p-0">
+      <CardContent className="space-y-4 pt-0">
         {/* Delivery Address */}
         {deliveryAddressId && (
           <div className="flex items-start gap-3">
