@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { EditIcon, TrashIcon } from "lucide-react";
 
 import { formatNaira } from "@/lib/utils";
-import { CustomizationContent } from "@/modules/products/types";
+import { CartCustomization } from "@/modules/products/types";
 import { useTRPC } from "@/trpc/client";
 
 import { OrderItemsFormValues } from "./schemas";
@@ -131,20 +131,17 @@ export const OrderItemDisplayCard = ({
   };
 
   const formatCustomizationContent = (
-    customizations: Record<string, CustomizationContent>,
+    customizations: Record<string, CartCustomization>,
   ) => {
-    if (!customizationOptions || Object.keys(customizations).length === 0) {
+    if (Object.keys(customizations).length === 0) {
       return "No customizations";
     }
 
-    return Object.entries(customizations).map(([optionId, content]) => {
-      const option = customizationOptions.find((opt) => opt.id === optionId);
-      if (!option) return null;
-
+    return Object.entries(customizations).map(([optionId, customization]) => {
       let displayValue = "";
-      switch (content.type) {
+      switch (customization.type) {
         case "text":
-          displayValue = content.textContent || "";
+          displayValue = customization.content;
           break;
         case "image":
           displayValue = "Image uploaded";
@@ -158,7 +155,7 @@ export const OrderItemDisplayCard = ({
 
       return (
         <div key={optionId} className="text-sm">
-          <span className="font-medium">{option.name}:</span>{" "}
+          <span className="font-medium">{customization.name}:</span>{" "}
           <span className="text-muted-foreground">{displayValue}</span>
         </div>
       );

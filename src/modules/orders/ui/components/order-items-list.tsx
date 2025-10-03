@@ -67,7 +67,7 @@ export const OrderItemsList = ({ order }: OrderItemsListProps) => {
                                   className="text-xs text-gray-600"
                                 >
                                   <span className="font-medium">
-                                    {optionId}:
+                                    {customization.name}:
                                   </span>{" "}
                                   {customization.content}
                                   {customization.additionalPrice && (

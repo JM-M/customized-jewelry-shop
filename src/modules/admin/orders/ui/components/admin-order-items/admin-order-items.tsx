@@ -121,7 +121,7 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
                                       {customization.type.toUpperCase()}
                                     </Badge>
                                     <span className="text-sm font-medium text-gray-900">
-                                      {optionId}
+                                      {customization.name}
                                     </span>
                                   </div>
                                   <p className="text-sm text-gray-700 min-[500px]:mt-1">
@@ -245,7 +245,7 @@ export const AdminOrderItems = ({ items }: AdminOrderItemsProps) => {
                                       {customization.type.toUpperCase()}
                                     </Badge>
                                     <span className="text-sm font-medium text-gray-900">
-                                      {optionId}
+                                      {customization.name}
                                     </span>
                                   </div>
                                   <p className="mt-1 text-sm break-words text-gray-700">

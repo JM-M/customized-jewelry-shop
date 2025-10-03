@@ -36,6 +36,7 @@ interface ProductContextType {
   updateCustomization: (
     optionId: string,
     customization: {
+      name: string;
       type: "text" | "image" | "qr_code";
       content: string;
       additionalPrice?: number;
@@ -99,6 +100,7 @@ export function ProductProvider({ children }: ProductProviderProps) {
   const updateCustomization = (
     optionId: string,
     customization: {
+      name: string;
       type: "text" | "image" | "qr_code";
       content: string;
       additionalPrice?: number;

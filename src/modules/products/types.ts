@@ -18,6 +18,7 @@ export type GetProductCustomizationOptionsOutput =
 
 // Use inferred types from cart procedures for customizations
 export type CartCustomization = {
+  name: string;
   type: "text" | "image" | "qr_code";
   content: string;
   additionalPrice?: number;

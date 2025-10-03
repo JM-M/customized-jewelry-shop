@@ -42,7 +42,7 @@ export const FastCheckoutOrderItemCard = ({
             {Object.entries(item.customizations).map(
               ([optionId, customization]) => (
                 <p key={optionId} className="text-xs text-gray-400">
-                  • {customization.content}
+                  • {customization.name}: {customization.content}
                 </p>
               ),
             )}

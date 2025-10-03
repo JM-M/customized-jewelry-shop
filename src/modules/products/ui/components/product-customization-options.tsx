@@ -38,6 +38,7 @@ export const ProductCustomizationOptions = () => {
               value={customizations[option.id]?.content || ""}
               onChange={(e) =>
                 updateCustomization(option.id, {
+                  name: option.name,
                   type: "text",
                   content: e.target.value,
                 })
@@ -61,6 +62,7 @@ export const ProductCustomizationOptions = () => {
                 }}
                 onUploadSuccess={(url) =>
                   updateCustomization(option.id, {
+                    name: option.name,
                     type: "image",
                     content: url,
                   })

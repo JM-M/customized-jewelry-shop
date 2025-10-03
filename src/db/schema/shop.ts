@@ -286,6 +286,7 @@ export const cartItems = pgTable(
     customizations: json("customizations")
       .$type<{
         [customizationOptionId: string]: {
+          name: string;
           type: "text" | "image" | "qr_code";
           content: string;
           additionalPrice?: number;

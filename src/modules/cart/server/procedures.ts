@@ -145,6 +145,7 @@ export const cartRouter = createTRPCRouter({
           .record(
             z.string(),
             z.object({
+              name: z.string(),
               type: z.enum(["text", "image", "qr_code"]),
               content: z.string(),
               additionalPrice: z.number().optional(),
