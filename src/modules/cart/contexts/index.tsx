@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -43,12 +44,19 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: PropsWithChildren) {
+  const session = authClient.useSession();
+  const isLoggedIn = !!session.data;
+
   const [isOpen, setIsOpen] = useState(false);
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
   // Query cart data (auth is handled in the procedure)
-  const { data: cart, isLoading } = useQuery(trpc.cart.getCart.queryOptions());
+  const { data: cart, isLoading } = useQuery(
+    trpc.cart.getCart.queryOptions(undefined, {
+      enabled: isLoggedIn,
+    }),
+  );
   // Get the query key for cart data
   const cartQueryKey = trpc.cart.getCart.queryOptions().queryKey;
 
