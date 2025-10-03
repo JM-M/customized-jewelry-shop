@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TRPCReactProvider } from "@/trpc/client";
+import HolyLoader from "holy-loader";
 import type { Metadata } from "next";
 import { EB_Garamond, Geist_Mono, Niconne, Work_Sans } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
@@ -41,6 +42,12 @@ export default function RootLayout({
   return (
     <TRPCReactProvider>
       <html lang="en">
+        <HolyLoader
+          color="linear-gradient(to right, #f59e0b, #d97706)"
+          height="3px"
+          speed={300}
+          easing="ease-in-out"
+        />
         <body
           className={`${workSans.variable} ${geistMono.variable} ${niconne.variable} ${ebGaramond.variable} flex min-h-screen flex-col font-sans antialiased`}
         >
