@@ -12,14 +12,14 @@ export const QuickActions = () => {
 
       <div className="flex gap-3">
         <Button asChild variant="outline" className="h-16 flex-1">
-          <Link href="/admin/products/new">
+          <Link href="/admin/products/create">
             <GiftIcon className="mr-2 h-4 w-4" />
             Create Product
           </Link>
         </Button>
 
         <Button asChild className="h-16 flex-1">
-          <Link href="/admin/orders/new">
+          <Link href="/admin/orders/create">
             <ShoppingBag className="mr-2 h-4 w-4" />
             Create Order
           </Link>

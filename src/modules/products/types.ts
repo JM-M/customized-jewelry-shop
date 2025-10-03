@@ -23,6 +23,7 @@ export interface CustomizationContent {
   id: string;
   type: CustomizationType;
   textContent?: string;
+  imageFile?: File | null;
   imageUrl?: string;
   imageFilename?: string;
   imageSizeBytes?: number;
@@ -49,4 +50,5 @@ export interface CustomizationOption {
 // These will be removed once migration is complete
 export type EngravingType = CustomizationType;
 export type EngravingContent = CustomizationContent;
-export type GetEngravingAreasByProductIdOutput = GetProductCustomizationOptionsOutput;
+export type GetEngravingAreasByProductIdOutput =
+  GetProductCustomizationOptionsOutput;

@@ -11,8 +11,7 @@ import { useProduct } from "../../contexts/product";
 import { ProductCustomizationOptions } from "./product-customization-options";
 
 export const ProductCustomization = () => {
-  const { customizationOptions, customizations, updateCustomization } =
-    useProduct();
+  const { customizationOptions } = useProduct();
   const [isOpen, setIsOpen] = useState(true);
 
   // Return null if there are no customization options
@@ -36,11 +35,7 @@ export const ProductCustomization = () => {
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2">
         <div className="space-y-4">
-          <ProductCustomizationOptions
-            customizationOptions={customizationOptions}
-            customizations={customizations}
-            onCustomizationChange={updateCustomization}
-          />
+          <ProductCustomizationOptions />
         </div>
       </CollapsibleContent>
     </Collapsible>
