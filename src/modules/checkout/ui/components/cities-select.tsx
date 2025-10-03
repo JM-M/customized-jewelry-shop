@@ -71,7 +71,7 @@ export const CitiesSelect = ({
     return (
       <Button
         variant="outline"
-        className={cn("w-full justify-between rounded-none", className)}
+        className={cn("w-full justify-between rounded-lg", className)}
         disabled={true}
       >
         Select a country first
@@ -95,7 +95,7 @@ export const CitiesSelect = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between rounded-none", className)}
+          className={cn("w-full justify-between rounded-lg", className)}
           disabled={disabled || isLoading}
         >
           {isLoading

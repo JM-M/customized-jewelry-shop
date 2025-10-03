@@ -26,9 +26,25 @@ export const CheckoutButton = () => {
   } = useCheckoutFees();
 
   const { selectedAddressId, selectedRateId } = useCheckout();
-  const { cart } = useCart();
   const trpc = useTRPC();
   const router = useRouter();
+  const { cart, updateCartOptimistically, clearCartMutation } = useCart();
+
+  const clearCart = () => {
+    clearCartMutation.mutate(
+      {
+        cartId: cart?.id,
+      },
+      {
+        onSuccess: () => {
+          updateCartOptimistically((oldData) => ({
+            ...oldData,
+            items: [],
+          }));
+        },
+      },
+    );
+  };
 
   // Create order mutation
   const { mutate: createOrder, isPending: isCreatingOrder } = useMutation(
@@ -61,7 +77,7 @@ export const CheckoutButton = () => {
     if (cart?.id && selectedAddressId) {
       createOrder(
         {
-          cartId: cart.id,
+          cartData: cart,
           deliveryAddressId: selectedAddressId,
           paymentReference: reference,
           rateId: selectedRateId || undefined,
@@ -71,6 +87,7 @@ export const CheckoutButton = () => {
             console.log("Order created successfully:", result);
             initializePayment({
               onSuccess: () => {
+                clearCart();
                 router.push(
                   // TODO: Redirect to order confirmation page or show success message
                   `/checkout/success?orderNumber=${result.order.orderNumber}`,

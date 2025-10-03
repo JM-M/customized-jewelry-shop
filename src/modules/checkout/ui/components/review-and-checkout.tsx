@@ -4,13 +4,13 @@ import { ProductsReview } from "./products-review";
 
 export const ReviewAndCheckout = () => {
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[500px] space-y-6">
       <div>
-        <h2 className="mb-2 font-serif text-2xl font-medium">Products</h2>
+        {/* <h2 className="mb-2 font-serif text-2xl font-medium">Products</h2> */}
         <ProductsReview />
       </div>
       <div>
-        <h2 className="mb-2 font-serif text-2xl font-medium">Delivery</h2>
+        {/* <h2 className="mb-2 font-serif text-2xl font-medium">Delivery</h2> */}
         <DeliveryReview />
       </div>
       <CheckoutButton />

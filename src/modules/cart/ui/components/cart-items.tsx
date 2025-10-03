@@ -1,9 +1,10 @@
 import { Spinner2 } from "@/components/shared/spinner-2";
 import { useCart } from "@/modules/cart/contexts";
 import { CartItemCard } from "./cart-item-card";
+import { EmptyCartState } from "./empty-cart-state";
 
 export const CartItems = () => {
-  const { cart, isLoading } = useCart();
+  const { cart, isLoading, setIsOpen } = useCart();
   const cartItems = cart?.items || [];
 
   if (isLoading) {
@@ -12,6 +13,10 @@ export const CartItems = () => {
         <Spinner2 />
       </div>
     );
+  }
+
+  if (!cartItems.length) {
+    return <EmptyCartState onContinueShopping={() => setIsOpen(false)} />;
   }
 
   return (

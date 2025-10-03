@@ -45,8 +45,8 @@ export const CheckoutSuccessView = () => {
 
   return (
     <div className="flex h-full flex-1 flex-col p-4">
-      <div className="mt-20 space-y-4">
-        <div className="text-center">
+      <div className="mx-auto mt-20 max-w-[500px] space-y-10">
+        <div className="space-y-5 text-center">
           <h2 className="mb-5 text-2xl font-semibold">
             Order Placed Successfully!
           </h2>
@@ -67,10 +67,10 @@ export const CheckoutSuccessView = () => {
           )}
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button asChild variant="default">
+          <Button asChild variant="outline" className="h-12 px-6">
             <Link href="/">Continue Shopping</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="default" className="h-12 px-6">
             <Link href={`/orders/${orderNumber}`}>View Order</Link>
           </Button>
         </div>

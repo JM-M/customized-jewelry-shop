@@ -2,13 +2,13 @@ import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { db } from "@/db";
 import { pickupAddresses } from "@/db/schema/logistics";
 import { orderItems, orders } from "@/db/schema/orders";
-import { cartItems, carts } from "@/db/schema/shop";
+import { cartItems } from "@/db/schema/shop";
 import { makeTerminalRequest, terminalClient } from "@/lib/terminal-client";
 import { TerminalRate } from "@/modules/terminal/types";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, getTableColumns, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 // Helper function to generate order number
@@ -246,7 +246,27 @@ export const ordersRouter = createTRPCRouter({
   createOrder: protectedProcedure
     .input(
       z.object({
-        cartId: z.string(),
+        cartData: z.object({
+          id: z.string(),
+          userId: z.string(),
+          status: z.string(),
+          createdAt: z.string(),
+          updatedAt: z.string(),
+          items: z.array(
+            z.object({
+              id: z.string(),
+              cartId: z.string(),
+              productId: z.string(),
+              materialId: z.string().nullable(),
+              quantity: z.number(),
+              price: z.string(),
+              customizations: z.record(z.any(), z.any()).optional().nullable(),
+              notes: z.string().nullable(),
+              createdAt: z.string(),
+              updatedAt: z.string(),
+            }),
+          ),
+        }),
         deliveryAddressId: z.string().optional(),
         paymentReference: z.string().optional(),
         rateId: z.string().optional(),
@@ -273,27 +293,9 @@ export const ordersRouter = createTRPCRouter({
         });
       }
 
-      // Verify cart ownership and get cart with items
-      const [cart] = await db
-        .select(getTableColumns(carts))
-        .from(carts)
-        .where(and(eq(carts.id, input.cartId), eq(carts.userId, userId)))
-        .limit(1);
-
-      if (!cart) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Cart not found or not accessible",
-        });
-      }
-
-      // Get cart items with product and material data
-      const cartItemsData = await db
-        .select({
-          ...getTableColumns(cartItems),
-        })
-        .from(cartItems)
-        .where(eq(cartItems.cartId, cart.id));
+      // Use cart data from frontend
+      const cart = input.cartData;
+      const cartItemsData = cart.items;
 
       if (cartItemsData.length === 0) {
         throw new TRPCError({

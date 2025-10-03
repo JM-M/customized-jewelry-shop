@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { CitiesSelect } from "@/modules/checkout/ui/components/cities-select";
 import { CountriesSelect } from "@/modules/checkout/ui/components/countries-select";
 import { StatesSelect } from "@/modules/checkout/ui/components/states-select";
+import { useGetStates } from "@/modules/terminal/hooks/use-get-states";
 import { useTRPC } from "@/trpc/client";
 
 // TODO: Remove fields that can be inferred from business information
@@ -89,6 +90,14 @@ export const PickupAddressForm = ({
       ...initialValues,
     },
   });
+
+  const countryCode = form.watch("country");
+  const stateName = form.watch("state");
+
+  const { states } = useGetStates({
+    countryCode,
+  });
+  const stateCode = states.find((state) => state.name === stateName)?.isoCode;
 
   const handleFormSubmit = async (data: PickupAddressFormValues) => {
     createPickupAddressMutation.mutate(data, {
@@ -235,20 +244,18 @@ export const PickupAddressForm = ({
 
               {/* City, State, ZIP */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {/* Country */}
                 <FormField
                   control={form.control}
-                  name="city"
+                  name="country"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>City *</FormLabel>
+                      <FormLabel>Country *</FormLabel>
                       <FormControl>
-                        <CitiesSelect
+                        <CountriesSelect
                           value={field.value}
                           onValueChange={field.onChange}
-                          placeholder="Select city..."
-                          className="w-full"
-                          countryCode={form.watch("country")}
-                          stateCode={form.watch("state")}
+                          placeholder="Select country..."
                         />
                       </FormControl>
                       <FormMessage />
@@ -267,7 +274,27 @@ export const PickupAddressForm = ({
                           onValueChange={field.onChange}
                           placeholder="Select state..."
                           className="w-full"
-                          countryCode={form.watch("country")}
+                          countryCode={countryCode}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City *</FormLabel>
+                      <FormControl>
+                        <CitiesSelect
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select city..."
+                          className="w-full"
+                          countryCode={countryCode}
+                          stateCode={stateCode}
                         />
                       </FormControl>
                       <FormMessage />
@@ -288,25 +315,6 @@ export const PickupAddressForm = ({
                   )}
                 />
               </div>
-
-              {/* Country */}
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country *</FormLabel>
-                    <FormControl>
-                      <CountriesSelect
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Select country..."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             {/* Pickup Address Settings */}
