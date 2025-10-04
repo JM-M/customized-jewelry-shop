@@ -2,15 +2,15 @@
 
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { CartCustomization } from "@/modules/products/types";
+import { Customization } from "@/modules/products/types";
 import { ImageIcon, QrCodeIcon, Type } from "lucide-react";
 
 interface CustomizationPreviewProps {
-  content?: CartCustomization;
-  type: CartCustomization["type"];
+  content?: Customization;
+  type: Customization["type"];
 }
 
-const getTypeIcon = (type: CartCustomization["type"]) => {
+const getTypeIcon = (type: Customization["type"]) => {
   switch (type) {
     case "text":
       return <Type className="h-4 w-4" />;
@@ -21,7 +21,7 @@ const getTypeIcon = (type: CartCustomization["type"]) => {
   }
 };
 
-const getTypeLabel = (type: CartCustomization["type"]) => {
+const getTypeLabel = (type: Customization["type"]) => {
   switch (type) {
     case "text":
       return "Text Customization";

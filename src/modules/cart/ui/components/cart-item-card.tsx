@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { formatNaira } from "@/lib/utils";
 import { CartItem } from "@/modules/cart/types";
+import { Customization } from "@/modules/products/types";
 import { AddToBagCounter } from "@/modules/products/ui/components/add-to-bag-counter";
 import { capitalize } from "lodash-es";
 import { ChevronDown, ChevronUp, XIcon } from "lucide-react";
@@ -17,15 +18,7 @@ interface MinimalCartItem {
     name: string;
   };
   quantity: number;
-  customizations?: Record<
-    string | number,
-    {
-      name: string;
-      type: "text" | "image" | "qr_code";
-      content: string;
-      additionalPrice?: number;
-    }
-  > | null;
+  customizations?: Record<string | number, Customization> | null;
   material?: {
     name: string;
     hexColor: string;
@@ -127,7 +120,7 @@ export const CartItemCard = ({
             {showCustomizations && (
               <div className="space-y-4">
                 {customizationsArray.map((customization, i) => {
-                  const { name, type, content } = customization;
+                  const { name, type, content, font } = customization;
 
                   return (
                     <div key={i}>
@@ -145,7 +138,21 @@ export const CartItemCard = ({
                             alt={`Customization ${i + 1}`}
                           />
                         ) : (
-                          <p className="text-sm">{content}</p>
+                          <div className="space-y-1">
+                            <p
+                              className="text-sm"
+                              style={
+                                font ? { fontFamily: font.name } : undefined
+                              }
+                            >
+                              {content}
+                            </p>
+                            {font && (
+                              <p className="text-muted-foreground text-xs">
+                                Font: {font.name}
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>

@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { CustomizationType } from "@/modules/products/types";
 import { ImagePlusIcon } from "lucide-react";
 
 interface EngravingProps {
-  type: "text" | "image" | "qr_code";
+  type: CustomizationType;
 }
 
 export const Engraving = ({ type }: EngravingProps) => {

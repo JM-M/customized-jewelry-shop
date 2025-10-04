@@ -16,17 +16,25 @@ export type GetProductMaterialsOutput =
 export type GetProductCustomizationOptionsOutput =
   inferRouterOutputs<AppRouter>["products"]["getProductCustomizationOptions"];
 
-// Use inferred types from cart procedures for customizations
-export type CartCustomization = {
+export type GetCartOutput = inferRouterOutputs<AppRouter>["cart"]["getCart"];
+
+export type CartItem = NonNullable<GetCartOutput>["items"][number];
+
+// Single source of truth for customization types
+export type CustomizationType = "text" | "image" | "qr_code";
+
+export type CustomizationFont = {
+  name: string; // e.g., "Pacifico"
+  id: string; // e.g., "pacifico"
+};
+
+export type Customization = {
   name: string;
-  type: "text" | "image" | "qr_code";
+  type: CustomizationType;
   content: string;
+  font?: CustomizationFont;
   additionalPrice?: number;
 };
 
 // Type for customization state in product context
-export type CustomizationState = Record<string, CartCustomization>;
-
-// Re-export cart types for convenience
-export type GetCartOutput = inferRouterOutputs<AppRouter>["cart"]["getCart"];
-export type CartItem = NonNullable<GetCartOutput>["items"][number];
+export type CustomizationState = Record<string, Customization>;

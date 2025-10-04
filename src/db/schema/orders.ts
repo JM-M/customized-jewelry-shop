@@ -1,3 +1,4 @@
+import { Customization } from "@/modules/products/types";
 import { relations } from "drizzle-orm";
 import {
   decimal,
@@ -91,12 +92,7 @@ export const orderItems = pgTable("order_items", {
 
   // Customization data (snapshot at time of order)
   customizations: json("customizations").$type<{
-    [customizationOptionId: string]: {
-      name: string;
-      type: "text" | "image" | "qr_code";
-      content: string;
-      additionalPrice?: number;
-    };
+    [customizationOptionId: string]: Customization;
   }>(),
   notes: text("notes"), // Special requests
 

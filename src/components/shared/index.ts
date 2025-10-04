@@ -4,6 +4,7 @@ export { Combobox, type ComboboxOption, type ComboboxProps } from "./combobox";
 export { CopyableText } from "./copyable-text";
 export { DataTable } from "./data-table";
 export { Dropzone } from "./dropzone";
+export { GoogleFontLoader } from "./google-font-loader";
 export { InfiniteLoadingTrigger } from "./infinite-loading-trigger";
 export { OrderItemCustomization } from "./order-item-customization";
 export { OrderItemMaterialSelect } from "./order-item-material-select";

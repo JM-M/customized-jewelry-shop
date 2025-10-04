@@ -1,3 +1,4 @@
+import { CUSTOMIZATION_TYPES } from "@/constants/db";
 import { db } from "@/db";
 import {
   cartItems,
@@ -146,7 +147,7 @@ export const cartRouter = createTRPCRouter({
             z.string(),
             z.object({
               name: z.string(),
-              type: z.enum(["text", "image", "qr_code"]),
+              type: z.enum(CUSTOMIZATION_TYPES),
               content: z.string(),
               additionalPrice: z.number().optional(),
             }),

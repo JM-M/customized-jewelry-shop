@@ -1,5 +1,6 @@
 // TODO: Rename this file to shop.ts
 
+import { Customization, CustomizationType } from "@/modules/products/types";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
@@ -223,7 +224,13 @@ export const customizationOptions = pgTable("customization_options", {
     .notNull(),
   name: text("name").notNull(), // e.g., "Front Engraving", "Back Engraving", "Custom Text"
   description: text("description"), // Optional description of the customization
-  type: text("type", { enum: ["text", "image", "qr_code"] })
+  type: text("type", {
+    enum: [
+      "text",
+      "image",
+      "qr_code",
+    ] as const satisfies readonly CustomizationType[],
+  })
     .notNull()
     .default("text"),
   sampleImage: text("sample_image"), // URL/path to sample image
@@ -285,12 +292,7 @@ export const cartItems = pgTable(
     // Customization options
     customizations: json("customizations")
       .$type<{
-        [customizationOptionId: string]: {
-          name: string;
-          type: "text" | "image" | "qr_code";
-          content: string;
-          additionalPrice?: number;
-        };
+        [customizationOptionId: string]: Customization;
       }>()
       .$defaultFn(() => ({})),
     notes: text("notes"), // Special requests

@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { EditIcon, TrashIcon } from "lucide-react";
 
 import { formatNaira } from "@/lib/utils";
-import { CartCustomization } from "@/modules/products/types";
+import { Customization } from "@/modules/products/types";
 import { useTRPC } from "@/trpc/client";
 
 import { OrderItemsFormValues } from "./schemas";
@@ -131,7 +131,7 @@ export const OrderItemDisplayCard = ({
   };
 
   const formatCustomizationContent = (
-    customizations: Record<string, CartCustomization>,
+    customizations: Record<string, Customization>,
   ) => {
     if (Object.keys(customizations).length === 0) {
       return "No customizations";
@@ -165,7 +165,10 @@ export const OrderItemDisplayCard = ({
   const subtotal = item.quantity * item.unitPrice;
 
   // Show skeleton while loading product or customization data (only if we don't have product name)
-  if ((isProductLoading || isCustomizationLoading || isMaterialsLoading) && !item.productName) {
+  if (
+    (isProductLoading || isCustomizationLoading || isMaterialsLoading) &&
+    !item.productName
+  ) {
     return <OrderItemDisplayCardSkeleton canRemove={canRemove} />;
   }
 
@@ -217,9 +220,9 @@ export const OrderItemDisplayCard = ({
                   className="size-4 rounded-full border border-white/20"
                   style={{ backgroundColor: getSelectedMaterial()?.hexColor }}
                 />
-                <span className="text-sm text-muted-foreground">
-                  {getSelectedMaterial()?.name
-                    .replaceAll("_", " ")
+                <span className="text-muted-foreground text-sm">
+                  {getSelectedMaterial()
+                    ?.name.replaceAll("_", " ")
                     .split(" ")
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(" ")}

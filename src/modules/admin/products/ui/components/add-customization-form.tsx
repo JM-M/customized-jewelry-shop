@@ -1,5 +1,6 @@
 "use client";
 
+import { CUSTOMIZATION_TYPES } from "@/constants/db";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -32,7 +33,7 @@ import { useAdminProduct } from "../../contexts/admin-product";
 const customizationFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  type: z.enum(["text", "image", "qr_code"]),
+  type: z.enum(CUSTOMIZATION_TYPES),
   sampleImage: z.string().optional(),
   maxCharacters: z.number().min(1).optional(),
 });

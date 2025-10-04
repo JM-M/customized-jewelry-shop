@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 import {
+  Customization,
   CustomizationState,
   GetProductByIdOutput,
   GetProductCustomizationOptionsOutput,
@@ -33,15 +34,7 @@ interface ProductContextType {
 
   // Actions
   setSelectedMaterial: (materialId: string | null) => void;
-  updateCustomization: (
-    optionId: string,
-    customization: {
-      name: string;
-      type: "text" | "image" | "qr_code";
-      content: string;
-      additionalPrice?: number;
-    },
-  ) => void;
+  updateCustomization: (optionId: string, customization: Customization) => void;
   clearCustomizations: () => void;
   resetCustomization: () => void;
 
@@ -99,12 +92,7 @@ export function ProductProvider({ children }: ProductProviderProps) {
   // Action handlers
   const updateCustomization = (
     optionId: string,
-    customization: {
-      name: string;
-      type: "text" | "image" | "qr_code";
-      content: string;
-      additionalPrice?: number;
-    },
+    customization: Customization,
   ) => {
     setCustomizations((prev) => ({
       ...prev,

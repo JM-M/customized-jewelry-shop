@@ -10,15 +10,15 @@ import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import {
-  CartCustomization,
+  Customization,
   GetProductCustomizationOptionsOutput,
 } from "@/modules/products/types";
 import { Dropzone } from "./dropzone";
 
 interface OrderItemCustomizationProps {
   customizationOptions: GetProductCustomizationOptionsOutput;
-  customizations: Record<string, CartCustomization>;
-  onCustomizationChange: (optionId: string, content: CartCustomization) => void;
+  customizations: Record<string, Customization>;
+  onCustomizationChange: (optionId: string, content: Customization) => void;
   title?: string;
   defaultOpen?: boolean;
   className?: string;

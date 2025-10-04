@@ -2,7 +2,7 @@
 
 import { formatNaira } from "@/lib/utils";
 import {
-  CartCustomization,
+  Customization,
   GetProductCustomizationOptionsOutput,
   GetProductMaterialsOutput,
 } from "@/modules/products/types";
@@ -16,7 +16,7 @@ interface WhatsAppMessageData {
   productDescription?: string;
   selectedMaterial: string | null;
   productMaterials: GetProductMaterialsOutput;
-  customizations: Record<string, CartCustomization>;
+  customizations: Record<string, Customization>;
   customizationOptions: GetProductCustomizationOptionsOutput;
 }
 

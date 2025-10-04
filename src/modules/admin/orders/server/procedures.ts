@@ -1,10 +1,12 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
+import { CUSTOMIZATION_TYPES } from "@/constants/db";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth";
 import { pickupAddresses, terminalAddresses } from "@/db/schema/logistics";
 import { orderItems, orders } from "@/db/schema/orders";
 import { materials, products } from "@/db/schema/shop";
 import { makeTerminalRequest, terminalClient } from "@/lib/terminal-client";
+import { CustomizationType } from "@/modules/products/types";
 import {
   TerminalGetRateResponse,
   TerminalRate,
@@ -270,7 +272,7 @@ export const adminOrdersRouter = createTRPCRouter({
                 .record(
                   z.string(),
                   z.object({
-                    type: z.enum(["text", "image", "qr_code"]),
+                    type: z.enum(CUSTOMIZATION_TYPES),
                     textContent: z.string().optional(),
                     imageUrl: z.string().optional(),
                     qrData: z.string().optional(),
@@ -345,7 +347,7 @@ export const adminOrdersRouter = createTRPCRouter({
         const dbCustomizations: {
           [key: string]: {
             name: string;
-            type: "text" | "image" | "qr_code";
+            type: CustomizationType;
             content: string;
             additionalPrice?: number;
           };

@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatNaira } from "@/lib/utils";
-import { CartCustomization } from "@/modules/products/types";
+import { Customization } from "@/modules/products/types";
 import { useTRPC } from "@/trpc/client";
 
 import { OrderItemsFormValues } from "./schemas";
@@ -43,7 +43,7 @@ export const OrderItemForm = ({
   const productSearchRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState(item.productName || "");
   const [customizations, setCustomizations] = useState<
-    Record<string, CartCustomization>
+    Record<string, Customization>
   >(item.customizations || {});
 
   // Local state for form data
@@ -88,7 +88,7 @@ export const OrderItemForm = ({
   // Handle customization changes
   const handleCustomizationChange = (
     optionId: string,
-    content: CartCustomization,
+    content: Customization,
   ) => {
     const newCustomizations = {
       ...customizations,

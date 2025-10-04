@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { GetProductCustomizationOptionsOutput } from "@/modules/products/types";
+import {
+  CustomizationType,
+  GetProductCustomizationOptionsOutput,
+} from "@/modules/products/types";
 import { CustomizationPreview } from "./customization-preview";
 import { ImageEngravingInput } from "./engraving-inputs/image-engraving-input";
 import { QREngravingInput } from "./engraving-inputs/qr-engraving-input";
@@ -36,7 +39,7 @@ export const CustomizationOptionCard = ({
   openDialog,
   setOpenDialog,
 }: CustomizationOptionCardProps) => {
-  const customizationType = option.type as "text" | "image" | "qr_code";
+  const customizationType = option.type as CustomizationType;
 
   return (
     <Card

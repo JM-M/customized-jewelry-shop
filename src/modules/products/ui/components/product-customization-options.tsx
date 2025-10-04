@@ -1,9 +1,8 @@
 "use client";
 
-import { Dropzone } from "@/components/shared";
-import { Input } from "@/components/ui/input";
-import { BUCKETS } from "@/constants/storage";
 import { useProduct } from "../../contexts/product";
+import { ImageCustomizationOption } from "./image-customization-option";
+import { TextCustomizationOption } from "./text-customization-option";
 
 export const ProductCustomizationOptions = () => {
   const { customizationOptions, customizations, updateCustomization } =
@@ -19,70 +18,53 @@ export const ProductCustomizationOptions = () => {
   return (
     <div className="space-y-4">
       {customizationOptions.map((option) => (
-        <div key={option.id} className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {option.name}
-          </label>
-          {option.description && (
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {option.description}
-            </p>
-          )}
-
+        <div key={option.id}>
           {option.type === "text" && (
-            <Input
-              type="text"
-              placeholder="Enter text..."
-              // maxLength={option.maxCharacters} TODO: Either remove max length from schema or implement it
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            <TextCustomizationOption
+              option={option}
               value={customizations[option.id]?.content || ""}
-              onChange={(e) =>
+              onChange={(value, font) =>
                 updateCustomization(option.id, {
                   name: option.name,
                   type: "text",
-                  content: e.target.value,
+                  content: value,
+                  font,
                 })
               }
             />
           )}
 
           {option.type === "image" && (
-            <div className="space-y-2">
-              <Dropzone
-                id={`image-upload-${option.id}`}
-                accept="image/*"
-                showPreview={true}
-                enableUpload={true}
-                bucket={BUCKETS.PRODUCT_CUSTOMIZATIONS}
-                maxSizeMB={10}
-                allowedFormats={["jpg", "jpeg", "png", "webp", "svg"]}
-                onFileChange={(file) => {
-                  // Store the file temporarily, but don't update customization until upload succeeds
-                  console.log("File selected:", file?.name);
-                }}
-                onUploadSuccess={(url) =>
-                  updateCustomization(option.id, {
-                    name: option.name,
-                    type: "image",
-                    content: url,
-                  })
-                }
-                onUploadError={(error) => {
-                  console.error("Image upload failed:", error);
-                  // You could add toast notifications here
-                }}
-              />
-              {customizations[option.id]?.content && (
-                <p className="text-xs text-green-600">
-                  Image uploaded successfully
-                </p>
-              )}
-            </div>
+            <ImageCustomizationOption
+              option={option}
+              value={customizations[option.id]?.content || ""}
+              onUploadSuccess={(url) =>
+                updateCustomization(option.id, {
+                  name: option.name,
+                  type: "image",
+                  content: url,
+                })
+              }
+              onUploadError={(error) => {
+                console.error("Image upload failed:", error);
+                // You could add toast notifications here
+              }}
+            />
           )}
 
           {option.type === "qr_code" && (
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              QR code generation functionality to be implemented
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {option.name}
+              </label>
+              {option.description && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {option.description}
+                </p>
+              )}
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                QR code generation functionality to be implemented
+              </div>
             </div>
           )}
         </div>

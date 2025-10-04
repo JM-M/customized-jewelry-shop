@@ -1,4 +1,5 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
+import { CUSTOMIZATION_TYPES } from "@/constants/db";
 import { db } from "@/db";
 import {
   customizationOptions,
@@ -159,7 +160,7 @@ export const adminProductsRouter = createTRPCRouter({
         productId: z.string(),
         name: z.string().min(1, "Name is required"),
         description: z.string().optional(),
-        type: z.enum(["text", "image", "qr_code"]),
+        type: z.enum(CUSTOMIZATION_TYPES),
         sampleImage: z.string().optional(),
         maxCharacters: z.number().min(1).optional(),
       }),
