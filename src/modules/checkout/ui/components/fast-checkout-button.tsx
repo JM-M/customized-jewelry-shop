@@ -74,29 +74,36 @@ export const FastCheckoutButton = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg bg-gray-50 p-4">
-        <div className="flex items-center justify-between text-lg font-bold">
-          <span>Total Amount</span>
-          <span>{formatNaira(Number(order.totalAmount))}</span>
-        </div>
+      <div className="flex items-center justify-between text-lg">
+        <span className="font-medium text-gray-900">Subtotal</span>
+        <span className="font-medium text-gray-900">
+          {formatNaira(Number(order.subtotal))}
+        </span>
+      </div>
+      <div className="flex items-center justify-between text-lg">
+        <span className="font-medium text-gray-900">Delivery Fee</span>
+        <span className="font-medium text-gray-900">
+          {formatNaira(Number(order.deliveryFee))}
+        </span>
+      </div>
+      <div className="flex items-center justify-between text-lg">
+        <span className="font-medium text-gray-900">Total</span>
+        <span className="font-medium text-gray-900">
+          {formatNaira(Number(order.totalAmount))}
+        </span>
       </div>
 
       <Button
         onClick={handlePayment}
         disabled={isProcessing || isUpdatingPaymentReference || !customerEmail}
-        className="w-full rounded-full py-6 text-lg"
-        size="lg"
+        className="flex h-12 w-full"
       >
         {isUpdatingPaymentReference
           ? "Updating Payment Reference..."
           : isProcessing
             ? "Processing Payment..."
-            : "Complete Payment"}
+            : "Proceed to Payment"}
       </Button>
-
-      <p className="text-center text-sm text-gray-500">
-        Secure payment powered by Paystack
-      </p>
     </div>
   );
 };
