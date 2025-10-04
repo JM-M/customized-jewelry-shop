@@ -1,3 +1,4 @@
+import { GoogleFontLoader } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -51,11 +52,22 @@ export const CartItemCard = ({
   const customizationsArray = Object.values(customizations || {});
   const hasCustomizations = !!customizationsArray.length;
 
+  // Get unique fonts from customizations
+  const fontsUsed = Array.from(
+    new Set(
+      customizationsArray.filter((c) => c.font?.name).map((c) => c.font!.name),
+    ),
+  );
+
   // Check if we have a full CartItem (with id) for counter functionality
   const hasFullCartItem = "id" in item && "cartId" in item;
 
   return (
     <Card>
+      {/* Load fonts used in customizations */}
+      {fontsUsed.map((fontName) => (
+        <GoogleFontLoader key={fontName} font={fontName} />
+      ))}
       <CardContent className="flex items-center justify-between gap-3">
         <div className="bg-secondary relative mb-auto aspect-[6/7] h-[120px] overflow-hidden rounded-lg">
           <Image
@@ -138,19 +150,21 @@ export const CartItemCard = ({
                             alt={`Customization ${i + 1}`}
                           />
                         ) : (
-                          <div className="space-y-1">
-                            <p
-                              className="text-sm"
-                              style={
-                                font ? { fontFamily: font.name } : undefined
-                              }
-                            >
-                              {content}
-                            </p>
-                            {font && (
-                              <p className="text-muted-foreground text-xs">
-                                Font: {font.name}
+                          <div className="space-y-2">
+                            <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
+                              <p
+                                className="text-lg font-medium"
+                                style={
+                                  font ? { fontFamily: font.name } : undefined
+                                }
+                              >
+                                {content}
                               </p>
+                            </div>
+                            {font && (
+                              <div className="text-muted-foreground flex items-center justify-between text-xs">
+                                <span>Font: {font.name}</span>
+                              </div>
                             )}
                           </div>
                         )}
