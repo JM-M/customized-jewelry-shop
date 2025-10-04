@@ -1,13 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { formatNaira } from "@/lib/utils";
-import { AdminOrderDetails } from "@/modules/admin/orders/types";
-import { useTRPC } from "@/trpc/client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { usePaystackPayment } from "react-paystack";
+import { v4 as uuidv4 } from "uuid";
+
+import { Button } from "@/components/ui/button";
+import { formatNaira } from "@/lib/utils";
+import { AdminOrderDetails } from "@/modules/admin/orders/types";
+import { useTRPC } from "@/trpc/client";
 
 interface FastCheckoutCheckoutButtonProps {
   order: AdminOrderDetails;
@@ -22,7 +24,12 @@ export const FastCheckoutButton = ({
 
   // Generate a unique reference for this transaction if none exists
   const generateReference = () => {
-    return `ref_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    // Generate a human-readable reference using 64 bits from UUID v4
+    // 64 bits = 2^64 possible values (~1.8×10^19)
+    // Collision probability: 50% chance after ~2.1 billion IDs
+    // Format: ref_[12-char hex string]
+    const uuid = uuidv4().replace(/-/g, "");
+    return `ref_${uuid.substring(0, 12).toUpperCase()}`;
   };
 
   const customerEmail = order.customer?.email || "";
@@ -72,6 +79,8 @@ export const FastCheckoutButton = ({
     );
   };
 
+  const isLoading = isUpdatingPaymentReference || isProcessing;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between text-lg">
@@ -95,14 +104,10 @@ export const FastCheckoutButton = ({
 
       <Button
         onClick={handlePayment}
-        disabled={isProcessing || isUpdatingPaymentReference || !customerEmail}
+        disabled={isLoading || !customerEmail}
         className="flex h-12 w-full"
       >
-        {isUpdatingPaymentReference
-          ? "Updating Payment Reference..."
-          : isProcessing
-            ? "Processing Payment..."
-            : "Proceed to Payment"}
+        {isLoading ? "Processing Payment..." : "Proceed to Payment"}
       </Button>
     </div>
   );

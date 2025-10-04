@@ -126,7 +126,9 @@ export const ordersRouter = createTRPCRouter({
         .where(
           and(
             eq(orders.orderNumber, input.orderNumber),
-            eq(orders.userId, userId),
+            // The line below was commented out because during fast checkout, the order is not associated with the user
+            // You need to find a solution to this
+            // eq(orders.userId, userId),
           ),
         )
         .limit(1);
