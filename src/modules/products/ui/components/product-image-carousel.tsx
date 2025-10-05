@@ -33,7 +33,7 @@ export const ProductImageCarousel = () => {
                 src={image}
                 alt={`Product ${image}`}
                 fill
-                className="rounded-lg object-cover"
+                className="object-cover"
                 priority={index === 0}
               />
             </CarouselItem>
