@@ -1,9 +1,9 @@
 "use client";
 
-import { StarIcon } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+import { ProductReviewItem } from "./product-review-item";
 
 interface Review {
   id: string;
@@ -72,33 +72,6 @@ export const ProductReviewsList = ({
   reviews = mockReviews,
   className,
 }: ProductReviewsListProps) => {
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => {
-      const starIndex = index + 1;
-      const isFilled = starIndex <= rating;
-
-      return (
-        <StarIcon
-          key={index}
-          className={cn(
-            "h-4 w-4",
-            isFilled
-              ? "fill-yellow-400 text-yellow-400"
-              : "fill-gray-200 text-gray-200",
-          )}
-        />
-      );
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex w-full items-center justify-center">
@@ -109,47 +82,7 @@ export const ProductReviewsList = ({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {reviews.map((review) => (
-          <div
-            key={review.id}
-            className="space-y-3 rounded-lg border border-gray-200 p-4"
-          >
-            {/* Review Header */}
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">
-                    {review.customerName}
-                  </span>
-                  {review.verifiedPurchase && (
-                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800">
-                      Verified Purchase
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground text-sm">
-                    {formatDate(review.date)}
-                  </span>
-                  {review.location && (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-muted-foreground text-sm">
-                        {review.location}
-                      </span>
-                    </>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-0.5">
-                    {renderStars(review.rating)}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Review Content */}
-            <p className="leading-relaxed text-gray-700">{review.comment}</p>
-          </div>
+          <ProductReviewItem key={review.id} review={review} />
         ))}
       </div>
 

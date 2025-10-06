@@ -1,26 +1,45 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { StarIcon } from "lucide-react";
 import { useState } from "react";
 
+import { Spinner } from "@/components/shared/spinner";
+
 interface ProductReviewFormProps {
-  onSubmit?: (review: { rating: number; comment: string }) => void;
+  onSubmit?: (review: {
+    rating: number;
+    comment: string;
+    title?: string;
+  }) => void;
+  onCancel?: () => void;
   className?: string;
+  initialRating?: number;
+  initialComment?: string | null;
+  initialTitle?: string | null;
+  isEditing?: boolean;
+  isSubmitting?: boolean;
 }
 
 export const ProductReviewForm = ({
   onSubmit,
+  onCancel,
   className,
+  initialRating = 0,
+  initialComment = "",
+  initialTitle = "",
+  isEditing = false,
+  isSubmitting = false,
 }: ProductReviewFormProps) => {
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(initialRating);
   const [hoveredRating, setHoveredRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [comment, setComment] = useState(initialComment || "");
+  const [title, setTitle] = useState(initialTitle || "");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (rating === 0) {
@@ -33,18 +52,7 @@ export const ProductReviewForm = ({
       return;
     }
 
-    setIsSubmitting(true);
-
-    try {
-      await onSubmit?.({ rating, comment });
-      // Reset form after successful submission
-      setRating(0);
-      setComment("");
-    } catch (error) {
-      console.error("Error submitting review:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSubmit?.({ rating, comment, title: title.trim() || undefined });
   };
 
   const renderStars = () => {
@@ -81,7 +89,9 @@ export const ProductReviewForm = ({
         className,
       )}
     >
-      <h4 className="mb-4 text-lg font-semibold">Write a Review</h4>
+      <h4 className="mb-4 text-lg font-semibold">
+        {isEditing ? "Edit Your Review" : "Write a Review"}
+      </h4>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Rating Selection */}
@@ -96,6 +106,22 @@ export const ProductReviewForm = ({
                 {rating} star{rating !== 1 ? "s" : ""}
               </span>
             )}
+          </div>
+        </div>
+
+        {/* Review Title */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">
+            Review Title (Optional)
+          </label>
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Summarize your experience..."
+            maxLength={100}
+          />
+          <div className="text-right text-xs text-gray-500">
+            {title.length}/100 characters
           </div>
         </div>
 
@@ -116,14 +142,29 @@ export const ProductReviewForm = ({
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-2">
+          {onCancel && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+          )}
           <Button
             type="submit"
             disabled={isSubmitting || rating === 0 || !comment.trim()}
             className="px-6"
           >
-            {isSubmitting ? "Submitting..." : "Submit Review"}
+            {isSubmitting && <Spinner />}
+            {isSubmitting
+              ? "Submitting..."
+              : isEditing
+                ? "Update Review"
+                : "Submit Review"}
           </Button>
         </div>
       </form>
