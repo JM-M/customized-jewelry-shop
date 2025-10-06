@@ -116,13 +116,55 @@ export const productsRouter = createTRPCRouter({
         });
       }
 
-      // Build the where condition
-      const whereCondition =
+      // Build the base where condition for category
+      const baseWhereCondition =
         category.parentId === null
           ? // If it's a parent category, get products from all child categories
             eq(categories.parentId, categoryId)
           : // If it's a child category, get products from this category only
             eq(products.categoryId, categoryId);
+
+      // Build additional filter conditions
+      const filterConditions = [];
+
+      // Price range filter
+      if (input.filters?.priceRange) {
+        const { min, max } = input.filters.priceRange;
+        if (min !== undefined && min > 0) {
+          filterConditions.push(sql`${products.price} >= ${min}`);
+        }
+        if (max !== undefined && max > 0) {
+          filterConditions.push(sql`${products.price} <= ${max}`);
+        }
+      }
+
+      // Category filters (for subcategory filtering within the main category)
+      if (input.filters?.categoryIds && input.filters.categoryIds.length > 0) {
+        filterConditions.push(
+          inArray(products.categoryId, input.filters.categoryIds),
+        );
+      }
+
+      // Combine all conditions
+      const whereCondition =
+        filterConditions.length > 0
+          ? and(baseWhereCondition, ...filterConditions)
+          : baseWhereCondition;
+
+      // For material filtering, we need to join with productMaterials table
+      // and use a subquery approach since we need to filter products that have specific materials
+      let materialJoinCondition = sql`1=1`;
+      if (input.filters?.materialIds && input.filters.materialIds.length > 0) {
+        // Use EXISTS subquery to filter products that have any of the specified materials
+        materialJoinCondition = sql`EXISTS (
+          SELECT 1 FROM ${productMaterials} 
+          WHERE ${productMaterials.productId} = ${products.id} 
+          AND ${productMaterials.materialId} IN (${sql.join(
+            input.filters.materialIds.map((id) => sql`${id}`),
+            sql`, `,
+          )})
+        )`;
+      }
 
       // Get total count for pagination
       const [{ count: totalCount }] = await db
@@ -131,7 +173,7 @@ export const productsRouter = createTRPCRouter({
         })
         .from(products)
         .innerJoin(categories, eq(products.categoryId, categories.id))
-        .where(whereCondition);
+        .where(and(whereCondition, materialJoinCondition));
 
       // Get products with cursor-based pagination
       // Get one extra item to check if there are more items
@@ -145,7 +187,8 @@ export const productsRouter = createTRPCRouter({
         })
         .from(products)
         .innerJoin(categories, eq(products.categoryId, categories.id))
-        .where(whereCondition)
+        .where(and(whereCondition, materialJoinCondition))
+        .orderBy(desc(products.createdAt))
         .offset(input.cursor)
         .limit(input.limit + 1);
 
