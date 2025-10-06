@@ -17,7 +17,16 @@ import {
 } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, getTableColumns, ne, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  getTableColumns,
+  inArray,
+  ne,
+  sql,
+} from "drizzle-orm";
 import z from "zod";
 
 export const productsRouter = createTRPCRouter({
@@ -502,6 +511,131 @@ export const productsRouter = createTRPCRouter({
       return {
         hasPurchased: true,
         userReview: userReview || null,
+      };
+    }),
+
+  getFilterOptions: baseProcedure
+    .input(
+      z.object({
+        categorySlug: z.string().optional(),
+      }),
+    )
+    .query(async ({ input }) => {
+      let categoryId: string | null = null;
+      let whereCondition = sql`1=1`; // Default condition for all products
+
+      // If categorySlug is provided, get the category and build appropriate where condition
+      if (input.categorySlug) {
+        const [category] = await db
+          .select({
+            id: categories.id,
+            parentId: categories.parentId,
+          })
+          .from(categories)
+          .where(eq(categories.slug, input.categorySlug));
+
+        if (!category) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Category not found",
+          });
+        }
+
+        categoryId = category.id;
+
+        // Build where condition based on category type
+        if (category.parentId === null) {
+          // If it's a parent category, get products from all child categories
+          const subcategoryIds = await db
+            .select({ id: categories.id })
+            .from(categories)
+            .where(eq(categories.parentId, categoryId));
+
+          const subcategoryIdList = subcategoryIds.map((cat) => cat.id);
+          whereCondition =
+            subcategoryIdList.length > 0
+              ? inArray(products.categoryId, subcategoryIdList)
+              : sql`1=0`; // No subcategories exist
+        } else {
+          // If it's a child category, get products from this category only
+          whereCondition = eq(products.categoryId, categoryId);
+        }
+      }
+
+      // Get price range from actual products in the category context
+      const [priceRange] = await db
+        .select({
+          minPrice: sql<number>`MIN(${products.price})`,
+          maxPrice: sql<number>`MAX(${products.price})`,
+        })
+        .from(products)
+        .where(whereCondition);
+
+      // Get materials that are actually used by products in the category context
+      const availableMaterials = await db
+        .selectDistinct({
+          id: materials.id,
+          name: materials.name,
+          displayName: materials.displayName,
+          hexColor: materials.hexColor,
+          description: materials.description,
+        })
+        .from(materials)
+        .innerJoin(
+          productMaterials,
+          eq(materials.id, productMaterials.materialId),
+        )
+        .innerJoin(products, eq(productMaterials.productId, products.id))
+        .where(and(eq(materials.isActive, true), whereCondition))
+        .orderBy(materials.displayName);
+
+      // Get subcategories that have products in the category context
+      let availableSubcategories: Array<{
+        id: string;
+        name: string;
+        slug: string;
+        productCount: number;
+      }> = [];
+
+      if (categoryId) {
+        // Get the parent category info to determine if we need subcategories
+        const [parentCategory] = await db
+          .select({
+            id: categories.id,
+            parentId: categories.parentId,
+          })
+          .from(categories)
+          .where(eq(categories.id, categoryId));
+
+        if (parentCategory && parentCategory.parentId === null) {
+          // If we're viewing a parent category, get its subcategories with product counts
+          availableSubcategories = await db
+            .select({
+              id: categories.id,
+              name: categories.name,
+              slug: categories.slug,
+              productCount: sql<number>`COUNT(${products.id})`,
+            })
+            .from(categories)
+            .innerJoin(products, eq(categories.id, products.categoryId))
+            .where(
+              and(
+                eq(categories.parentId, categoryId),
+                eq(categories.isActive, true),
+              ),
+            )
+            .groupBy(categories.id, categories.name, categories.slug)
+            .orderBy(categories.name);
+        }
+      }
+
+      return {
+        priceRange: {
+          min: priceRange?.minPrice ? Number(priceRange.minPrice) : 0,
+          max: priceRange?.maxPrice ? Number(priceRange.maxPrice) : 1000,
+        },
+        materials: availableMaterials,
+        subcategories: availableSubcategories,
       };
     }),
 });

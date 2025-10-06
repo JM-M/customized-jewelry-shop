@@ -1,7 +1,10 @@
 import { InfiniteLoadingTrigger } from "@/components/shared/infinite-loading-trigger";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { GetProductsByCategorySlugOutput } from "@/modules/products/types";
+import {
+  GetProductFilterOptionsOutput,
+  GetProductsByCategorySlugOutput,
+} from "@/modules/products/types";
 import { ProductCard } from "@/modules/products/ui/components/product-card";
 import { FilterIcon } from "lucide-react";
 import { useState } from "react";
@@ -17,6 +20,7 @@ interface ProductGridProps {
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   title?: string;
+  filterOptions?: GetProductFilterOptionsOutput;
 }
 
 export const ProductGrid = ({
@@ -25,6 +29,7 @@ export const ProductGrid = ({
   hasNextPage,
   isFetchingNextPage,
   title,
+  filterOptions,
 }: ProductGridProps) => {
   const { items: products, totalCount } = data;
 
@@ -38,6 +43,7 @@ export const ProductGrid = ({
         <ProductFilterDrawer
           open={isFilterDrawerOpen}
           onOpenChange={setIsFilterDrawerOpen}
+          filterOptions={filterOptions}
         />
       )}
       <div>
@@ -74,7 +80,7 @@ export const ProductGrid = ({
           </div>
           <div className="hidden w-xs md:block">
             <div className="sticky top-16">
-              <ProductFilters />
+              <ProductFilters filterOptions={filterOptions} />
             </div>
           </div>
         </div>

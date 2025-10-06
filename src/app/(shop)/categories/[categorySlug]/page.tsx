@@ -24,6 +24,12 @@ const CategoryPage = async ({ params, searchParams }: Props) => {
     }),
   );
 
+  prefetch(
+    trpc.products.getFilterOptions.queryOptions({
+      categorySlug,
+    }),
+  );
+
   return (
     <HydrateClient>
       <Suspense fallback="Loading category...">

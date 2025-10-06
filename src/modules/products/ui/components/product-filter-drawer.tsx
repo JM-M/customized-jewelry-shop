@@ -6,16 +6,19 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { GetProductFilterOptionsOutput } from "../../types";
 import { ProductFilters } from "./product-filters";
 
 interface ProductFilterDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  filterOptions?: GetProductFilterOptionsOutput;
 }
 
 export const ProductFilterDrawer = ({
   open,
   onOpenChange,
+  filterOptions,
 }: ProductFilterDrawerProps) => {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -40,10 +43,7 @@ export const ProductFilterDrawer = ({
           </DrawerHeader>
 
           <ScrollArea className="h-[calc(100vh-22rem)]">
-            <ProductFilters
-              onApplyFilters={() => onOpenChange(false)}
-              onCancel={() => onOpenChange(false)}
-            />
+            <ProductFilters filterOptions={filterOptions} />
           </ScrollArea>
         </div>
       </DrawerContent>

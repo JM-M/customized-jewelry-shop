@@ -29,6 +29,9 @@ export type GetProductReviewStatsOutput =
 export type GetUserProductReviewStatusOutput =
   inferRouterOutputs<AppRouter>["products"]["getUserProductReviewStatus"];
 
+export type GetProductFilterOptionsOutput =
+  inferRouterOutputs<AppRouter>["products"]["getFilterOptions"];
+
 // Single source of truth for customization types
 export type CustomizationType = "text" | "image" | "qr_code";
 

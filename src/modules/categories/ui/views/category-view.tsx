@@ -41,6 +41,12 @@ export const CategoryView = () => {
       ),
     );
 
+  const { data: filterOptions } = useSuspenseQuery(
+    trpc.products.getFilterOptions.queryOptions({
+      categorySlug: categorySlug as string,
+    }),
+  );
+
   if (!data) {
     return <div>No data available</div>;
   }
@@ -60,6 +66,7 @@ export const CategoryView = () => {
         fetchNextPage={fetchNextPage}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
+        filterOptions={filterOptions}
       />
     </div>
   );

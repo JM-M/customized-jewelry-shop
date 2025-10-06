@@ -9,9 +9,13 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
+import { formatNaira } from "@/lib/utils";
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronDown, X } from "lucide-react";
 import { useState } from "react";
 import { useProductsFilters } from "../../hooks/use-products-filters";
+import { GetProductFilterOptionsOutput } from "../../types";
 
 const SAMPLE_MATERIALS = [
   { id: "gold-14k", name: "14K Gold", color: "#FFD700" },
@@ -65,13 +69,56 @@ const SAMPLE_CATEGORIES = [
   },
 ];
 
-export const ProductFilters = () => {
+interface ProductFiltersProps {
+  filterOptions?: GetProductFilterOptionsOutput;
+}
+
+export const ProductFilters = ({ filterOptions }: ProductFiltersProps) => {
   const [filters, setFilters] = useProductsFilters();
+
+  const trpc = useTRPC();
+  const { data: categories } = useSuspenseQuery(
+    trpc.categories.getAll.queryOptions(),
+  );
+
+  // Use real price range from filter options or fallback to defaults
+  const priceRange = filterOptions?.priceRange || { min: 0, max: 1000 };
+  const availableMaterials = filterOptions?.materials || [];
+  const availableSubcategories = filterOptions?.subcategories || [];
+
+  // Group subcategories by their parent category
+  const groupedCategories = availableSubcategories.reduce(
+    (acc, subcategory) => {
+      // Find the actual category in the database to get its parentId
+      const categoryData = categories.find((cat) => cat.id === subcategory.id);
+      if (categoryData && categoryData.parentId) {
+        const parent = categories.find(
+          (cat) => cat.id === categoryData.parentId,
+        );
+        if (parent) {
+          if (!acc[parent.id]) {
+            acc[parent.id] = {
+              parent,
+              subcategories: [],
+            };
+          }
+          acc[parent.id].subcategories.push(subcategory);
+        }
+      }
+      return acc;
+    },
+    {} as Record<
+      string,
+      { parent: any; subcategories: typeof availableSubcategories }
+    >,
+  );
+
+  const groupedCategoriesArray = Object.values(groupedCategories);
 
   // Local state for slider values to avoid excessive updates
   const [localPriceRange, setLocalPriceRange] = useState([
-    filters.minPrice || 0,
-    filters.maxPrice || 1000,
+    filters.minPrice || priceRange.min,
+    filters.maxPrice || priceRange.max,
   ]);
 
   return (
@@ -87,7 +134,7 @@ export const ProductFilters = () => {
                 <Badge variant="secondary" className="text-xs">
                   ${filters.minPrice || 0} - ${filters.maxPrice || "∞"}
                   <button
-                    className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5"
+                    className="hover:bg-muted-foreground/20 rounded-full p-0.5"
                     onClick={() => setFilters({ minPrice: 0, maxPrice: 0 })}
                   >
                     <X className="h-3 w-3" />
@@ -106,13 +153,11 @@ export const ProductFilters = () => {
                       variant="secondary"
                       className="text-xs"
                     >
-                      {SAMPLE_CATEGORIES.flatMap((cat) => [
-                        cat,
-                        ...cat.subcategories,
-                      ]).find((cat) => cat.id === categoryId)?.name ||
-                        categoryId}
+                      {availableSubcategories.find(
+                        (cat) => cat.id === categoryId,
+                      )?.name || categoryId}
                       <button
-                        className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5"
+                        className="hover:bg-muted-foreground/20 rounded-full p-0.5"
                         onClick={() => {
                           const currentCategories =
                             filters.categories?.split(",").filter(Boolean) ||
@@ -139,10 +184,10 @@ export const ProductFilters = () => {
                       variant="secondary"
                       className="text-xs"
                     >
-                      {SAMPLE_MATERIALS.find((mat) => mat.id === materialId)
-                        ?.name || materialId}
+                      {availableMaterials.find((mat) => mat.id === materialId)
+                        ?.displayName || materialId}
                       <button
-                        className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5"
+                        className="hover:bg-muted-foreground/20 rounded-full p-0.5"
                         onClick={() => {
                           const currentMaterials =
                             filters.materials?.split(",").filter(Boolean) || [];
@@ -162,165 +207,160 @@ export const ProductFilters = () => {
           <Separator />
 
           {/* Price Range */}
-          <div className="space-y-2">
-            <div>
-              <h4 className="mb-2 text-sm font-medium">Price Range</h4>
-              <div className="space-y-3">
-                <Slider
-                  value={localPriceRange}
-                  max={1000}
-                  min={0}
-                  step={10}
-                  className="w-full"
-                  onValueChange={(values) => {
-                    // Update local state for immediate UI feedback
-                    setLocalPriceRange(values);
-                  }}
-                  onValueCommit={(values) => {
-                    // Update URL state only when user finishes dragging
-                    setFilters({
-                      minPrice: values[0],
-                      maxPrice: values[1],
-                    });
-                  }}
-                />
-                <div className="text-muted-foreground flex justify-between text-sm">
-                  <span>${localPriceRange[0]}</span>
-                  <span>${localPriceRange[1]}</span>
+          {priceRange.min < priceRange.max && (
+            <>
+              <div className="space-y-2">
+                <div>
+                  <h4 className="mb-2 text-sm font-medium">Price Range</h4>
+                  <div className="space-y-3">
+                    <Slider
+                      value={localPriceRange}
+                      max={priceRange.max}
+                      min={priceRange.min}
+                      step={10}
+                      className="w-full"
+                      onValueChange={(values) => {
+                        // Update local state for immediate UI feedback
+                        setLocalPriceRange(values);
+                      }}
+                      onValueCommit={(values) => {
+                        // Update URL state only when user finishes dragging
+                        setFilters({
+                          minPrice: values[0],
+                          maxPrice: values[1],
+                        });
+                      }}
+                    />
+                    <div className="text-muted-foreground flex justify-between text-sm">
+                      <span>{formatNaira(localPriceRange[0])}</span>
+                      <span>{formatNaira(localPriceRange[1])}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <Separator />
+              <Separator />
+            </>
+          )}
 
           {/* Categories */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Categories</h4>
+          {groupedCategoriesArray.length > 0 && (
             <div className="space-y-2">
-              {SAMPLE_CATEGORIES.map((category) => {
-                const currentCategories =
-                  filters.categories?.split(",").filter(Boolean) || [];
-                const isCategorySelected = currentCategories.includes(
-                  category.id,
-                );
+              <h4 className="text-sm font-medium">Categories</h4>
+              <div className="space-y-2">
+                {groupedCategoriesArray.map(({ parent, subcategories }) => {
+                  const currentCategories =
+                    filters.categories?.split(",").filter(Boolean) || [];
 
-                return (
-                  <Collapsible key={category.id}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={category.id}
-                          checked={isCategorySelected}
-                          onCheckedChange={(checked) => {
-                            const newCategories = checked
-                              ? [...currentCategories, category.id]
-                              : currentCategories.filter(
-                                  (id) => id !== category.id,
-                                );
-                            setFilters({ categories: newCategories.join(",") });
-                          }}
-                        />
-                        <label
-                          htmlFor={category.id}
-                          className="cursor-pointer text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {category.name}
-                        </label>
-                      </div>
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                        >
-                          <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                        </Button>
-                      </CollapsibleTrigger>
-                    </div>
-                    <CollapsibleContent className="space-y-2 pt-2 pl-6">
-                      {category.subcategories.map((subcategory) => {
-                        const isSubcategorySelected =
-                          currentCategories.includes(subcategory.id);
-
-                        return (
-                          <div
-                            key={subcategory.id}
-                            className="flex items-center space-x-2"
+                  return (
+                    <Collapsible key={parent.id}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <label className="cursor-pointer text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            {parent.name}
+                          </label>
+                        </div>
+                        <CollapsibleTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
                           >
-                            <Checkbox
-                              id={subcategory.id}
-                              checked={isSubcategorySelected}
-                              onCheckedChange={(checked) => {
-                                const newCategories = checked
-                                  ? [...currentCategories, subcategory.id]
-                                  : currentCategories.filter(
-                                      (id) => id !== subcategory.id,
-                                    );
-                                setFilters({
-                                  categories: newCategories.join(","),
-                                });
-                              }}
-                            />
-                            <label
-                              htmlFor={subcategory.id}
-                              className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                          </Button>
+                        </CollapsibleTrigger>
+                      </div>
+                      <CollapsibleContent className="space-y-2 pt-2 pl-6">
+                        {subcategories.map((subcategory) => {
+                          const isSubcategorySelected =
+                            currentCategories.includes(subcategory.id);
+
+                          return (
+                            <div
+                              key={subcategory.id}
+                              className="flex items-center space-x-2"
                             >
-                              {subcategory.name}
-                            </label>
-                          </div>
-                        );
-                      })}
-                    </CollapsibleContent>
-                  </Collapsible>
-                );
-              })}
+                              <Checkbox
+                                id={subcategory.id}
+                                checked={isSubcategorySelected}
+                                onCheckedChange={(checked) => {
+                                  const newCategories = checked
+                                    ? [...currentCategories, subcategory.id]
+                                    : currentCategories.filter(
+                                        (id) => id !== subcategory.id,
+                                      );
+                                  setFilters({
+                                    categories: newCategories.join(","),
+                                  });
+                                }}
+                              />
+                              <label
+                                htmlFor={subcategory.id}
+                                className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {subcategory.name}
+                                <span className="text-muted-foreground ml-1 text-xs">
+                                  ({subcategory.productCount})
+                                </span>
+                              </label>
+                            </div>
+                          );
+                        })}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           <Separator />
 
           {/* Materials */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Materials</h4>
+          {availableMaterials.length > 0 && (
             <div className="space-y-2">
-              {SAMPLE_MATERIALS.map((material) => {
-                const currentMaterials =
-                  filters.materials?.split(",").filter(Boolean) || [];
-                const isMaterialSelected = currentMaterials.includes(
-                  material.id,
-                );
+              <h4 className="text-sm font-medium">Materials</h4>
+              <div className="space-y-2">
+                {availableMaterials.map((material) => {
+                  const currentMaterials =
+                    filters.materials?.split(",").filter(Boolean) || [];
+                  const isMaterialSelected = currentMaterials.includes(
+                    material.id,
+                  );
 
-                return (
-                  <div
-                    key={material.id}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={material.id}
-                      checked={isMaterialSelected}
-                      onCheckedChange={(checked) => {
-                        const newMaterials = checked
-                          ? [...currentMaterials, material.id]
-                          : currentMaterials.filter((id) => id !== material.id);
-                        setFilters({ materials: newMaterials.join(",") });
-                      }}
-                    />
-                    <label
-                      htmlFor={material.id}
-                      className="flex cursor-pointer items-center space-x-2 text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  return (
+                    <div
+                      key={material.id}
+                      className="flex items-center space-x-2"
                     >
-                      <div
-                        className="h-4 w-4 rounded-full border border-gray-300"
-                        style={{ backgroundColor: material.color }}
+                      <Checkbox
+                        id={material.id}
+                        checked={isMaterialSelected}
+                        onCheckedChange={(checked) => {
+                          const newMaterials = checked
+                            ? [...currentMaterials, material.id]
+                            : currentMaterials.filter(
+                                (id) => id !== material.id,
+                              );
+                          setFilters({ materials: newMaterials.join(",") });
+                        }}
                       />
-                      <span>{material.name}</span>
-                    </label>
-                  </div>
-                );
-              })}
+                      <label
+                        htmlFor={material.id}
+                        className="flex cursor-pointer items-center space-x-2 text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        <div
+                          className="h-4 w-4 rounded-full border border-gray-300"
+                          style={{ backgroundColor: material.hexColor }}
+                        />
+                        <span>{material.displayName}</span>
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <ScrollBar orientation="vertical" />
       </ScrollArea>
