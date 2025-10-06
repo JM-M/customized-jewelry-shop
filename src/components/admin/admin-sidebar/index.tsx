@@ -2,8 +2,6 @@
 
 import {
   ChartBarIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
   CreditCardIcon,
   FolderIcon,
   GiftIcon,
@@ -22,11 +20,6 @@ import { useState } from "react";
 import { AuthButton } from "@/components/main-sidebar/auth-button";
 import { LogoutButton } from "@/components/main-sidebar/logout-button";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -34,15 +27,11 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+
+import { SidebarItemComponent } from "./sidebar-item-component";
 
 // Data structure for sidebar items
 interface SidebarItem {
@@ -185,64 +174,6 @@ export function AdminSidebar() {
     });
   };
 
-  // Helper component for rendering a single sidebar item
-  const SidebarItemComponent = ({ item }: { item: SidebarItem }) => {
-    const isOpen = openItems.has(item.id);
-    const hasChildren = item.children && item.children.length > 0;
-
-    if (hasChildren) {
-      return (
-        <Collapsible open={isOpen} onOpenChange={() => toggleItem(item.id)}>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton>
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                  {isOpen ? (
-                    <ChevronDownIcon className="ml-auto h-4 w-4" />
-                  ) : (
-                    <ChevronRightIcon className="ml-auto h-4 w-4" />
-                  )}
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.children?.map((child) => (
-                    <SidebarMenuSubItem key={child.id}>
-                      <SidebarMenuSubButton asChild>
-                        <Link
-                          href={child.href || "#"}
-                          onClick={handleLinkClick}
-                        >
-                          {child.icon && <child.icon className="size-4" />}
-                          {child.label}
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </Collapsible>
-      );
-    }
-
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton asChild>
-            <Link href={item.href || "#"} onClick={handleLinkClick}>
-              <item.icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    );
-  };
-
   return (
     <Sidebar side="left">
       <SidebarHeader className="text-sidebar-accent-foreground h-17 justify-center border-b">
@@ -254,7 +185,7 @@ export function AdminSidebar() {
           <span className="font-niconne">Temmy Accessories</span>
         </Link>
       </SidebarHeader>
-      <SidebarContent className="gap-0 text-lg">
+      <SidebarContent className="gap-0 py-4 text-lg">
         {sidebarConfig.map((group, index) => (
           <SidebarGroup key={index} className="py-0">
             {group.label && (
@@ -262,7 +193,13 @@ export function AdminSidebar() {
             )}
             <SidebarGroupContent>
               {group.items.map((item) => (
-                <SidebarItemComponent key={item.id} item={item} />
+                <SidebarItemComponent
+                  key={item.id}
+                  item={item}
+                  isOpen={openItems.has(item.id)}
+                  onToggle={toggleItem}
+                  onLinkClick={handleLinkClick}
+                />
               ))}
             </SidebarGroupContent>
           </SidebarGroup>
