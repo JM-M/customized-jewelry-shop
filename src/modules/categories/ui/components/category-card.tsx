@@ -1,42 +1,33 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { GetAllCategoriesOutput } from "@/modules/categories/types";
 import Image from "next/image";
-import { GetAllCategoriesOutput } from "../../types";
+import Link from "next/link";
 
-interface CategoryCardProps {
-  category: GetAllCategoriesOutput[number];
-  onClick?: () => void;
-  hideName?: boolean;
-}
+type CategoryCardProps = GetAllCategoriesOutput[number];
 
-export const CategoryCard = ({
-  category,
-  onClick,
-  hideName = false,
-}: CategoryCardProps) => {
+export const CategoryCard = ({ name, image, slug }: CategoryCardProps) => {
   return (
-    <div>
-      <Card
-        className="cursor-pointer p-0 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-        onClick={onClick}
+    <div className="space-y-2">
+      <Link
+        href={`/categories/${slug}`}
+        className="block cursor-pointer space-y-1"
       >
-        <CardContent className="relative flex aspect-square items-center justify-center p-0">
-          {category.image && (
+        <div className="aspect-square overflow-hidden">
+          {image && (
             <Image
-              src={category.image}
-              alt={category.name}
-              fill
-              className="object-cover"
+              src={image}
+              alt={name}
+              width={500}
+              height={600}
+              className="h-full w-full rounded-md object-cover"
             />
           )}
-        </CardContent>
-      </Card>
-      {!hideName && (
-        <div className="mt-2">
-          <span className="text-muted-foreground duration-300">
-            {category.name}
+        </div>
+        <div className="text-center text-sm">
+          <span className="hover:underline hover:underline-offset-2">
+            {name}
           </span>
         </div>
-      )}
+      </Link>
     </div>
   );
 };

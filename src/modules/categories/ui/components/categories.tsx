@@ -34,7 +34,7 @@ export const Categories = () => {
                 href={`/categories/${parentCategory.slug}`}
                 className="block"
               >
-                <CategoryCard category={parentCategory} hideName />
+                <CategoryCard {...parentCategory} />
               </Link>
             </div>
             {/* Subcategories */}

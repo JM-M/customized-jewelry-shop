@@ -47,6 +47,7 @@ export const CategoryView = () => {
       <CategoryHeader />
       <Subcategories subcategories={subcategories} />
       <ProductGrid
+        title="Products"
         data={{ items: products, totalCount }}
         fetchNextPage={fetchNextPage}
         hasNextPage={hasNextPage}
