@@ -1,6 +1,6 @@
 "use client";
 
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
@@ -12,19 +12,26 @@ import { ProductReviewItem } from "./product-review-item";
 interface ProductReviewsListProps {
   productId: string;
   className?: string;
+  reviewStats?: {
+    averageRating: number;
+    totalReviews: number;
+    ratingDistribution: {
+      fiveStars: number;
+      fourStars: number;
+      threeStars: number;
+      twoStars: number;
+      oneStar: number;
+    };
+  } | null;
 }
 
 export const ProductReviewsList = ({
   productId,
   className,
+  reviewStats,
 }: ProductReviewsListProps) => {
   const trpc = useTRPC();
   const session = authClient.useSession();
-
-  // Get total review count to determine if there are any reviews at all
-  const { data: reviewStats } = useQuery(
-    trpc.products.getProductReviewStats.queryOptions({ productId }),
-  );
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
@@ -49,7 +56,7 @@ export const ProductReviewsList = ({
   }
 
   // Only show "No reviews yet" if there are truly no reviews at all
-  if (reviewStats?.totalReviews === 0) {
+  if (!Number(reviewStats?.totalReviews || 0)) {
     return (
       <div className="flex items-center justify-center gap-2">
         <p>No reviews yet</p>

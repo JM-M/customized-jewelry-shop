@@ -23,6 +23,12 @@ export type CartItem = NonNullable<GetCartOutput>["items"][number];
 export type GetProductReviewsOutput =
   inferRouterOutputs<AppRouter>["products"]["getProductReviews"];
 
+export type GetProductReviewStatsOutput =
+  inferRouterOutputs<AppRouter>["products"]["getProductReviewStats"];
+
+export type GetUserProductReviewStatusOutput =
+  inferRouterOutputs<AppRouter>["products"]["getUserProductReviewStatus"];
+
 // Single source of truth for customization types
 export type CustomizationType = "text" | "image" | "qr_code";
 

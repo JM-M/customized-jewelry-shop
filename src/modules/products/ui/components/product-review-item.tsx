@@ -81,7 +81,7 @@ export const ProductReviewItem = ({
                 onClick={onEdit}
                 className="h-7 w-7 p-0"
               >
-                <EditIcon className="h-3 w-3" />
+                <EditIcon className="h-3 w-3" strokeWidth={1.2} />
               </Button>
             )}
             {onDelete && (
@@ -95,7 +95,7 @@ export const ProductReviewItem = ({
                 {isDeleting ? (
                   <Spinner className="h-3 w-3" />
                 ) : (
-                  <TrashIcon className="h-3 w-3" />
+                  <TrashIcon className="h-3 w-3" strokeWidth={1.2} />
                 )}
               </Button>
             )}

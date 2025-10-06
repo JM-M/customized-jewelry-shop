@@ -1,34 +1,34 @@
 "use client";
 
 import { useTRPC } from "@/trpc/client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 import { useProduct } from "../../contexts/product";
+import { GetUserProductReviewStatusOutput } from "../../types";
 import { NoUserReview } from "./no-user-review";
 import { ProductReviewForm } from "./product-review-form";
 import { ProductReviewItem } from "./product-review-item";
 
 interface UserReviewProps {
   className?: string;
+  reviewStatus?: GetUserProductReviewStatusOutput;
+  isReviewStatusLoading?: boolean;
 }
 
-export const UserReview = ({ className }: UserReviewProps) => {
+export const UserReview = ({
+  className,
+  reviewStatus,
+  isReviewStatusLoading,
+}: UserReviewProps) => {
   const { product } = useProduct();
   const productId = product.id;
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
   const [isEditing, setIsEditing] = useState(false);
-
-  // Get user's purchase status and existing review
-  const { data: reviewStatus, isLoading: isReviewStatusLoading } = useQuery(
-    trpc.products.getUserProductReviewStatus.queryOptions({
-      productId,
-    }),
-  );
 
   // Mutation for updating reviews
   const {
