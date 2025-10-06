@@ -5,23 +5,10 @@ import { EditIcon, StarIcon, TrashIcon } from "lucide-react";
 import { Spinner } from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-interface Review {
-  id: string;
-  customerName: string;
-  rating: number;
-  date: string;
-  comment: string;
-  verifiedPurchase?: boolean;
-  helpfulCount?: number;
-  location?: string;
-  title?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { GetProductReviewsOutput } from "../../types";
 
 interface ProductReviewItemProps {
-  review: Review;
+  review: GetProductReviewsOutput["items"][number];
   onEdit?: () => void;
   onDelete?: () => void;
   showActions?: boolean;
@@ -69,26 +56,13 @@ export const ProductReviewItem = ({
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="font-medium text-gray-900">
-              {review.customerName}
+              {review.userFirstName} {review.userLastName}
             </span>
-            {review.verifiedPurchase && (
-              <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800">
-                Verified Purchase
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground text-sm">
-              {formatDate(review.date)}
+              {formatDate(review.createdAt)}
             </span>
-            {review.location && (
-              <>
-                <span className="text-muted-foreground">•</span>
-                <span className="text-muted-foreground text-sm">
-                  {review.location}
-                </span>
-              </>
-            )}
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5">

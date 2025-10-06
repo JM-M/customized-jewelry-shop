@@ -160,14 +160,15 @@ export const UserReview = ({ className }: UserReviewProps) => {
         <ProductReviewItem
           review={{
             id: userReview.id,
-            customerName: "You", // or user's actual name
+            userFirstName: "You",
+            userLastName: "",
             rating: userReview.rating,
-            date: userReview.createdAt,
             comment: userReview.comment ?? "",
-            verifiedPurchase: true,
             title: userReview.title ?? "",
             createdAt: userReview.createdAt,
             updatedAt: userReview.updatedAt,
+            productId: product.id,
+            userId: "", // This will be filled by the actual user ID from context
           }}
           showActions
           onEdit={handleEditReview}

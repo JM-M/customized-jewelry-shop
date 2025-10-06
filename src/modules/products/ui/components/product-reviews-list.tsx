@@ -1,97 +1,95 @@
 "use client";
 
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { useTRPC } from "@/trpc/client";
 
 import { ProductReviewItem } from "./product-review-item";
 
-interface Review {
-  id: string;
-  customerName: string;
-  rating: number;
-  date: string;
-  comment: string;
-  verifiedPurchase?: boolean;
-  helpfulCount?: number;
-  location?: string;
-}
-
 interface ProductReviewsListProps {
-  reviews?: Review[];
+  productId: string;
   className?: string;
 }
 
-const mockReviews: Review[] = [
-  {
-    id: "1",
-    customerName: "Sarah M.",
-    rating: 5,
-    date: "2024-01-15",
-    comment:
-      "Absolutely beautiful piece! The craftsmanship is outstanding and it arrived exactly as described. Highly recommend!",
-    verifiedPurchase: true,
-    helpfulCount: 12,
-    location: "Lagos, Lagos",
-  },
-  {
-    id: "2",
-    customerName: "Michael R.",
-    rating: 4,
-    date: "2024-01-10",
-    comment:
-      "Great quality jewelry. The design is elegant and the materials feel premium. Shipping was fast too.",
-    verifiedPurchase: true,
-    helpfulCount: 8,
-    location: "Abuja, FCT",
-  },
-  {
-    id: "3",
-    customerName: "Emma L.",
-    rating: 5,
-    date: "2024-01-08",
-    comment:
-      "I love this piece! It's become my go-to accessory. The attention to detail is remarkable.",
-    verifiedPurchase: true,
-    helpfulCount: 15,
-    location: "Port Harcourt, Rivers",
-  },
-  {
-    id: "4",
-    customerName: "David K.",
-    rating: 4,
-    date: "2024-01-05",
-    comment:
-      "Very satisfied with my purchase. The jewelry exceeded my expectations in terms of quality and design.",
-    verifiedPurchase: true,
-    helpfulCount: 6,
-    location: "Kano, Kano",
-  },
-];
-
 export const ProductReviewsList = ({
-  reviews = mockReviews,
+  productId,
   className,
 }: ProductReviewsListProps) => {
+  const trpc = useTRPC();
+  const session = authClient.useSession();
+
+  // Get total review count to determine if there are any reviews at all
+  const { data: reviewStats } = useQuery(
+    trpc.products.getProductReviewStats.queryOptions({ productId }),
+  );
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      ...trpc.products.getProductReviews.infiniteQueryOptions(
+        {
+          productId,
+          limit: 10,
+          excludeUserId: session.data?.user?.id,
+        },
+        {
+          getNextPageParam: (lastPage) => lastPage.nextCursor,
+        },
+      ),
+      select: (data) => data.pages.flatMap((page) => page.items),
+    });
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <p>Loading reviews...</p>
+      </div>
+    );
+  }
+
+  // Only show "No reviews yet" if there are truly no reviews at all
+  if (reviewStats?.totalReviews === 0) {
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <p>No reviews yet</p>
+      </div>
+    );
+  }
+
+  // If there are reviews but none from other users, show nothing
+  if (!data || data.length === 0) {
+    return null;
+  }
+
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex w-full items-center justify-center">
         <span className="text-muted-foreground text-sm">
-          Showing {reviews.length} reviews
+          Showing {data.length} reviews
         </span>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {reviews.map((review) => (
+        {data.map((review) => (
           <ProductReviewItem key={review.id} review={review} />
         ))}
       </div>
 
       {/* Load More Button */}
-      <div className="pt-4 text-center">
-        <Button variant="outline" size="sm" className="h-10 rounded-full px-5">
-          Load More Reviews
-        </Button>
-      </div>
+      {hasNextPage && (
+        <div className="pt-4 text-center">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-10 rounded-full px-5"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+          >
+            {isFetchingNextPage ? "Loading..." : "Load More Reviews"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

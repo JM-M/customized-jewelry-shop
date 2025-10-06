@@ -17,7 +17,7 @@ import {
 } from "@/trpc/init";
 import { CursorPaginatedResponse } from "@/types/api";
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, getTableColumns, sql } from "drizzle-orm";
+import { and, asc, desc, eq, getTableColumns, ne, sql } from "drizzle-orm";
 import z from "zod";
 
 export const productsRouter = createTRPCRouter({
@@ -201,6 +201,7 @@ export const productsRouter = createTRPCRouter({
         sortBy: z
           .enum(["newest", "oldest", "highest", "lowest"])
           .default("newest"),
+        excludeUserId: z.string().optional(),
       }),
     )
     .query(async ({ input }) => {
@@ -210,7 +211,14 @@ export const productsRouter = createTRPCRouter({
           count: sql<number>`count(*)`.as("count"),
         })
         .from(productReviews)
-        .where(eq(productReviews.productId, input.productId));
+        .where(
+          input.excludeUserId
+            ? and(
+                eq(productReviews.productId, input.productId),
+                ne(productReviews.userId, input.excludeUserId),
+              )
+            : eq(productReviews.productId, input.productId),
+        );
 
       // Determine sort order
       const orderBy =
@@ -232,7 +240,14 @@ export const productsRouter = createTRPCRouter({
         })
         .from(productReviews)
         .innerJoin(user, eq(productReviews.userId, user.id))
-        .where(eq(productReviews.productId, input.productId))
+        .where(
+          input.excludeUserId
+            ? and(
+                eq(productReviews.productId, input.productId),
+                ne(productReviews.userId, input.excludeUserId),
+              )
+            : eq(productReviews.productId, input.productId),
+        )
         .orderBy(orderBy)
         .offset(input.cursor)
         .limit(input.limit + 1);
