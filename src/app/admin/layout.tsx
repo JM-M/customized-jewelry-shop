@@ -5,8 +5,21 @@ import { db } from "@/db";
 import { user as usersTable } from "@/db/schema/auth";
 import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import { siteConfig } from "../../../site.config";
+
+export const metadata: Metadata = {
+  title: {
+    template: `%s - Admin | ${siteConfig.name}`,
+  },
+  description: `Manage your ${siteConfig.name} store operations, orders, and inventory`,
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AdminLayout({
   children,

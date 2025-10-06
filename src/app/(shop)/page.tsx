@@ -4,8 +4,15 @@ import { categories } from "@/db/schema/shop";
 import { HomeView } from "@/modules/home/ui/views/home-view";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { isNull } from "drizzle-orm";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { siteConfig } from "../../../site.config";
+
+export const metadata: Metadata = {
+  title: "Home",
+  description: `Welcome to ${siteConfig.name} - Your destination for customized jewelry and accessories. Discover unique pieces that express your individuality.`,
+};
 
 export default async function Home() {
   const parentCategories = await db

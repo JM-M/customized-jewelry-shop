@@ -4,8 +4,17 @@ import { MainNavbar } from "@/components/main-navbar";
 import { MainSidebar } from "@/components/main-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import type { Metadata } from "next";
 import { Suspense } from "react";
+import { siteConfig } from "../../../site.config";
 import { ShopProviders } from "./shop-providers";
+
+export const metadata: Metadata = {
+  title: {
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: "Discover our collection of customized jewelry and accessories",
+};
 
 type Props = {
   children: React.ReactNode;

@@ -1,7 +1,14 @@
 import { auth } from "@/lib/auth";
 import { SignInView } from "@/modules/auth/ui/views/sign-in-view";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "Sign In",
+  description:
+    "Sign in to your Temmy Accessories account to access your orders and personalized shopping experience",
+};
 
 const Page = async () => {
   const session = await auth.api.getSession({

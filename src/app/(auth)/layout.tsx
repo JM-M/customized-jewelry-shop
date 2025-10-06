@@ -1,3 +1,17 @@
+import type { Metadata } from "next";
+import { siteConfig } from "../../../site.config";
+
+export const metadata: Metadata = {
+  title: {
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: `Sign in or create an account to access ${siteConfig.name}`,
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
 interface Props {
   children: React.ReactNode;
 }

@@ -3,8 +3,15 @@
 import { DEFAULT_PAGE_SIZE } from "@/constants/api";
 import { NewArrivalsView } from "@/modules/products/ui/views/new-arrivals-view";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+
+export const metadata: Metadata = {
+  title: "New Arrivals",
+  description:
+    "Discover our latest collection of customized jewelry and accessories",
+};
 
 export default async function NewArrivals() {
   // prefetch(
