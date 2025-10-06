@@ -10,6 +10,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { ChevronDown, X } from "lucide-react";
+import { useState } from "react";
+import { useProductsFilters } from "../../hooks/use-products-filters";
 
 const SAMPLE_MATERIALS = [
   { id: "gold-14k", name: "14K Gold", color: "#FFD700" },
@@ -63,15 +65,15 @@ const SAMPLE_CATEGORIES = [
   },
 ];
 
-interface ProductFiltersProps {
-  onApplyFilters?: () => void;
-  onCancel?: () => void;
-}
+export const ProductFilters = () => {
+  const [filters, setFilters] = useProductsFilters();
 
-export const ProductFilters = ({
-  onApplyFilters,
-  onCancel,
-}: ProductFiltersProps) => {
+  // Local state for slider values to avoid excessive updates
+  const [localPriceRange, setLocalPriceRange] = useState([
+    filters.minPrice || 0,
+    filters.maxPrice || 1000,
+  ]);
+
   return (
     <div>
       <ScrollArea className="h-[calc(100vh-2rem)] md:h-[calc(100vh-8rem)]">
@@ -80,30 +82,80 @@ export const ProductFilters = ({
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Active Filters</h4>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary" className="text-xs">
-                Rings
-                <button className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                Engagement Rings
-                <button className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                14K Gold
-                <button className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                $100 - $500
-                <button className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
+              {/* Price Range Filter */}
+              {(filters.minPrice > 0 || filters.maxPrice > 0) && (
+                <Badge variant="secondary" className="text-xs">
+                  ${filters.minPrice || 0} - ${filters.maxPrice || "∞"}
+                  <button
+                    className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5"
+                    onClick={() => setFilters({ minPrice: 0, maxPrice: 0 })}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              {/* Category Filters */}
+              {filters.categories &&
+                filters.categories
+                  .split(",")
+                  .filter(Boolean)
+                  .map((categoryId) => (
+                    <Badge
+                      key={categoryId}
+                      variant="secondary"
+                      className="text-xs"
+                    >
+                      {SAMPLE_CATEGORIES.flatMap((cat) => [
+                        cat,
+                        ...cat.subcategories,
+                      ]).find((cat) => cat.id === categoryId)?.name ||
+                        categoryId}
+                      <button
+                        className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5"
+                        onClick={() => {
+                          const currentCategories =
+                            filters.categories?.split(",").filter(Boolean) ||
+                            [];
+                          const newCategories = currentCategories.filter(
+                            (id) => id !== categoryId,
+                          );
+                          setFilters({ categories: newCategories.join(",") });
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+
+              {/* Material Filters */}
+              {filters.materials &&
+                filters.materials
+                  .split(",")
+                  .filter(Boolean)
+                  .map((materialId) => (
+                    <Badge
+                      key={materialId}
+                      variant="secondary"
+                      className="text-xs"
+                    >
+                      {SAMPLE_MATERIALS.find((mat) => mat.id === materialId)
+                        ?.name || materialId}
+                      <button
+                        className="hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5"
+                        onClick={() => {
+                          const currentMaterials =
+                            filters.materials?.split(",").filter(Boolean) || [];
+                          const newMaterials = currentMaterials.filter(
+                            (id) => id !== materialId,
+                          );
+                          setFilters({ materials: newMaterials.join(",") });
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
             </div>
           </div>
 
@@ -115,15 +167,26 @@ export const ProductFilters = ({
               <h4 className="mb-2 text-sm font-medium">Price Range</h4>
               <div className="space-y-3">
                 <Slider
-                  value={[0, 1000]}
+                  value={localPriceRange}
                   max={1000}
                   min={0}
                   step={10}
                   className="w-full"
+                  onValueChange={(values) => {
+                    // Update local state for immediate UI feedback
+                    setLocalPriceRange(values);
+                  }}
+                  onValueCommit={(values) => {
+                    // Update URL state only when user finishes dragging
+                    setFilters({
+                      minPrice: values[0],
+                      maxPrice: values[1],
+                    });
+                  }}
                 />
                 <div className="text-muted-foreground flex justify-between text-sm">
-                  <span>$0</span>
-                  <span>$1000</span>
+                  <span>${localPriceRange[0]}</span>
+                  <span>${localPriceRange[1]}</span>
                 </div>
               </div>
             </div>
@@ -135,42 +198,83 @@ export const ProductFilters = ({
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Categories</h4>
             <div className="space-y-2">
-              {SAMPLE_CATEGORIES.map((category) => (
-                <Collapsible key={category.id}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id={category.id} />
-                      <label
-                        htmlFor={category.id}
-                        className="cursor-pointer text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {category.name}
-                      </label>
-                    </div>
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                        <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                      </Button>
-                    </CollapsibleTrigger>
-                  </div>
-                  <CollapsibleContent className="space-y-2 pt-2 pl-6">
-                    {category.subcategories.map((subcategory) => (
-                      <div
-                        key={subcategory.id}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox id={subcategory.id} />
+              {SAMPLE_CATEGORIES.map((category) => {
+                const currentCategories =
+                  filters.categories?.split(",").filter(Boolean) || [];
+                const isCategorySelected = currentCategories.includes(
+                  category.id,
+                );
+
+                return (
+                  <Collapsible key={category.id}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id={category.id}
+                          checked={isCategorySelected}
+                          onCheckedChange={(checked) => {
+                            const newCategories = checked
+                              ? [...currentCategories, category.id]
+                              : currentCategories.filter(
+                                  (id) => id !== category.id,
+                                );
+                            setFilters({ categories: newCategories.join(",") });
+                          }}
+                        />
                         <label
-                          htmlFor={subcategory.id}
-                          className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          htmlFor={category.id}
+                          className="cursor-pointer text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
-                          {subcategory.name}
+                          {category.name}
                         </label>
                       </div>
-                    ))}
-                  </CollapsibleContent>
-                </Collapsible>
-              ))}
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                        >
+                          <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        </Button>
+                      </CollapsibleTrigger>
+                    </div>
+                    <CollapsibleContent className="space-y-2 pt-2 pl-6">
+                      {category.subcategories.map((subcategory) => {
+                        const isSubcategorySelected =
+                          currentCategories.includes(subcategory.id);
+
+                        return (
+                          <div
+                            key={subcategory.id}
+                            className="flex items-center space-x-2"
+                          >
+                            <Checkbox
+                              id={subcategory.id}
+                              checked={isSubcategorySelected}
+                              onCheckedChange={(checked) => {
+                                const newCategories = checked
+                                  ? [...currentCategories, subcategory.id]
+                                  : currentCategories.filter(
+                                      (id) => id !== subcategory.id,
+                                    );
+                                setFilters({
+                                  categories: newCategories.join(","),
+                                });
+                              }}
+                            />
+                            <label
+                              htmlFor={subcategory.id}
+                              className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {subcategory.name}
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              })}
             </div>
           </div>
 
@@ -180,44 +284,46 @@ export const ProductFilters = ({
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Materials</h4>
             <div className="space-y-2">
-              {SAMPLE_MATERIALS.map((material) => (
-                <div key={material.id} className="flex items-center space-x-2">
-                  <Checkbox id={material.id} />
-                  <label
-                    htmlFor={material.id}
-                    className="flex cursor-pointer items-center space-x-2 text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              {SAMPLE_MATERIALS.map((material) => {
+                const currentMaterials =
+                  filters.materials?.split(",").filter(Boolean) || [];
+                const isMaterialSelected = currentMaterials.includes(
+                  material.id,
+                );
+
+                return (
+                  <div
+                    key={material.id}
+                    className="flex items-center space-x-2"
                   >
-                    <div
-                      className="h-4 w-4 rounded-full border border-gray-300"
-                      style={{ backgroundColor: material.color }}
+                    <Checkbox
+                      id={material.id}
+                      checked={isMaterialSelected}
+                      onCheckedChange={(checked) => {
+                        const newMaterials = checked
+                          ? [...currentMaterials, material.id]
+                          : currentMaterials.filter((id) => id !== material.id);
+                        setFilters({ materials: newMaterials.join(",") });
+                      }}
                     />
-                    <span>{material.name}</span>
-                  </label>
-                </div>
-              ))}
+                    <label
+                      htmlFor={material.id}
+                      className="flex cursor-pointer items-center space-x-2 text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      <div
+                        className="h-4 w-4 rounded-full border border-gray-300"
+                        style={{ backgroundColor: material.color }}
+                      />
+                      <span>{material.name}</span>
+                    </label>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
         <ScrollBar orientation="vertical" />
       </ScrollArea>
-      {/* Action Buttons */}
-      {(onApplyFilters || onCancel) && (
-        <>
-          <Separator />
-          <div className="space-y-2 pt-4">
-            {onApplyFilters && (
-              <Button className="w-full" onClick={onApplyFilters}>
-                Apply Filters
-              </Button>
-            )}
-            {onCancel && (
-              <Button variant="outline" className="w-full" onClick={onCancel}>
-                Cancel
-              </Button>
-            )}
-          </div>
-        </>
-      )}
     </div>
   );
 };

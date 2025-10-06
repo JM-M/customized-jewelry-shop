@@ -2,10 +2,15 @@
 
 import { useTRPC } from "@/trpc/client";
 import {
+  keepPreviousData,
   useSuspenseInfiniteQuery,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
+import {
+  urlStateToProductFilters,
+  useProductsFilters,
+} from "../../../products/hooks/use-products-filters";
 import { ProductGrid } from "../../../products/ui/components/product-grid";
 import { CategoryBreadcrumb } from "../components/category-breadcrumb";
 import { CategoryHeader } from "../components/category-header";
@@ -13,6 +18,7 @@ import { Subcategories } from "../components/subcategories";
 
 export const CategoryView = () => {
   const { categorySlug } = useParams();
+  const [productFilters, setProductFilters] = useProductsFilters();
 
   const trpc = useTRPC();
   const { data: categories } = useSuspenseQuery(
@@ -26,9 +32,11 @@ export const CategoryView = () => {
       trpc.products.getManyByCategorySlug.infiniteQueryOptions(
         {
           categorySlug: categorySlug as string,
+          filters: urlStateToProductFilters(productFilters),
         },
         {
           getNextPageParam: (lastPage) => lastPage.nextCursor,
+          placeholderData: keepPreviousData,
         },
       ),
     );

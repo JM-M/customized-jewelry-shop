@@ -72,6 +72,22 @@ export const productsRouter = createTRPCRouter({
         categorySlug: z.string(),
         cursor: z.number().default(0),
         limit: z.number().default(DEFAULT_PAGE_SIZE),
+        // Filter options
+        filters: z
+          .object({
+            // Price range filter
+            priceRange: z
+              .object({
+                min: z.number().min(0).optional(),
+                max: z.number().min(0).optional(),
+              })
+              .optional(),
+            // Category filters (for subcategory filtering within the main category)
+            categoryIds: z.array(z.string()).optional(),
+            // Material filters
+            materialIds: z.array(z.string()).optional(),
+          })
+          .optional(),
       }),
     )
     .query(async ({ input }) => {

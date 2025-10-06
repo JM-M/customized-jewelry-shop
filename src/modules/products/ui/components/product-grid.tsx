@@ -74,7 +74,7 @@ export const ProductGrid = ({
           </div>
           <div className="hidden w-xs md:block">
             <div className="sticky top-16">
-              <ProductFilters onApplyFilters={() => {}} />
+              <ProductFilters />
             </div>
           </div>
         </div>
