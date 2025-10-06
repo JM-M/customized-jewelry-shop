@@ -1,29 +1,24 @@
-import { Button } from "@/components/ui/button";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
-import { FilterIcon } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ProductFilters } from "./product-filters";
 
-export const ProductFilterDrawer = () => {
+interface ProductFilterDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const ProductFilterDrawer = ({
+  open,
+  onOpenChange,
+}: ProductFilterDrawerProps) => {
   return (
-    <Drawer>
-      <DrawerTrigger asChild>
-        <Button variant="ghost" className="flex items-center gap-2 font-normal">
-          <FilterIcon strokeWidth={1.2} className="h-4 w-4" />
-          Filter
-          <span className="bg-primary text-primary-foreground ml-1 rounded-full px-2 py-0.5 text-xs">
-            2
-          </span>
-        </Button>
-      </DrawerTrigger>
+    <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
         <div className="w-full">
           <DrawerHeader className="text-left">
@@ -44,18 +39,12 @@ export const ProductFilterDrawer = () => {
             </div>
           </DrawerHeader>
 
-          <div className="max-h-[calc(100vh-22rem)] overflow-y-auto">
-            <ProductFilters />
-          </div>
-
-          <DrawerFooter className="pt-4">
-            <Button className="w-full">Apply Filters</Button>
-            <DrawerClose asChild>
-              <Button variant="outline" className="w-full">
-                Cancel
-              </Button>
-            </DrawerClose>
-          </DrawerFooter>
+          <ScrollArea className="h-[calc(100vh-22rem)]">
+            <ProductFilters
+              onApplyFilters={() => onOpenChange(false)}
+              onCancel={() => onOpenChange(false)}
+            />
+          </ScrollArea>
         </div>
       </DrawerContent>
     </Drawer>
