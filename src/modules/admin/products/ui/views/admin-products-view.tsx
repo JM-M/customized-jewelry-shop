@@ -5,6 +5,7 @@ import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 
 import { AdminProductsTable } from "../components/admin-products-table";
+import { AdminProductsViewHeader } from "../components/admin-products-view-header";
 
 export const AdminProductsView = () => {
   const trpc = useTRPC();
@@ -26,7 +27,8 @@ export const AdminProductsView = () => {
         title="Products"
         description="Manage your products and configurations."
       />
-      <div className="mt-6">
+      <div className="mt-6 space-y-4">
+        <AdminProductsViewHeader />
         <AdminProductsTable
           data={productsData?.items || []}
           isLoading={isLoading}

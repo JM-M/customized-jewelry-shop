@@ -34,6 +34,10 @@ export interface ComboboxProps {
   className?: string;
   disabled?: boolean;
   allowClear?: boolean;
+  classNames?: {
+    base?: string;
+    popoverContent?: string;
+  };
 }
 
 export function Combobox({
@@ -46,6 +50,7 @@ export function Combobox({
   className,
   disabled = false,
   allowClear = true,
+  classNames,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -68,13 +73,16 @@ export function Combobox({
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
-          className={cn("justify-between", className)}
+          className={cn("justify-between", classNames?.base, className)}
         >
           {selectedOption ? selectedOption.label : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
+      <PopoverContent
+        className={cn("w- p-0", classNames?.popoverContent)}
+        align="start"
+      >
         <Command>
           <CommandInput placeholder={searchPlaceholder} className="h-9" />
           <CommandList>

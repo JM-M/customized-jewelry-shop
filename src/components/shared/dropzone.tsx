@@ -229,7 +229,7 @@ export const Dropzone = forwardRef<HTMLLabelElement, DropzoneProps>(
                     className="text-muted-foreground mb-2 h-8 w-8"
                     strokeWidth={1.2}
                   />
-                  <p className="text-muted-foreground mb-2 text-sm">
+                  <p className="text-muted-foreground mb-2 px-2 text-center text-sm">
                     <span className="font-semibold">Click to upload</span> or
                     drag and drop
                   </p>

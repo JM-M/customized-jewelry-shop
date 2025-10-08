@@ -6,7 +6,7 @@ import {
   AdminProductProvider,
   useAdminProduct,
 } from "../../contexts/admin-product";
-import { AdminProductDetails } from "../components/admin-product-details";
+import { ProductDetails } from "../components/product-details";
 
 const AdminProductDetailsContent = () => {
   const { product, isLoading, hasProduct } = useAdminProduct();
@@ -33,7 +33,7 @@ const AdminProductDetailsContent = () => {
         title={product!.name}
         description={`Manage and view details for ${product!.name}`}
       />
-      <AdminProductDetails />
+      <ProductDetails />
     </div>
   );
 };
