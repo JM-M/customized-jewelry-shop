@@ -1,9 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { SaveIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,8 +18,8 @@ import {
 } from "@/components/ui/card";
 import { Form, FormMessage } from "@/components/ui/form";
 
+import { Spinner } from "@/components/shared/spinner";
 import { useTRPC } from "@/trpc/client";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { CreateProductFormValues, createProductSchema } from "../../../schemas";
 import { BasicInformationFields } from "../../sections/basic-information";
 import { CustomizationOptionsFields } from "../../sections/customization-options";
@@ -24,15 +27,6 @@ import { MaterialsPricingFields } from "../../sections/materials-pricing";
 import { ProductImagesFields } from "../../sections/product-images";
 import { SeoMetadataFields } from "../../sections/seo-metadata";
 import { ShippingFields } from "../../sections/shipping";
-
-const mockMaterials = [
-  { id: "1", displayName: "14K Gold", hexColor: "#FFD700" },
-  { id: "2", displayName: "Sterling Silver", hexColor: "#C0C0C0" },
-  { id: "3", displayName: "Rose Gold", hexColor: "#B76E79" },
-  { id: "4", displayName: "White Gold", hexColor: "#E5E4E2" },
-  { id: "5", displayName: "Platinum", hexColor: "#E5E4E2" },
-  { id: "6", displayName: "Bronze", hexColor: "#CD7F32" },
-];
 
 const mockPackaging = [
   { value: "pkg_1", label: "Standard Box" },
@@ -42,9 +36,20 @@ const mockPackaging = [
 
 export const CreateProductForm = () => {
   const trpc = useTRPC();
+  const router = useRouter();
   const { data: allCategories } = useSuspenseQuery(
     trpc.categories.getAll.queryOptions(),
   );
+  const { data: allMaterials } = useSuspenseQuery(
+    trpc.admin.products.getAllMaterials.queryOptions(),
+  );
+
+  // Create product mutation
+  const {
+    mutate: createProduct,
+    isPending,
+    error: mutationError,
+  } = useMutation(trpc.admin.products.createProduct.mutationOptions());
 
   // Transform categories to only show children with parent context, sorted by parent then child
   const categoryOptions = useMemo(() => {
@@ -98,8 +103,6 @@ export const CreateProductForm = () => {
     },
   });
 
-  console.log(form.formState.errors);
-
   // Field arrays for dynamic fields
   const {
     fields: materialFields,
@@ -124,8 +127,34 @@ export const CreateProductForm = () => {
     // Generate slug from name
     const slug = generateSlug(values.name);
 
-    console.log("Form values:", { ...values, slug });
-    // TODO: Implement API call
+    createProduct(
+      {
+        name: values.name,
+        slug,
+        description: values.description,
+        categoryId: values.categoryId,
+        sku: values.sku,
+        price: values.price,
+        stockQuantity: values.stockQuantity,
+        packagingId: values.packagingId,
+        images: values.images,
+        materials: values.materials,
+        customizationOptions: values.customizationOptions,
+        metaTitle: values.metaTitle,
+        metaDescription: values.metaDescription,
+      },
+      {
+        onSuccess: (data) => {
+          toast.success(`Product "${data.product.name}" created successfully!`);
+          form.reset();
+          // Navigate to the product details or products list page
+          router.push(`/admin/products`);
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to create product");
+        },
+      },
+    );
   };
 
   const toggleMaterial = (materialId: string) => {
@@ -209,7 +238,7 @@ export const CreateProductForm = () => {
           <CardContent>
             <MaterialsPricingFields
               form={form}
-              materials={mockMaterials}
+              materials={allMaterials}
               selectedMaterials={selectedMaterials}
               onToggleMaterial={toggleMaterial}
               onSetDefaultMaterial={setDefaultMaterial}
@@ -283,14 +312,31 @@ export const CreateProductForm = () => {
           </CardContent>
         </Card>
 
+        {/* Error display */}
+        {mutationError && (
+          <div className="border-destructive bg-destructive/10 text-destructive rounded-md border p-3 text-sm">
+            {mutationError.message ||
+              "Failed to create product. Please try again."}
+          </div>
+        )}
+
         {/* Form Actions */}
         <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline">
+          <Button type="button" variant="outline" disabled={isPending}>
             Cancel
           </Button>
-          <Button type="submit">
-            <SaveIcon className="mr-2 h-4 w-4" />
-            Create Product
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
+              <>
+                <Spinner />
+                Creating...
+              </>
+            ) : (
+              <>
+                <SaveIcon />
+                Create Product
+              </>
+            )}
           </Button>
         </div>
       </form>

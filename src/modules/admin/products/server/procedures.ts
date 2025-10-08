@@ -218,4 +218,135 @@ export const adminProductsRouter = createTRPCRouter({
         success: true,
       };
     }),
+
+  createProduct: adminProcedure
+    .input(
+      z.object({
+        // Basic information
+        name: z.string().min(1, "Product name is required"),
+        slug: z.string().min(1, "Slug is required"),
+        description: z.string().optional(),
+        categoryId: z.string().min(1, "Category is required"),
+        sku: z.string().optional(),
+        price: z.string().min(1, "Price is required"),
+        stockQuantity: z.string().optional(),
+        packagingId: z.string().optional(),
+        // Images
+        images: z
+          .array(z.string())
+          .min(1, "At least one image is required")
+          .max(9, "Maximum 9 images allowed"),
+        // Materials
+        materials: z
+          .array(
+            z.object({
+              materialId: z.string(),
+              price: z.string().min(1, "Price is required"),
+              stockQuantity: z.string(),
+              isDefault: z.boolean(),
+            }),
+          )
+          .optional(),
+        // Customization options
+        customizationOptions: z
+          .array(
+            z.object({
+              name: z.string().min(1, "Name is required"),
+              description: z.string().optional(),
+              type: z.enum(CUSTOMIZATION_TYPES),
+              maxCharacters: z.string().optional(),
+              sampleImage: z.string().optional(),
+            }),
+          )
+          .optional(),
+        // SEO metadata
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const {
+        name,
+        slug,
+        description,
+        categoryId,
+        sku,
+        price,
+        stockQuantity,
+        packagingId,
+        images,
+        materials: inputMaterials,
+        customizationOptions: inputCustomizationOptions,
+        metaTitle,
+        metaDescription,
+      } = input;
+
+      // Create the product
+      const [newProduct] = await db
+        .insert(products)
+        .values({
+          name,
+          slug,
+          description,
+          categoryId,
+          sku: sku || undefined,
+          price,
+          stockQuantity: stockQuantity ? parseInt(stockQuantity) : 0,
+          packagingId: packagingId || undefined,
+          primaryImage: images[0],
+          images,
+          metaTitle: metaTitle || undefined,
+          metaDescription: metaDescription || undefined,
+        })
+        .returning();
+
+      // Create product materials if provided
+      let createdMaterials:
+        | (typeof productMaterials.$inferSelect)[]
+        | undefined;
+      if (inputMaterials && inputMaterials.length > 0) {
+        createdMaterials = await db
+          .insert(productMaterials)
+          .values(
+            inputMaterials.map((material) => ({
+              productId: newProduct.id,
+              materialId: material.materialId,
+              price: material.price,
+              stockQuantity: parseInt(material.stockQuantity),
+              isDefault: material.isDefault,
+            })),
+          )
+          .returning();
+      }
+
+      // Create customization options if provided
+      let createdCustomizationOptions:
+        | (typeof customizationOptions.$inferSelect)[]
+        | undefined;
+      if (inputCustomizationOptions && inputCustomizationOptions.length > 0) {
+        createdCustomizationOptions = await db
+          .insert(customizationOptions)
+          .values(
+            inputCustomizationOptions.map((option, index) => ({
+              productId: newProduct.id,
+              name: option.name,
+              description: option.description || undefined,
+              type: option.type,
+              maxCharacters: option.maxCharacters
+                ? parseInt(option.maxCharacters)
+                : undefined,
+              sampleImage: option.sampleImage || undefined,
+              displayOrder: index,
+            })),
+          )
+          .returning();
+      }
+
+      return {
+        success: true,
+        product: newProduct,
+        materials: createdMaterials,
+        customizationOptions: createdCustomizationOptions,
+      };
+    }),
 });
