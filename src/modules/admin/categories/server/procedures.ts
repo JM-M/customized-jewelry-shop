@@ -109,19 +109,19 @@ export const adminCategoriesRouter = createTRPCRouter({
         .from(products)
         .where(whereCondition);
 
-      // Get products with pagination, including category info
-      const categoryProducts = await db
-        .select({
-          ...getTableColumns(products),
-          // Include category info for better context
-          categoryName: categories.name,
-          categorySlug: categories.slug,
-        })
-        .from(products)
-        .innerJoin(categories, eq(products.categoryId, categories.id))
-        .where(whereCondition)
-        .offset(cursor)
-        .limit(limit + 1);
+      // Get products with pagination, including materials
+      const categoryProducts = await db.query.products.findMany({
+        where: whereCondition,
+        offset: cursor,
+        limit: limit + 1,
+        with: {
+          materials: {
+            with: {
+              material: true,
+            },
+          },
+        },
+      });
 
       const hasMore = categoryProducts.length > limit;
       const items = hasMore ? categoryProducts.slice(0, -1) : categoryProducts;

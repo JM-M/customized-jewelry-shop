@@ -13,6 +13,7 @@ import { siteConfig } from "../../../site.config";
 export const metadata: Metadata = {
   title: {
     template: `%s - Admin | ${siteConfig.name}`,
+    default: `Admin | ${siteConfig.name}`,
   },
   description: `Manage your ${siteConfig.name} store operations, orders, and inventory`,
   robots: {

@@ -162,7 +162,7 @@ export const BasicInformationCard = () => {
         ) : (
           <BasicInformationView
             name={product.name}
-            category={(product as any).category || undefined}
+            category={product.category || undefined}
             description={product.description}
           />
         )}

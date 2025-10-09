@@ -77,11 +77,17 @@ export const adminProductsRouter = createTRPCRouter({
 
       // Get products with cursor-based pagination
       // Get one extra item to check if there are more items
-      const adminProducts = await db
-        .select()
-        .from(products)
-        .offset(input.cursor)
-        .limit(input.limit + 1);
+      const adminProducts = await db.query.products.findMany({
+        offset: input.cursor,
+        limit: input.limit + 1,
+        with: {
+          materials: {
+            with: {
+              material: true,
+            },
+          },
+        },
+      });
 
       // Check if there are more items
       const hasMore = adminProducts.length > input.limit;

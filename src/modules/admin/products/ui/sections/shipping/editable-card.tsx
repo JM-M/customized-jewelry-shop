@@ -117,7 +117,7 @@ export const ShippingCard = () => {
             </form>
           </Form>
         ) : (
-          <ShippingView packaging={product.packaging} />
+          <ShippingView packagingId={product.packagingId} />
         )}
       </CardContent>
     </Card>

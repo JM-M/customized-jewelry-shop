@@ -140,7 +140,7 @@ export const cartRouter = createTRPCRouter({
     .input(
       z.object({
         productId: z.string(),
-        materialId: z.string().optional(),
+        materialId: z.string(),
         quantity: z.number().min(1).default(1),
         customizations: z
           .record(
@@ -178,11 +178,6 @@ export const cartRouter = createTRPCRouter({
       }
 
       // Get product with material pricing
-      const whereConditions = [eq(productMaterials.productId, input.productId)];
-      if (input.materialId) {
-        whereConditions.push(eq(productMaterials.materialId, input.materialId));
-      }
-
       const [productMaterial] = await db
         .select({
           ...getTableColumns(productMaterials),
@@ -191,8 +186,13 @@ export const cartRouter = createTRPCRouter({
         })
         .from(productMaterials)
         .innerJoin(products, eq(productMaterials.productId, products.id))
-        .leftJoin(materials, eq(productMaterials.materialId, materials.id))
-        .where(and(...whereConditions))
+        .innerJoin(materials, eq(productMaterials.materialId, materials.id))
+        .where(
+          and(
+            eq(productMaterials.productId, input.productId),
+            eq(productMaterials.materialId, input.materialId),
+          ),
+        )
         .limit(1);
 
       if (!productMaterial) {
@@ -205,18 +205,16 @@ export const cartRouter = createTRPCRouter({
       const price = Number(productMaterial.price);
 
       // Check if item already exists in cart
-      const existingItemConditions = [
-        eq(cartItems.cartId, cart.id),
-        eq(cartItems.productId, input.productId),
-      ];
-      if (input.materialId) {
-        existingItemConditions.push(eq(cartItems.materialId, input.materialId));
-      }
-
       const [existingItem] = await db
         .select()
         .from(cartItems)
-        .where(and(...existingItemConditions))
+        .where(
+          and(
+            eq(cartItems.cartId, cart.id),
+            eq(cartItems.productId, input.productId),
+            eq(cartItems.materialId, input.materialId),
+          ),
+        )
         .limit(1);
 
       if (existingItem) {

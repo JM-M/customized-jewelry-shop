@@ -12,7 +12,7 @@ import {
 } from "@/components/shared";
 import { AdminGetProductsOutput } from "@/modules/admin/products/types";
 
-type Product = AdminGetProductsOutput["items"][0];
+type Product = AdminGetProductsOutput["items"][number];
 
 const ProductNameCell = ({ product }: { product: Product }) => {
   const router = useRouter();

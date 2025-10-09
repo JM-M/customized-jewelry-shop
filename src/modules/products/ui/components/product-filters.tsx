@@ -10,64 +10,13 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { formatNaira } from "@/lib/utils";
+import { Category } from "@/modules/categories/types";
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronDown, X } from "lucide-react";
 import { useState } from "react";
 import { useProductsFilters } from "../../hooks/use-products-filters";
 import { GetProductFilterOptionsOutput } from "../../types";
-
-const SAMPLE_MATERIALS = [
-  { id: "gold-14k", name: "14K Gold", color: "#FFD700" },
-  { id: "gold-18k", name: "18K Gold", color: "#FFA500" },
-  { id: "silver-925", name: "Sterling Silver", color: "#C0C0C0" },
-  { id: "platinum", name: "Platinum", color: "#E5E4E2" },
-  { id: "rose-gold", name: "Rose Gold", color: "#E8B4B8" },
-  { id: "white-gold", name: "White Gold", color: "#F5F5DC" },
-];
-
-const SAMPLE_CATEGORIES = [
-  {
-    id: "rings",
-    name: "Rings",
-    subcategories: [
-      { id: "engagement-rings", name: "Engagement Rings" },
-      { id: "wedding-bands", name: "Wedding Bands" },
-      { id: "fashion-rings", name: "Fashion Rings" },
-      { id: "cocktail-rings", name: "Cocktail Rings" },
-    ],
-  },
-  {
-    id: "necklaces",
-    name: "Necklaces",
-    subcategories: [
-      { id: "pendants", name: "Pendants" },
-      { id: "chains", name: "Chains" },
-      { id: "statement-necklaces", name: "Statement Necklaces" },
-      { id: "chokers", name: "Chokers" },
-    ],
-  },
-  {
-    id: "earrings",
-    name: "Earrings",
-    subcategories: [
-      { id: "studs", name: "Studs" },
-      { id: "hoops", name: "Hoops" },
-      { id: "dangly", name: "Dangly" },
-      { id: "ear-cuffs", name: "Ear Cuffs" },
-    ],
-  },
-  {
-    id: "bracelets",
-    name: "Bracelets",
-    subcategories: [
-      { id: "bangles", name: "Bangles" },
-      { id: "chain-bracelets", name: "Chain Bracelets" },
-      { id: "cuff-bracelets", name: "Cuff Bracelets" },
-      { id: "charm-bracelets", name: "Charm Bracelets" },
-    ],
-  },
-];
 
 interface ProductFiltersProps {
   filterOptions?: GetProductFilterOptionsOutput;
@@ -109,7 +58,7 @@ export const ProductFilters = ({ filterOptions }: ProductFiltersProps) => {
     },
     {} as Record<
       string,
-      { parent: any; subcategories: typeof availableSubcategories }
+      { parent: Category; subcategories: typeof availableSubcategories }
     >,
   );
 

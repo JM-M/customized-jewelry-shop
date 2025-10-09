@@ -12,6 +12,7 @@ import { ShopProviders } from "./shop-providers";
 export const metadata: Metadata = {
   title: {
     template: `%s | ${siteConfig.name}`,
+    default: siteConfig.name,
   },
   description: "Discover our collection of customized jewelry and accessories",
 };

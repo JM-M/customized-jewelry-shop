@@ -4,6 +4,7 @@ import { siteConfig } from "../../../site.config";
 export const metadata: Metadata = {
   title: {
     template: `%s | ${siteConfig.name}`,
+    default: siteConfig.name,
   },
   description: `Sign in or create an account to access ${siteConfig.name}`,
   robots: {
