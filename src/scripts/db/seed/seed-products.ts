@@ -6,6 +6,7 @@ export interface ProductMaterialVariant {
   price: string; // Price for this specific material variant
   stockQuantity: number; // Stock for this material variant
   isDefault: boolean; // Whether this is the default material
+  lowStockThreshold?: number; // Optional - defaults to 10 if not specified
 }
 
 export interface ProductData {
@@ -13,11 +14,10 @@ export interface ProductData {
   slug: string;
   description: string;
   price: string; // Fallback/base price
-  sku: string;
+  baseSku: string; // Base SKU used to generate variant SKUs (e.g., "NECK-PIC-001")
   categoryId: string;
   primaryImage: string;
   images: string[];
-  stockQuantity: number; // Fallback stock quantity
   metaTitle?: string;
   metaDescription?: string;
   materials?: ProductMaterialVariant[]; // Materials available for this product
@@ -51,7 +51,7 @@ export async function seedProducts(
       description:
         "Personalized picture necklaces featuring your precious memories in elegant settings. Crafted with attention to detail, these necklaces allow you to carry your loved ones close to your heart. Perfect for gifting or as a meaningful keepsake.",
       price: "16500.00",
-      sku: "NECK-PIC-001",
+      baseSku: "NECK-PIC-001",
       categoryId: categoryMap.get("pendants") || "",
       primaryImage: "/images/sample-product/1.jpg",
       images: [
@@ -64,7 +64,6 @@ export async function seedProducts(
         "/images/sample-product/7.jpg",
         "/images/sample-product/8.jpg",
       ],
-      stockQuantity: 50,
       metaTitle: "Picture Necklaces - Personalized Memory Jewelry",
       metaDescription:
         "Beautiful personalized picture necklaces to hold your precious memories. Available in gold, silver, and copper with elegant designs.",
@@ -74,18 +73,21 @@ export async function seedProducts(
           price: "16500.00",
           stockQuantity: 20,
           isDefault: true,
+          lowStockThreshold: 5,
         },
         {
           materialName: "silver",
           price: "12500.00",
           stockQuantity: 20,
           isDefault: false,
+          lowStockThreshold: 5,
         },
         {
           materialName: "copper",
           price: "8500.00",
           stockQuantity: 10,
           isDefault: false,
+          lowStockThreshold: 3,
         },
       ],
     },
@@ -97,7 +99,7 @@ export async function seedProducts(
       description:
         "Sophisticated executive bracelets designed for the modern professional. These elegant bracelets feature premium craftsmanship and can be personalized with custom engravings. Perfect for business executives, entrepreneurs, and anyone who appreciates refined luxury jewelry.",
       price: "17500.00",
-      sku: "BRACE-EXEC-001",
+      baseSku: "BRACE-EXEC-001",
       categoryId: categoryMap.get("chain-bracelets") || "",
       primaryImage: "/images/sample-product-2/1.jpg",
       images: [
@@ -111,7 +113,6 @@ export async function seedProducts(
         "/images/sample-product-2/8.jpg",
         "/images/sample-product-2/9.jpg",
       ],
-      stockQuantity: 30,
       metaTitle: "Engraved Executive Bracelets - Professional Luxury Jewelry",
       metaDescription:
         "Premium executive bracelets with custom engraving options. Available in gold and gold-silver combinations for the discerning professional.",
@@ -121,12 +122,14 @@ export async function seedProducts(
           price: "17500.00",
           stockQuantity: 15,
           isDefault: true,
+          lowStockThreshold: 5,
         },
         {
           materialName: "14k_white_gold",
           price: "18500.00",
           stockQuantity: 15,
           isDefault: false,
+          lowStockThreshold: 5,
         },
       ],
     },
@@ -379,6 +382,16 @@ export async function seedProducts(
     // },
   ];
 
+  // Helper function to generate SKU for product-material variant
+  const generateVariantSku = (
+    baseSku: string,
+    materialName: string,
+  ): string => {
+    // Convert material name to uppercase abbreviation for SKU
+    const materialCode = materialName.toUpperCase().replace(/_/g, "-");
+    return `${baseSku}-${materialCode}`;
+  };
+
   const createdProducts = [];
 
   for (const productInfo of productData) {
@@ -392,11 +405,9 @@ export async function seedProducts(
           slug: productInfo.slug,
           description: productInfo.description,
           price: productInfo.price,
-          sku: productInfo.sku,
           categoryId: productInfo.categoryId,
           primaryImage: productInfo.primaryImage,
           images: productInfo.images,
-          stockQuantity: productInfo.stockQuantity,
           metaTitle: productInfo.metaTitle,
           metaDescription: productInfo.metaDescription,
           createdAt: new Date(),
@@ -415,12 +426,20 @@ export async function seedProducts(
               );
             }
 
+            // Generate unique SKU for this product-material variant
+            const variantSku = generateVariantSku(
+              productInfo.baseSku,
+              materialVariant.materialName,
+            );
+
             return {
               productId: createdProduct.id,
               materialId: materialId,
+              sku: variantSku,
               price: materialVariant.price,
               isDefault: materialVariant.isDefault,
               stockQuantity: materialVariant.stockQuantity,
+              lowStockThreshold: materialVariant.lowStockThreshold || 10,
               createdAt: new Date(),
             };
           },
@@ -432,18 +451,21 @@ export async function seedProducts(
         );
       } else {
         // Fallback: Create a default material relationship if none specified
-        const defaultMaterialId = materialMap.get("sterling_silver"); // Use sterling silver as default
+        const defaultMaterialId = materialMap.get("silver"); // Use silver as default
         if (defaultMaterialId) {
+          const defaultSku = generateVariantSku(productInfo.baseSku, "silver");
           await db.insert(productMaterials).values({
             productId: createdProduct.id,
             materialId: defaultMaterialId,
+            sku: defaultSku,
             price: productInfo.price,
             isDefault: true,
-            stockQuantity: productInfo.stockQuantity,
+            stockQuantity: 10, // Default stock
+            lowStockThreshold: 5, // Default threshold
             createdAt: new Date(),
           });
           console.log(
-            `✅ Created default material (Sterling Silver) for: ${productInfo.name}`,
+            `✅ Created default material (Silver) for: ${productInfo.name}`,
           );
         }
       }

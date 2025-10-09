@@ -44,12 +44,16 @@ export const productMaterials = pgTable(
     materialId: uuid("material_id")
       .references(() => materials.id, { onDelete: "cascade" })
       .notNull(),
+    // Unique SKU for this specific product-material variant
+    sku: text("sku").unique().notNull(),
     // Independent price for this specific product-material combination
     price: decimal("price", { precision: 10, scale: 2 }).notNull(),
     // Whether this is the default material/price for the product
     isDefault: boolean("is_default").$defaultFn(() => false),
     // Stock quantity specific to this material variant
     stockQuantity: integer("stock_quantity").$defaultFn(() => 0),
+    // Low stock threshold - triggers alerts when stock falls below this level
+    lowStockThreshold: integer("low_stock_threshold").$defaultFn(() => 10),
     createdAt: timestamp("created_at")
       .$defaultFn(() => new Date())
       .notNull(),
@@ -59,6 +63,28 @@ export const productMaterials = pgTable(
     unique().on(table.productId, table.materialId),
   ],
 );
+
+// Inventory transactions table - audit trail for all inventory changes
+export const inventoryTransactions = pgTable("inventory_transactions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  productId: uuid("product_id")
+    .references(() => products.id, { onDelete: "cascade" })
+    .notNull(),
+  materialId: uuid("material_id")
+    .references(() => materials.id, { onDelete: "cascade" })
+    .notNull(),
+  type: text("type", {
+    enum: ["purchase", "sale", "return", "adjustment", "damage"],
+  }).notNull(),
+  quantityChange: integer("quantity_change").notNull(), // Positive or negative value
+  quantityAfter: integer("quantity_after").notNull(), // Stock level after this transaction
+  orderId: uuid("order_id"), // Link to order if transaction is related to an order
+  notes: text("notes"), // Optional notes about the transaction
+  createdBy: text("created_by"), // User ID who created this transaction (admin user)
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
 
 // Categories table
 export const categories = pgTable(
@@ -106,7 +132,6 @@ export const products = pgTable("products", {
   description: text("description"),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   // originalPrice: decimal("original_price", { precision: 10, scale: 2 }),
-  sku: text("sku").unique(),
   categoryId: uuid("category_id").references(() => categories.id, {
     onDelete: "set null",
   }),
@@ -135,7 +160,6 @@ export const products = pgTable("products", {
   // isFeatured: boolean("is_featured")
   //   .$defaultFn(() => false)
   //   .notNull(),
-  stockQuantity: integer("stock_quantity").$defaultFn(() => 0),
   // lowStockThreshold: integer("low_stock_threshold").$defaultFn(() => 10),
 
   // SEO
@@ -359,6 +383,21 @@ export const productMaterialsRelations = relations(
     }),
     material: one(materials, {
       fields: [productMaterials.materialId],
+      references: [materials.id],
+    }),
+  }),
+);
+
+// Relations for inventory transactions
+export const inventoryTransactionsRelations = relations(
+  inventoryTransactions,
+  ({ one }) => ({
+    product: one(products, {
+      fields: [inventoryTransactions.productId],
+      references: [products.id],
+    }),
+    material: one(materials, {
+      fields: [inventoryTransactions.materialId],
       references: [materials.id],
     }),
   }),

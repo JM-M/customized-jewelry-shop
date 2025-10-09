@@ -160,7 +160,6 @@ export const adminOrdersRouter = createTRPCRouter({
             id: products.id,
             name: products.name,
             slug: products.slug,
-            sku: products.sku,
             primaryImage: products.primaryImage,
           },
           // Material details
@@ -437,6 +436,14 @@ export const adminOrdersRouter = createTRPCRouter({
           })),
         )
         .returning();
+
+      // TODO: Implement pessimistic locking for inventory deduction
+      // 1. For each order item, lock the productMaterials row using .for('update')
+      // 2. Check if stockQuantity >= quantity ordered
+      // 3. If insufficient stock, throw error and rollback transaction
+      // 4. Deduct stock: UPDATE productMaterials SET stockQuantity = stockQuantity - quantity
+      // 5. Create inventory transaction record (type: 'sale', quantityChange: -quantity, orderId: newOrder.id)
+      // 6. All operations should be wrapped in a single database transaction
 
       return {
         order: newOrder,

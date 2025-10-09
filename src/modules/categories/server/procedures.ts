@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { categories, products } from "@/db/schema/shop";
+import { categories, productMaterials, products } from "@/db/schema/shop";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { eq, isNull, sql } from "drizzle-orm";
@@ -56,11 +56,14 @@ export const categoriesRouter = createTRPCRouter({
       const subcategoriesCount = subcategoriesResult[0]?.count || 0;
 
       // Get products stats
+      // Note: Total stock is now calculated from productMaterials (sum of all material variants)
       const productsStats = await db
         .select({
-          totalProducts: sql<number>`count(*)`.as("totalProducts"),
+          totalProducts: sql<number>`count(distinct ${products.id})`.as(
+            "totalProducts",
+          ),
           totalStock:
-            sql<number>`coalesce(sum(${products.stockQuantity}), 0)`.as(
+            sql<number>`coalesce(sum(${productMaterials.stockQuantity}), 0)`.as(
               "totalStock",
             ),
           averagePrice: sql<number>`coalesce(avg(${products.price}), 0)`.as(
@@ -68,6 +71,7 @@ export const categoriesRouter = createTRPCRouter({
           ),
         })
         .from(products)
+        .leftJoin(productMaterials, eq(products.id, productMaterials.productId))
         .where(eq(products.categoryId, categoryId));
 
       const stats = productsStats[0];
@@ -139,12 +143,10 @@ export const categoriesRouter = createTRPCRouter({
           slug: products.slug,
           description: products.description,
           price: products.price,
-          stockQuantity: products.stockQuantity,
           categoryId: products.categoryId,
           packagingId: products.packagingId,
           primaryImage: products.primaryImage,
           images: products.images,
-          sku: products.sku,
           metaTitle: products.metaTitle,
           metaDescription: products.metaDescription,
           createdAt: products.createdAt,
@@ -227,12 +229,10 @@ export const categoriesRouter = createTRPCRouter({
           slug: products.slug,
           description: products.description,
           price: products.price,
-          stockQuantity: products.stockQuantity,
           categoryId: products.categoryId,
           packagingId: products.packagingId,
           primaryImage: products.primaryImage,
           images: products.images,
-          sku: products.sku,
           metaTitle: products.metaTitle,
           metaDescription: products.metaDescription,
           createdAt: products.createdAt,
