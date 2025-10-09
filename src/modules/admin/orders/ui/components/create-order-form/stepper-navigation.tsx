@@ -22,7 +22,6 @@ interface StepperNavigationProps {
 export const StepperNavigation = ({
   stepper,
   steps,
-  utils,
   currentIndex,
   onStepClick,
 }: StepperNavigationProps) => {

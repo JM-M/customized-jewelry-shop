@@ -23,7 +23,6 @@ export const AdminTransactionCustomerInfo = ({
   const customerName = transaction.customer?.name || transaction.customerName;
   const customerEmail =
     transaction.customer?.email || transaction.customerEmail;
-  const customerId = transaction.customer?.id;
 
   return (
     <Card className="gap-3 p-3">

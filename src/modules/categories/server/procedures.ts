@@ -6,7 +6,7 @@ import { eq, isNull, sql } from "drizzle-orm";
 import z from "zod";
 
 export const categoriesRouter = createTRPCRouter({
-  getAll: baseProcedure.query(async ({ ctx }) => {
+  getAll: baseProcedure.query(async () => {
     const allCategories = await db.select().from(categories);
 
     if (!allCategories)

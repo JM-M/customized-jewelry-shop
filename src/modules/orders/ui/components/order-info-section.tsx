@@ -50,8 +50,6 @@ export const OrderInfoSection = ({ order }: OrderInfoSectionProps) => {
     paymentReference,
     trackingNumber,
     createdAt,
-    shippedAt,
-    deliveredAt,
   } = order;
 
   return (

@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { GetAllCategoriesOutput } from "@/modules/categories/types";
-import { useTRPC } from "@/trpc/client";
 import {
   CalendarIcon,
   Edit,
@@ -34,11 +33,8 @@ interface CategoryOverviewCardProps {
 
 export const CategoryOverviewCard = ({
   category,
-  parentCategory,
   onEdit,
 }: CategoryOverviewCardProps) => {
-  const trpc = useTRPC();
-
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("en-US", {
       year: "numeric",

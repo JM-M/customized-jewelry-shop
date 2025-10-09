@@ -7,7 +7,7 @@ export const useCheckoutQueries = () => {
   const session = authClient.useSession();
   const isLoggedIn = !!session.data?.user?.id;
 
-  const { selectedAddressId, selectedRateId } = useCheckout();
+  const { selectedAddressId } = useCheckout();
 
   const trpc = useTRPC();
 

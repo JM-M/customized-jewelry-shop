@@ -33,10 +33,7 @@ export const AddToBagCounter = ({
     const newQuantity = cartItem.quantity + 1;
 
     // Optimistically update quantity
-    const { previousCartState } = optimisticallyUpdateQuantity(
-      cartItem.id,
-      newQuantity,
-    );
+    optimisticallyUpdateQuantity(cartItem.id, newQuantity);
 
     updateQuantityMutation.mutate(
       {
@@ -45,8 +42,6 @@ export const AddToBagCounter = ({
       },
       {
         onError: () => {
-          // Rollback on failure
-          // rollbackCart(previousCartState);
           console.error(
             "Failed to update quantity. Changes have been reverted.",
           );
@@ -60,7 +55,7 @@ export const AddToBagCounter = ({
 
     if (newQuantity <= 0) {
       // Remove item if quantity would be 0 or less
-      const { previousCartState } = optimisticallyRemoveFromCart(cartItem.id);
+      optimisticallyRemoveFromCart(cartItem.id);
 
       removeItemMutation.mutate(
         {
@@ -68,18 +63,13 @@ export const AddToBagCounter = ({
         },
         {
           onError: () => {
-            // Rollback on failure
-            // rollbackCart(previousCartState);
             console.error("Failed to remove item. Changes have been reverted.");
           },
         },
       );
     } else {
       // Decrease quantity by 1
-      const { previousCartState } = optimisticallyUpdateQuantity(
-        cartItem.id,
-        newQuantity,
-      );
+      optimisticallyUpdateQuantity(cartItem.id, newQuantity);
 
       updateQuantityMutation.mutate(
         {
@@ -88,8 +78,6 @@ export const AddToBagCounter = ({
         },
         {
           onError: () => {
-            // Rollback on failure
-            // rollbackCart(previousCartState);
             console.error(
               "Failed to update quantity. Changes have been reverted.",
             );
@@ -99,16 +87,9 @@ export const AddToBagCounter = ({
     }
   };
 
-  const isLoading =
-    updateQuantityMutation.isPending || removeItemMutation.isPending;
-
   return (
     <div className="flex items-center justify-between gap-2">
-      <Button
-        size="icon"
-        onClick={handleDecreaseQuantity}
-        {...buttonProps}
-      >
+      <Button size="icon" onClick={handleDecreaseQuantity} {...buttonProps}>
         <MinusIcon />
       </Button>
       <span>{cartItem.quantity}</span>

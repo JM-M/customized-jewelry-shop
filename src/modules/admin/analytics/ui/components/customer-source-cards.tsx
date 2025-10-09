@@ -23,7 +23,6 @@ const CustomerSourceCard = ({
   change,
   changeType,
   icon,
-  color,
 }: CustomerSourceCardProps) => {
   const isPositive = changeType === "increase";
   const ChangeIcon = isPositive ? TrendingUp : TrendingDown;

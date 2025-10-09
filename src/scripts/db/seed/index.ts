@@ -10,10 +10,7 @@ async function seed() {
     await seedUsers();
     const createdCategories = await seedCategories();
     const createdMaterials = await seedMaterials();
-    const createdProducts = await seedProducts(
-      createdCategories,
-      createdMaterials,
-    );
+    await seedProducts(createdCategories, createdMaterials);
     console.log("🎉 Database seeding completed!");
   } catch (error) {
     console.error("❌ Seeding failed:", error);

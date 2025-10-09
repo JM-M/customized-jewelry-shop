@@ -20,7 +20,6 @@ interface RevenueCardProps {
 
 export const RevenueCard = ({
   amount = 45231,
-  currency = "₦",
   trend = {
     percentage: 20.1,
     period: "from yesterday",

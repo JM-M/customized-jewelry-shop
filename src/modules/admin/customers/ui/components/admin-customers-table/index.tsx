@@ -41,8 +41,8 @@ export const AdminCustomersTable = ({
   );
 
   const displayData = search ? customersData?.items || [] : data;
-  const displayLoading = search ? isSearchLoading : isLoading;
-  const displayError = search ? searchError : error;
+  // const displayLoading = search ? isSearchLoading : isLoading;
+  // const displayError = search ? searchError : error;
 
   return (
     <DataTable

@@ -78,7 +78,6 @@ const OrderItemDisplayCardSkeleton = ({
 
 export const OrderItemDisplayCard = ({
   item,
-  index,
   canRemove,
   onEdit,
   onRemove,
@@ -98,17 +97,16 @@ export const OrderItemDisplayCard = ({
   );
 
   // Get customization options to display customization details
-  const { data: customizationOptions, isLoading: isCustomizationLoading } =
-    useQuery(
-      trpc.products.getProductCustomizationOptions.queryOptions(
-        {
-          productId: item.productId,
-        },
-        {
-          enabled: !!item.productId,
-        },
-      ),
-    );
+  const { isLoading: isCustomizationLoading } = useQuery(
+    trpc.products.getProductCustomizationOptions.queryOptions(
+      {
+        productId: item.productId,
+      },
+      {
+        enabled: !!item.productId,
+      },
+    ),
+  );
 
   // Get product materials to display material information
   const { data: productMaterials, isLoading: isMaterialsLoading } = useQuery(

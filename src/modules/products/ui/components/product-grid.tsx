@@ -31,7 +31,7 @@ export const ProductGrid = ({
   title,
   filterOptions,
 }: ProductGridProps) => {
-  const { items: products, totalCount } = data;
+  const { items: products } = data;
 
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 

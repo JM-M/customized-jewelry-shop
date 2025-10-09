@@ -5,7 +5,7 @@ import { useCheckoutQueries } from "./use-checkout-queries";
 export const useCheckoutFees = () => {
   const { cartSummary } = useCart();
   const { selectedRateId } = useCheckout();
-  const { addressQuery, ratesQuery } = useCheckoutQueries();
+  const { ratesQuery } = useCheckoutQueries();
 
   const deliveryFee =
     ratesQuery.data?.rates.find((rate) => rate.rate_id === selectedRateId)

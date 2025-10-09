@@ -50,12 +50,6 @@ export const QREngravingInput = ({
     }
   }, [value, qrSize]);
 
-  const sizeOptions = [
-    { value: 150, label: "Small (150px)" },
-    { value: 200, label: "Medium (200px)" },
-    { value: 300, label: "Large (300px)" },
-  ];
-
   return (
     <div className="space-y-4">
       <div className="space-y-2">

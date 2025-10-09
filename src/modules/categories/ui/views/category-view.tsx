@@ -18,7 +18,7 @@ import { Subcategories } from "../components/subcategories";
 
 export const CategoryView = () => {
   const { categorySlug } = useParams();
-  const [productFilters, setProductFilters] = useProductsFilters();
+  const [productFilters] = useProductsFilters();
 
   const trpc = useTRPC();
   const { data: categories } = useSuspenseQuery(
@@ -27,7 +27,7 @@ export const CategoryView = () => {
   const category = categories.find((c) => c.slug === categorySlug);
   const subcategories = categories.filter((c) => c.parentId === category?.id);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(
       trpc.products.getManyByCategorySlug.infiniteQueryOptions(
         {

@@ -50,20 +50,19 @@ export const OrderItemForm = ({
   const [formData, setFormData] = useState<OrderItem>(item);
 
   // Get customization options for the selected product
-  const { data: customizationOptions, isLoading: isCustomizationLoading } =
-    useQuery(
-      trpc.products.getProductCustomizationOptions.queryOptions(
-        {
-          productId: formData.productId,
-        },
-        {
-          enabled: !!formData.productId,
-        },
-      ),
-    );
+  const { data: customizationOptions } = useQuery(
+    trpc.products.getProductCustomizationOptions.queryOptions(
+      {
+        productId: formData.productId,
+      },
+      {
+        enabled: !!formData.productId,
+      },
+    ),
+  );
 
   // Get product materials for the selected product
-  const { data: productMaterials, isLoading: isMaterialsLoading } = useQuery(
+  const { data: productMaterials } = useQuery(
     trpc.products.getProductMaterials.queryOptions(
       {
         productId: formData.productId,

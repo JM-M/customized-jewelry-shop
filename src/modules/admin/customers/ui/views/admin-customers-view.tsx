@@ -10,11 +10,7 @@ import { AdminCustomersTable } from "../components/admin-customers-table";
 export const AdminCustomersView = () => {
   const trpc = useTRPC();
 
-  const {
-    data: customersData,
-    isLoading,
-    error,
-  } = useQuery(
+  const { data: customersData, isLoading } = useQuery(
     trpc.admin.users.getUsers.queryOptions({
       cursor: 0,
       limit: 20,

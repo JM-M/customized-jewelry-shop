@@ -1,9 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useFormContext } from "react-hook-form";
 import { useAdminOrderDelivery } from "../../../hooks/use-admin-order-delivery";
 import { AdminOrderDeliveryForm } from "./admin-order-delivery-form";
 import { DeliveryRateSelector } from "./delivery-rate-selector";
-import { CustomerInfoFormValues, DeliveryInfoFormValues } from "./schemas";
+import { CustomerInfoFormValues } from "./schemas";
 
 interface DeliveryFieldsProps {
   customerInfo?: CustomerInfoFormValues;
@@ -55,8 +54,6 @@ export const DeliveryFields = ({
   onCacheUpdate,
   onRatesUpdate,
 }: DeliveryFieldsProps) => {
-  const form = useFormContext<DeliveryInfoFormValues>();
-
   const {
     createdAddressId,
     createAddress,

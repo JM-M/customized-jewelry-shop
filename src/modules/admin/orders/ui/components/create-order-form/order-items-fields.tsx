@@ -15,7 +15,6 @@ type OrderItem = OrderItemsFormValues["items"][0];
 
 export const OrderItemsFields = () => {
   const {
-    register,
     formState: { errors },
     setValue,
     watch,

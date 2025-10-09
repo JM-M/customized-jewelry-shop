@@ -43,7 +43,6 @@ export const DeliveryReview = () => {
   const selectedRate = ratesData?.rates.find(
     (rate) => rate.rate_id === selectedRateId,
   );
-  const deliveryFee = selectedRate?.amount || 0;
 
   return (
     <div className="space-y-2">

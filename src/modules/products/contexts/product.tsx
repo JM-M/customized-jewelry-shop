@@ -119,14 +119,11 @@ export function ProductProvider({ children }: ProductProviderProps) {
     const hasMaterial = selectedMaterial !== null;
 
     // Check if all required customization options are filled
-    const hasRequiredCustomizations = customizationOptions.every(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (option: any) => {
-        // If there are customization options, they might be optional
-        // You can add business logic here to determine which are required
-        return true; // For now, assume all customizations are optional
-      },
-    );
+    const hasRequiredCustomizations = customizationOptions.every(() => {
+      // If there are customization options, they might be optional
+      // You can add business logic here to determine which are required
+      return true; // For now, assume all customizations are optional
+    });
 
     return hasMaterial && hasRequiredCustomizations;
   }, [selectedMaterial, customizationOptions]);

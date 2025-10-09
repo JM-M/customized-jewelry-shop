@@ -39,16 +39,7 @@ const formatDate = (date: string | Date) => {
 };
 
 export const OrderListItem = ({ order }: OrderListItemProps) => {
-  const {
-    orderNumber,
-    status,
-    totalAmount,
-    createdAt,
-    trackingNumber,
-    shippedAt,
-    deliveredAt,
-    itemCount,
-  } = order;
+  const { orderNumber, status, totalAmount, createdAt, itemCount } = order;
 
   return (
     <Link href={`/orders/${orderNumber}`}>

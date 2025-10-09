@@ -4,7 +4,6 @@ import {
   generateWhatsAppInterestMessage,
   SELLER_WHATSAPP_NUMBER,
 } from "@/lib/whatsapp-utils";
-import { useCart } from "@/modules/cart/contexts";
 import { SiWhatsapp } from "react-icons/si";
 import { useProduct } from "../../contexts/product";
 
@@ -16,7 +15,6 @@ export const BuyOnWhatsappBtn = () => {
     selectedMaterial,
     customizations,
   } = useProduct();
-  const { cart } = useCart();
 
   const handleWhatsAppClick = () => {
     const message = generateWhatsAppInterestMessage({

@@ -7,7 +7,6 @@ import { BuyOnWhatsappBtn } from "./buy-on-whatsapp-btn";
 export const BuyProduct = () => {
   const { product } = useProduct();
   const { cart } = useCart();
-  const cartItem = cart?.items.find((item) => item.productId === product.id);
 
   return (
     <div className="space-y-3 p-3">

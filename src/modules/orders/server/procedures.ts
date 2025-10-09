@@ -116,8 +116,6 @@ export const ordersRouter = createTRPCRouter({
   getOrderStatus: protectedProcedure
     .input(z.object({ orderNumber: z.string() }))
     .query(async ({ input, ctx }) => {
-      const userId = ctx.auth.user.id;
-
       const [order] = await db
         .select({
           id: orders.id,
@@ -217,7 +215,7 @@ export const ordersRouter = createTRPCRouter({
         paymentReference: z.string(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       // const userId = ctx.auth.user.id;
       // TODO: Add some sort of verification so that only the user who owns the order can update the payment reference
       // Perhaps using a hash of the order number to create a unique identifier for the order
