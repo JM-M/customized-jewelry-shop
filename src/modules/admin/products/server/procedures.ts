@@ -128,11 +128,25 @@ export const adminProductsRouter = createTRPCRouter({
           .delete(productMaterials)
           .where(eq(productMaterials.id, productMaterial.id));
       } else {
+        // Get the product to use its slug for SKU generation
+        const [product] = await db
+          .select({ slug: products.slug })
+          .from(products)
+          .where(eq(products.id, productId));
+
+        // Count existing materials to generate next SKU number
+        const existingMaterials = await db
+          .select()
+          .from(productMaterials)
+          .where(eq(productMaterials.productId, productId));
+
         await db.insert(productMaterials).values({
           productId,
           materialId,
+          sku: `${product.slug.toUpperCase()}_MAT-${existingMaterials.length + 1}`,
           price: "0",
           stockQuantity: 0,
+          lowStockThreshold: 10,
           isDefault: false,
         });
       }
@@ -159,12 +173,20 @@ export const adminProductsRouter = createTRPCRouter({
 
       // Then, insert the new materials
       if (materialIds.length > 0) {
+        // Get the product to use its slug for SKU generation
+        const [product] = await db
+          .select({ slug: products.slug })
+          .from(products)
+          .where(eq(products.id, productId));
+
         await db.insert(productMaterials).values(
-          materialIds.map((materialId) => ({
+          materialIds.map((materialId, index) => ({
             productId,
             materialId,
+            sku: `${product.slug.toUpperCase()}_MAT-${index + 1}`,
             price: "0",
             stockQuantity: 0,
+            lowStockThreshold: 10,
             isDefault: false,
           })),
         );
@@ -248,9 +270,7 @@ export const adminProductsRouter = createTRPCRouter({
         slug: z.string().min(1, "Slug is required"),
         description: z.string().optional(),
         categoryId: z.string().min(1, "Category is required"),
-        sku: z.string().optional(),
         price: z.string().min(1, "Price is required"),
-        stockQuantity: z.string().optional(),
         packagingId: z.string().optional(),
         // Images
         images: z
@@ -264,6 +284,7 @@ export const adminProductsRouter = createTRPCRouter({
               materialId: z.string(),
               price: z.string().min(1, "Price is required"),
               stockQuantity: z.string(),
+              lowStockThreshold: z.string(),
               isDefault: z.boolean(),
             }),
           )
@@ -291,9 +312,7 @@ export const adminProductsRouter = createTRPCRouter({
         slug,
         description,
         categoryId,
-        sku,
         price,
-        stockQuantity,
         packagingId,
         images,
         materials: inputMaterials,
@@ -310,9 +329,7 @@ export const adminProductsRouter = createTRPCRouter({
           slug,
           description,
           categoryId,
-          sku: sku || undefined,
           price,
-          stockQuantity: stockQuantity ? parseInt(stockQuantity) : 0,
           packagingId: packagingId || undefined,
           primaryImage: images[0],
           images,
@@ -329,11 +346,14 @@ export const adminProductsRouter = createTRPCRouter({
         createdMaterials = await db
           .insert(productMaterials)
           .values(
-            inputMaterials.map((material) => ({
+            inputMaterials.map((material, index) => ({
               productId: newProduct.id,
               materialId: material.materialId,
+              // Generate SKU: product-slug_material-index (e.g., "DN-001_MAT-1")
+              sku: `${newProduct.slug.toUpperCase()}_MAT-${index + 1}`,
               price: material.price,
               stockQuantity: parseInt(material.stockQuantity),
+              lowStockThreshold: parseInt(material.lowStockThreshold),
               isDefault: material.isDefault,
             })),
           )
@@ -379,8 +399,6 @@ export const adminProductsRouter = createTRPCRouter({
         name: z.string().min(1, "Product name is required").optional(),
         description: z.string().optional(),
         categoryId: z.string().optional(),
-        sku: z.string().optional(),
-        stockQuantity: z.string().optional(),
         price: z.string().optional(),
         // Images
         images: z
@@ -395,6 +413,7 @@ export const adminProductsRouter = createTRPCRouter({
               materialId: z.string(),
               price: z.string().min(1, "Price is required"),
               stockQuantity: z.string(),
+              lowStockThreshold: z.string(),
               isDefault: z.boolean(),
             }),
           )
@@ -425,8 +444,6 @@ export const adminProductsRouter = createTRPCRouter({
         name,
         description,
         categoryId,
-        sku,
-        stockQuantity,
         price,
         images,
         materials: inputMaterials,
@@ -442,10 +459,6 @@ export const adminProductsRouter = createTRPCRouter({
       if (name !== undefined) updateData.name = name;
       if (description !== undefined) updateData.description = description;
       if (categoryId !== undefined) updateData.categoryId = categoryId;
-      if (sku !== undefined) updateData.sku = sku || undefined;
-      if (stockQuantity !== undefined) {
-        updateData.stockQuantity = stockQuantity ? parseInt(stockQuantity) : 0;
-      }
       if (price !== undefined) updateData.price = price;
       if (metaTitle !== undefined)
         updateData.metaTitle = metaTitle || undefined;
@@ -475,6 +488,12 @@ export const adminProductsRouter = createTRPCRouter({
         | (typeof productMaterials.$inferSelect)[]
         | undefined;
       if (inputMaterials !== undefined) {
+        // Get the product to use its slug for SKU generation
+        const [product] = await db
+          .select({ slug: products.slug })
+          .from(products)
+          .where(eq(products.id, productId));
+
         // Delete all existing materials for this product
         await db
           .delete(productMaterials)
@@ -485,11 +504,14 @@ export const adminProductsRouter = createTRPCRouter({
           updatedMaterials = await db
             .insert(productMaterials)
             .values(
-              inputMaterials.map((material) => ({
+              inputMaterials.map((material, index) => ({
                 productId,
                 materialId: material.materialId,
+                // Generate SKU: product-slug_material-index (e.g., "DN-001_MAT-1")
+                sku: `${product.slug.toUpperCase()}_MAT-${index + 1}`,
                 price: material.price,
                 stockQuantity: parseInt(material.stockQuantity),
+                lowStockThreshold: parseInt(material.lowStockThreshold),
                 isDefault: material.isDefault,
               })),
             )

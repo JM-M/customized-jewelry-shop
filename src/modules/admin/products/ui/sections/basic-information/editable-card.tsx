@@ -70,8 +70,6 @@ export const BasicInformationCard = () => {
       name: product.name,
       categoryId: product.categoryId || "",
       description: product.description || "",
-      sku: product.sku || "",
-      stockQuantity: product.stockQuantity?.toString() || "0",
     },
   });
 
@@ -87,10 +85,6 @@ export const BasicInformationCard = () => {
       name: values.name,
       categoryId: values.categoryId,
       description: values.description,
-      sku: values.sku,
-      stockQuantity: values.stockQuantity
-        ? parseInt(values.stockQuantity)
-        : undefined,
     });
     setIsEditing(false);
 
@@ -112,8 +106,6 @@ export const BasicInformationCard = () => {
       name: values.name,
       categoryId: values.categoryId,
       description: values.description,
-      sku: values.sku,
-      stockQuantity: values.stockQuantity,
     });
   };
 
@@ -172,8 +164,6 @@ export const BasicInformationCard = () => {
             name={product.name}
             category={(product as any).category || undefined}
             description={product.description}
-            sku={product.sku}
-            stockQuantity={product.stockQuantity}
           />
         )}
       </CardContent>

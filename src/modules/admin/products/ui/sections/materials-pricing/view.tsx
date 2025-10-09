@@ -5,6 +5,7 @@ import { formatNaira } from "@/lib/utils";
 interface MaterialsPricingViewProps {
   price: string | number;
   materials?: Array<{
+    sku: string;
     material: {
       id: string;
       displayName: string;
@@ -12,6 +13,7 @@ interface MaterialsPricingViewProps {
     };
     price: string;
     stockQuantity: number | null;
+    lowStockThreshold: number | null;
     isDefault: boolean | null;
   }>;
 }
@@ -38,30 +40,43 @@ export const MaterialsPricingView = ({
             {materials.map((materialItem) => (
               <div
                 key={materialItem.material.id}
-                className="flex items-center justify-between rounded-lg border p-3"
+                className="rounded-lg border p-3"
               >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="block size-6 shrink-0 rounded-full"
-                    style={{ backgroundColor: materialItem.material.hexColor }}
-                  />
-                  <div>
-                    <p className="text-sm font-medium">
-                      {materialItem.material.displayName}
-                      {materialItem.isDefault && (
-                        <span className="text-primary ml-2 text-xs">
-                          (Default)
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-muted-foreground text-xs">
-                      Stock: {materialItem.stockQuantity ?? 0} available
-                    </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="block size-6 shrink-0 rounded-full"
+                      style={{
+                        backgroundColor: materialItem.material.hexColor,
+                      }}
+                    />
+                    <div>
+                      <p className="text-sm font-medium">
+                        {materialItem.material.displayName}
+                        {materialItem.isDefault && (
+                          <span className="text-primary ml-2 text-xs">
+                            (Default)
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        SKU: {materialItem.sku}
+                      </p>
+                    </div>
                   </div>
+                  <p className="text-primary font-semibold">
+                    {formatNaira(Number(materialItem.price))}
+                  </p>
                 </div>
-                <p className="text-primary font-semibold">
-                  {formatNaira(Number(materialItem.price))}
-                </p>
+                <div className="text-muted-foreground mt-2 flex gap-4 text-xs">
+                  <span>
+                    Stock: {materialItem.stockQuantity ?? 0} available
+                  </span>
+                  <span>•</span>
+                  <span>
+                    Low stock alert: &lt; {materialItem.lowStockThreshold ?? 10}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

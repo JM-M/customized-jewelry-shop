@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { useTRPC } from "@/trpc/client";
 
+import { DEFAULT_LOW_STOCK_THRESHOLD } from "../../../constants";
 import { useAdminProduct } from "../../../contexts/admin-product";
 import {
   MaterialsPricingFormValues,
@@ -25,6 +26,7 @@ interface MaterialWithPrice {
   materialId: string;
   price: string;
   stockQuantity: string;
+  lowStockThreshold: string;
   isDefault: boolean;
 }
 
@@ -38,6 +40,9 @@ export const MaterialsPricingCard = () => {
       materialId: m.material.id,
       price: m.price,
       stockQuantity: m.stockQuantity?.toString() || "0",
+      lowStockThreshold:
+        m.lowStockThreshold?.toString() ||
+        DEFAULT_LOW_STOCK_THRESHOLD.toString(),
       isDefault: m.isDefault || false,
     })) || [],
   );
@@ -64,22 +69,32 @@ export const MaterialsPricingCard = () => {
     values: Parameters<typeof updatePricingMutation>[0],
   ) => {
     // Optimistically update the product data
-    const updatedMaterials = values.materials?.map((m) => {
+    const updatedMaterials = values.materials?.map((m, index) => {
       const material = materials?.find((mat) => mat.id === m.materialId);
+      const existingMaterial = product.materials?.find(
+        (pm) => pm.materialId === m.materialId,
+      );
       return {
-        id: `temp-${m.materialId}`,
+        id: existingMaterial?.id || `temp-${m.materialId}`,
         productId: product.id,
         materialId: m.materialId,
+        sku:
+          existingMaterial?.sku ||
+          `${product.slug.toUpperCase()}_MAT-${index + 1}`,
         price: m.price,
         stockQuantity: parseInt(m.stockQuantity),
+        lowStockThreshold: parseInt(m.lowStockThreshold),
         isDefault: m.isDefault,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: existingMaterial?.createdAt || new Date().toISOString(),
         material: material || {
           id: m.materialId,
           name: "Unknown",
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          displayName: "Unknown",
+          hexColor: "#000000",
+          description: null,
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
       };
     });
@@ -117,6 +132,9 @@ export const MaterialsPricingCard = () => {
         materialId: m.material.id,
         price: m.price,
         stockQuantity: m.stockQuantity?.toString() || "0",
+        lowStockThreshold:
+          m.lowStockThreshold?.toString() ||
+          DEFAULT_LOW_STOCK_THRESHOLD.toString(),
         isDefault: m.isDefault || false,
       })) || [],
     );
@@ -133,27 +151,14 @@ export const MaterialsPricingCard = () => {
           ...prev,
           {
             materialId,
-            price: "",
+            price: product.price,
             stockQuantity: "0",
+            lowStockThreshold: DEFAULT_LOW_STOCK_THRESHOLD.toString(),
             isDefault: prev.length === 0,
           },
         ];
       }
     });
-  };
-
-  const updateMaterialPrice = (materialId: string, price: string) => {
-    setSelectedMaterials((prev) =>
-      prev.map((m) => (m.materialId === materialId ? { ...m, price } : m)),
-    );
-  };
-
-  const updateMaterialStock = (materialId: string, stockQuantity: string) => {
-    setSelectedMaterials((prev) =>
-      prev.map((m) =>
-        m.materialId === materialId ? { ...m, stockQuantity } : m,
-      ),
-    );
   };
 
   const setDefaultMaterial = (materialId: string) => {
@@ -190,8 +195,6 @@ export const MaterialsPricingCard = () => {
                 materials={materials || []}
                 selectedMaterials={selectedMaterials}
                 onToggleMaterial={toggleMaterial}
-                onUpdateMaterialPrice={updateMaterialPrice}
-                onUpdateMaterialStock={updateMaterialStock}
                 onSetDefaultMaterial={setDefaultMaterial}
               />
               <div className="flex justify-end gap-2">

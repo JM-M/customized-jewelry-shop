@@ -5,7 +5,6 @@ import { UseFormReturn } from "react-hook-form";
 import { Combobox, ComboboxOption } from "@/components/shared/combobox";
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -86,40 +85,6 @@ export const BasicInformationFields = ({
           </FormItem>
         )}
       />
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <FormField
-          control={form.control}
-          name="sku"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>SKU</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., DN-001" {...field} />
-              </FormControl>
-              <FormDescription>Stock Keeping Unit (optional)</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="stockQuantity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Base Stock Quantity</FormLabel>
-              <FormControl>
-                <Input type="number" min="0" {...field} />
-              </FormControl>
-              <FormDescription>
-                Used if not using materials system
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
     </div>
   );
 };

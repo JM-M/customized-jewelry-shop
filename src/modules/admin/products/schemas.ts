@@ -6,8 +6,6 @@ export const basicInformationSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   categoryId: z.string().min(1, "Category is required"),
   description: z.string().optional(),
-  sku: z.string().optional(),
-  stockQuantity: z.string().optional(),
 });
 
 export const materialsPricingSchema = z.object({
@@ -28,6 +26,7 @@ export const materialWithPriceSchema = z.object({
   materialId: z.string(),
   price: z.string().min(1, "Price is required"),
   stockQuantity: z.string(),
+  lowStockThreshold: z.string(),
   isDefault: z.boolean(),
 });
 

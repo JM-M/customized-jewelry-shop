@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, XIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
+import { DEFAULT_LOW_STOCK_THRESHOLD } from "../../../constants";
+
 interface Material {
   id: string;
   displayName: string;
@@ -25,6 +27,7 @@ interface MaterialWithPrice {
   materialId: string;
   price: string;
   stockQuantity: string;
+  lowStockThreshold: string;
   isDefault: boolean;
 }
 
@@ -113,7 +116,9 @@ export const MaterialsPricingFields = ({
 
       {selectedMaterials.length > 0 && (
         <div className="space-y-3">
-          <label className="text-sm font-medium">Material Pricing</label>
+          <label className="text-sm font-medium">
+            Material Pricing & Inventory
+          </label>
           {selectedMaterials.map((selectedMaterial, index) => {
             const material = materials.find(
               (m) => m.id === selectedMaterial.materialId,
@@ -123,33 +128,65 @@ export const MaterialsPricingFields = ({
             return (
               <div
                 key={selectedMaterial.materialId}
-                className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center"
+                className="space-y-3 rounded-lg border p-4"
               >
-                <div className="flex flex-1 items-center gap-3">
-                  <span
-                    className="block size-6 shrink-0 rounded-full"
-                    style={{ backgroundColor: material.hexColor }}
-                  />
-                  <span className="text-sm font-medium">
-                    {material.displayName}
-                  </span>
+                {/* Header Row: Material Name + Action Buttons */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="block size-6 shrink-0 rounded-full"
+                      style={{ backgroundColor: material.hexColor }}
+                    />
+                    <span className="text-sm font-medium">
+                      {material.displayName}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant={
+                        selectedMaterial.isDefault ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() =>
+                        onSetDefaultMaterial(selectedMaterial.materialId)
+                      }
+                    >
+                      {selectedMaterial.isDefault ? "Default" : "Set Default"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() =>
+                        onToggleMaterial(selectedMaterial.materialId)
+                      }
+                    >
+                      <XIcon />
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="ml-auto flex items-center gap-2">
+                {/* Input Grid: 3 columns on desktop, stack on mobile */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <FormField
                     control={form.control}
                     name={`materials.${index}.price`}
                     render={({ field }) => (
-                      <FormItem className="w-fit sm:w-32">
+                      <FormItem>
+                        <FormLabel>
+                          Price (₦) <span className="text-destructive">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             step="0.01"
                             min="0"
-                            placeholder="Price"
+                            placeholder="0.00"
                             {...field}
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -157,28 +194,41 @@ export const MaterialsPricingFields = ({
                     control={form.control}
                     name={`materials.${index}.stockQuantity`}
                     render={({ field }) => (
-                      <FormItem className="w-fit sm:w-24">
+                      <FormItem>
+                        <FormLabel>Stock Quantity</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             min="0"
-                            placeholder="Stock"
+                            placeholder="0"
                             {...field}
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button
-                    type="button"
-                    variant={selectedMaterial.isDefault ? "default" : "outline"}
-                    size="sm"
-                    onClick={() =>
-                      onSetDefaultMaterial(selectedMaterial.materialId)
-                    }
-                  >
-                    {selectedMaterial.isDefault ? "Default" : "Set Default"}
-                  </Button>
+                  <FormField
+                    control={form.control}
+                    name={`materials.${index}.lowStockThreshold`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Low Stock Alert</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            placeholder={DEFAULT_LOW_STOCK_THRESHOLD.toString()}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          Alert when stock falls below
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
             );

@@ -8,9 +8,7 @@ import {
   createSelectColumn,
   DateCell,
   PriceCell,
-  SkuCell,
   SortableHeader,
-  StockCell,
 } from "@/components/shared";
 import { AdminGetProductsOutput } from "@/modules/admin/products/types";
 
@@ -43,11 +41,6 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => <ProductNameCell product={row.original} />,
   },
   {
-    accessorKey: "sku",
-    header: "SKU",
-    cell: ({ row }) => <SkuCell value={row.getValue("sku")} />,
-  },
-  {
     accessorKey: "price",
     header: ({ column }) => (
       <SortableHeader column={column}>Price</SortableHeader>
@@ -55,11 +48,40 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => <PriceCell value={row.getValue("price")} />,
   },
   {
-    accessorKey: "stockQuantity",
-    header: ({ column }) => (
-      <SortableHeader column={column}>Stock</SortableHeader>
-    ),
-    cell: ({ row }) => <StockCell value={row.getValue("stockQuantity")} />,
+    id: "materials",
+    header: "Materials",
+    cell: ({ row }) => {
+      const product = row.original;
+      const materialsCount = product.materials?.length || 0;
+      return (
+        <div className="text-muted-foreground text-sm">
+          {materialsCount} variant{materialsCount !== 1 ? "s" : ""}
+        </div>
+      );
+    },
+  },
+  {
+    id: "totalStock",
+    header: "Total Stock",
+    cell: ({ row }) => {
+      const product = row.original;
+      const totalStock =
+        product.materials?.reduce(
+          (sum, m) => sum + (m.stockQuantity || 0),
+          0,
+        ) || 0;
+      return (
+        <div className="text-sm">
+          <span
+            className={
+              totalStock > 0 ? "text-green-600" : "text-muted-foreground"
+            }
+          >
+            {totalStock} items
+          </span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "createdAt",

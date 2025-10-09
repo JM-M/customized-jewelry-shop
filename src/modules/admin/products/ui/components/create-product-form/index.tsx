@@ -20,6 +20,7 @@ import { Form, FormMessage } from "@/components/ui/form";
 
 import { Spinner } from "@/components/shared/spinner";
 import { useTRPC } from "@/trpc/client";
+import { DEFAULT_LOW_STOCK_THRESHOLD } from "../../../constants";
 import { CreateProductFormValues, createProductSchema } from "../../../schemas";
 import { BasicInformationFields } from "../../sections/basic-information";
 import { CustomizationOptionsFields } from "../../sections/customization-options";
@@ -91,9 +92,7 @@ export const CreateProductForm = () => {
       name: "",
       description: "",
       categoryId: "",
-      sku: "",
       price: "",
-      stockQuantity: "0",
       packagingId: "",
       metaTitle: "",
       metaDescription: "",
@@ -133,9 +132,7 @@ export const CreateProductForm = () => {
         slug,
         description: values.description,
         categoryId: values.categoryId,
-        sku: values.sku,
         price: values.price,
-        stockQuantity: values.stockQuantity,
         packagingId: values.packagingId,
         images: values.images,
         materials: values.materials,
@@ -165,10 +162,12 @@ export const CreateProductForm = () => {
     if (existingIndex > -1) {
       removeMaterial(existingIndex);
     } else {
+      const basePrice = form.getValues("price");
       appendMaterial({
         materialId,
-        price: "",
+        price: basePrice || "",
         stockQuantity: "0",
+        lowStockThreshold: DEFAULT_LOW_STOCK_THRESHOLD.toString(),
         isDefault: materialFields.length === 0, // First material is default
       });
     }
