@@ -306,9 +306,11 @@ export const cartItems = pgTable(
     productId: uuid("product_id")
       .references(() => products.id, { onDelete: "cascade" })
       .notNull(),
-    materialId: uuid("material_id").references(() => materials.id, {
-      onDelete: "cascade",
-    }),
+    materialId: uuid("material_id")
+      .references(() => materials.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
     quantity: integer("quantity")
       .$defaultFn(() => 1)
       .notNull(),

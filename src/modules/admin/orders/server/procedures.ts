@@ -4,7 +4,12 @@ import { db } from "@/db";
 import { user } from "@/db/schema/auth";
 import { pickupAddresses, terminalAddresses } from "@/db/schema/logistics";
 import { orderItems, orders } from "@/db/schema/orders";
-import { materials, products } from "@/db/schema/shop";
+import {
+  inventoryTransactions,
+  materials,
+  productMaterials,
+  products,
+} from "@/db/schema/shop";
 import { makeTerminalRequest, terminalClient } from "@/lib/terminal-client";
 import { CustomizationType } from "@/modules/products/types";
 import {
@@ -404,50 +409,100 @@ export const adminOrdersRouter = createTRPCRouter({
 
       const totalAmount = subtotal + deliveryFee;
 
-      // Create order
-      const [newOrder] = await db
-        .insert(orders)
-        .values({
-          orderNumber: generateOrderNumber(),
-          userId: userId,
-          subtotal: subtotal.toString(),
-          deliveryFee: deliveryFee.toString(),
-          totalAmount: totalAmount.toString(),
-          status: "pending",
-          deliveryAddressId: input.deliveryAddressId,
-          pickupAddressId: defaultPickupAddress.id,
-          rateId: input.rateId,
-        })
-        .returning();
+      // Execute order creation with inventory deduction in a transaction
+      const result = await db.transaction(async (tx) => {
+        // Create order
+        const [newOrder] = await tx
+          .insert(orders)
+          .values({
+            orderNumber: generateOrderNumber(),
+            userId: userId,
+            subtotal: subtotal.toString(),
+            deliveryFee: deliveryFee.toString(),
+            totalAmount: totalAmount.toString(),
+            status: "pending",
+            deliveryAddressId: input.deliveryAddressId,
+            pickupAddressId: defaultPickupAddress.id,
+            rateId: input.rateId,
+          })
+          .returning();
 
-      // Create order items
-      const newOrderItems = await db
-        .insert(orderItems)
-        .values(
-          orderItemsData.map((item) => ({
-            orderId: newOrder.id,
+        // Create order items
+        const newOrderItems = await tx
+          .insert(orderItems)
+          .values(
+            orderItemsData.map((item) => ({
+              orderId: newOrder.id,
+              productId: item.productId,
+              materialId: item.materialId,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              totalPrice: item.totalPrice,
+              customizations: item.customizations,
+              notes: item.notes,
+            })),
+          )
+          .returning();
+
+        // Pessimistic locking for inventory deduction
+        for (const item of orderItemsData) {
+          // Lock the productMaterials row for update
+          const [lockedProductMaterial] = await tx
+            .select()
+            .from(productMaterials)
+            .where(
+              and(
+                eq(productMaterials.productId, item.productId),
+                eq(productMaterials.materialId, item.materialId),
+              ),
+            )
+            .for("update")
+            .limit(1);
+
+          if (!lockedProductMaterial) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: `Product material combination not found for product ${item.productId}`,
+            });
+          }
+
+          // Check if sufficient stock is available
+          const currentStock = lockedProductMaterial.stockQuantity || 0;
+          if (currentStock < item.quantity) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message: `Insufficient stock for product. Available: ${currentStock}, Requested: ${item.quantity}`,
+            });
+          }
+
+          // Deduct stock
+          const newStockQuantity = currentStock - item.quantity;
+          await tx
+            .update(productMaterials)
+            .set({
+              stockQuantity: newStockQuantity,
+            })
+            .where(eq(productMaterials.id, lockedProductMaterial.id));
+
+          // Create inventory transaction record
+          await tx.insert(inventoryTransactions).values({
             productId: item.productId,
             materialId: item.materialId,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            totalPrice: item.totalPrice,
-            customizations: item.customizations,
-            notes: item.notes,
-          })),
-        )
-        .returning();
+            type: "sale",
+            quantityChange: -item.quantity,
+            quantityAfter: newStockQuantity,
+            orderId: newOrder.id,
+            notes: `Order ${newOrder.orderNumber} - Admin created order`,
+            createdBy: userId,
+          });
+        }
 
-      // TODO: Implement pessimistic locking for inventory deduction
-      // 1. For each order item, lock the productMaterials row using .for('update')
-      // 2. Check if stockQuantity >= quantity ordered
-      // 3. If insufficient stock, throw error and rollback transaction
-      // 4. Deduct stock: UPDATE productMaterials SET stockQuantity = stockQuantity - quantity
-      // 5. Create inventory transaction record (type: 'sale', quantityChange: -quantity, orderId: newOrder.id)
-      // 6. All operations should be wrapped in a single database transaction
+        return {
+          order: newOrder,
+          items: newOrderItems,
+        };
+      });
 
-      return {
-        order: newOrder,
-        items: newOrderItems,
-      };
+      return result;
     }),
 });

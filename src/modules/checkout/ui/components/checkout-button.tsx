@@ -52,7 +52,7 @@ export const CheckoutButton = () => {
 
   // Create order mutation
   const { mutate: createOrder, isPending: isCreatingOrder } = useMutation(
-    trpc.orders.createOrder.mutationOptions(),
+    trpc.orders.createOrderFromCart.mutationOptions(),
   );
 
   // Generate a unique reference for this transaction
