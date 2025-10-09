@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  GetProductByIdOutput,
-  GetProductCustomizationOptionsOutput,
-  GetProductMaterialsOutput,
-} from "@/modules/products/types";
+import { GetProductForEditOutput } from "@/modules/admin/products/types";
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
@@ -12,12 +8,8 @@ import { createContext, ReactNode, useContext } from "react";
 
 interface AdminProductContextType {
   // Data
-  product: GetProductByIdOutput | null;
-  productMaterials: GetProductMaterialsOutput;
-  customizationOptions: GetProductCustomizationOptionsOutput;
+  product: NonNullable<GetProductForEditOutput>;
   isLoading: boolean;
-  isMaterialsLoading: boolean;
-  isCustomizationOptionsLoading: boolean;
 
   // Computed values
   hasProduct: boolean;
@@ -25,6 +17,8 @@ interface AdminProductContextType {
   // Actions
   removeCustomizationOption: (optionId: string) => void;
   isRemovingCustomizationOption: boolean;
+  refetchProduct: () => void;
+  setProductData: (update: Partial<GetProductForEditOutput>) => void;
 }
 
 const AdminProductContext = createContext<AdminProductContextType | undefined>(
@@ -41,25 +35,38 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  // Query product data
-  const { data: product, isLoading: productLoading } = useQuery(
-    trpc.products.getBySlug.queryOptions({ slug: productSlug }),
+  // Single query to fetch product with all related data
+  const {
+    data: product,
+    isLoading,
+    refetch: refetchProduct,
+  } = useQuery(
+    trpc.admin.products.getProductForEdit.queryOptions({ slug: productSlug }),
   );
 
-  const { data: productMaterials, isLoading: materialsLoading } = useQuery({
-    ...trpc.products.getProductMaterials.queryOptions({
-      productId: product?.id || "",
-    }),
-    enabled: !!product?.id,
-  });
-
-  const { data: customizationOptions, isLoading: customizationOptionsLoading } =
-    useQuery({
-      ...trpc.admin.products.getCustomizationOptions.queryOptions({
-        productId: product?.id || "",
+  const invalidateProduct = () => {
+    queryClient.invalidateQueries({
+      queryKey: trpc.admin.products.getProductForEdit.queryKey({
+        slug: productSlug,
       }),
-      enabled: !!product?.id,
     });
+  };
+
+  // Function to optimistically update the product data
+  const setProductData = (update: Partial<GetProductForEditOutput>) => {
+    queryClient.setQueryData(
+      trpc.admin.products.getProductForEdit.queryKey({ slug: productSlug }),
+      (oldData: GetProductForEditOutput | undefined) => {
+        if (!oldData) return oldData;
+
+        // Merge the partial update with the old data
+        return {
+          ...oldData,
+          ...update,
+        };
+      },
+    );
+  };
 
   // Mutation for removing customization options
   const {
@@ -67,13 +74,54 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
     isPending: isRemovingCustomizationOption,
   } = useMutation(
     trpc.admin.products.removeCustomizationOption.mutationOptions({
-      onSuccess: () => {
-        // Invalidate and refetch customization options
-        queryClient.invalidateQueries({
-          queryKey: trpc.admin.products.getCustomizationOptions.queryKey({
-            productId: product?.id || "",
+      onMutate: async (variables) => {
+        // Cancel any outgoing refetches to avoid overwriting optimistic update
+        await queryClient.cancelQueries({
+          queryKey: trpc.admin.products.getProductForEdit.queryKey({
+            slug: productSlug,
           }),
         });
+
+        // Snapshot the previous value
+        const previousProduct = queryClient.getQueryData(
+          trpc.admin.products.getProductForEdit.queryKey({
+            slug: productSlug,
+          }),
+        );
+
+        // Optimistically update by removing the customization option
+        const currentProduct =
+          queryClient.getQueryData<GetProductForEditOutput>(
+            trpc.admin.products.getProductForEdit.queryKey({
+              slug: productSlug,
+            }),
+          );
+
+        if (currentProduct) {
+          setProductData({
+            customizationOptions: currentProduct.customizationOptions.filter(
+              (option) => option.id !== variables.optionId,
+            ),
+          });
+        }
+
+        // Return context with the previous value
+        return { previousProduct };
+      },
+      onError: (_error, _variables, context) => {
+        // Rollback to the previous value on error
+        if (context?.previousProduct) {
+          queryClient.setQueryData(
+            trpc.admin.products.getProductForEdit.queryKey({
+              slug: productSlug,
+            }),
+            context.previousProduct,
+          );
+        }
+      },
+      onSettled: () => {
+        // Refetch to ensure data is in sync with server
+        invalidateProduct();
       },
     }),
   );
@@ -84,18 +132,17 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
   };
 
   // Computed values
-  const isLoading =
-    productLoading || materialsLoading || customizationOptionsLoading;
   const hasProduct = !!product;
+
+  // Don't render children until product is loaded
+  if (isLoading || !product) {
+    return null;
+  }
 
   const contextValue: AdminProductContextType = {
     // Data
-    product: product || null,
-    productMaterials: productMaterials || [],
-    customizationOptions: customizationOptions || [],
+    product,
     isLoading,
-    isMaterialsLoading: materialsLoading,
-    isCustomizationOptionsLoading: customizationOptionsLoading,
 
     // Computed values
     hasProduct,
@@ -103,6 +150,8 @@ export function AdminProductProvider({ children }: AdminProductProviderProps) {
     // Actions
     removeCustomizationOption,
     isRemovingCustomizationOption,
+    refetchProduct,
+    setProductData,
   };
 
   return (

@@ -4,6 +4,9 @@ import { inferRouterOutputs } from "@trpc/server";
 export type GetProductByIdOutput =
   inferRouterOutputs<AppRouter>["products"]["getById"];
 
+export type GetProductBySlugOutput =
+  inferRouterOutputs<AppRouter>["products"]["getBySlug"];
+
 export type GetProductsByCategorySlugOutput =
   inferRouterOutputs<AppRouter>["products"]["getManyByCategorySlug"];
 

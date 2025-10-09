@@ -99,7 +99,7 @@ export const CreateOrderForm = () => {
       ...accumulatedData.delivery,
     },
   });
-  console.log(form.formState.errors);
+  // console.log(form.formState.errors);
 
   // Create order mutation
   const {

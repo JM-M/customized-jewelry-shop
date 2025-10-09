@@ -8,47 +8,51 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTRPC } from "@/trpc/client";
 
+import { useAdminProduct } from "../../../contexts/admin-product";
 import { ProductImagesFields } from "./fields";
 import { ProductImagesView } from "./view";
 
-interface ProductImagesCardProps {
-  product: {
-    id: string;
-    images: string[];
-  };
-}
-
-export const ProductImagesCard = ({ product }: ProductImagesCardProps) => {
+export const ProductImagesCard = () => {
+  const { product, refetchProduct, setProductData } = useAdminProduct();
   const [isEditing, setIsEditing] = useState(false);
   const [images, setImages] = useState<string[]>(product.images || []);
+  const trpc = useTRPC();
 
-  const { mutate: updateImages, isPending } = useMutation({
-    mutationFn: async () => {
-      // TODO: Implement actual update mutation
-      console.log("Updating images:", {
-        productId: product.id,
-        images,
-        primaryImage: images[0],
-      });
-      return Promise.resolve();
-    },
-    onSuccess: () => {
-      toast.success("Product images updated successfully!");
-      setIsEditing(false);
-      // TODO: Invalidate product query
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update images");
-    },
-  });
+  const { mutate: updateImagesMutation, isPending } = useMutation(
+    trpc.admin.products.updateProduct.mutationOptions(),
+  );
+
+  const updateImages = (values: Parameters<typeof updateImagesMutation>[0]) => {
+    // Optimistically update the product data
+    setProductData({
+      images: values.images,
+      primaryImage: values.images?.[0],
+    });
+    setIsEditing(false);
+
+    updateImagesMutation(values, {
+      onSuccess: () => {
+        toast.success("Product images updated successfully!");
+        refetchProduct();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to update images");
+        setIsEditing(true);
+      },
+    });
+  };
 
   const handleSave = () => {
     if (images.length === 0) {
       toast.error("At least one image is required");
       return;
     }
-    updateImages();
+    updateImages({
+      productId: product.id,
+      images,
+    });
   };
 
   const handleCancel = () => {
@@ -62,7 +66,7 @@ export const ProductImagesCard = ({ product }: ProductImagesCardProps) => {
         <CardTitle className="font-medium">Product Images</CardTitle>
         {!isEditing && (
           <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-            <EditIcon className="mr-2 h-4 w-4" />
+            <EditIcon />
             Edit
           </Button>
         )}
@@ -78,18 +82,18 @@ export const ProductImagesCard = ({ product }: ProductImagesCardProps) => {
                 onClick={handleCancel}
                 disabled={isPending}
               >
-                <XIcon className="mr-2 h-4 w-4" />
+                <XIcon />
                 Cancel
               </Button>
               <Button onClick={handleSave} disabled={isPending}>
                 {isPending ? (
                   <>
-                    <Spinner className="mr-2 h-4 w-4" />
+                    <Spinner />
                     Saving...
                   </>
                 ) : (
                   <>
-                    <SaveIcon className="mr-2 h-4 w-4" />
+                    <SaveIcon />
                     Save Changes
                   </>
                 )}

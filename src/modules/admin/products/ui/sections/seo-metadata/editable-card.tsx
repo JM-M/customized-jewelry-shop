@@ -11,24 +11,17 @@ import { Spinner } from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
+import { useTRPC } from "@/trpc/client";
 
-import {
-  seoMetadataSchema,
-  SeoMetadataFormValues,
-} from "../../../schemas";
+import { useAdminProduct } from "../../../contexts/admin-product";
+import { SeoMetadataFormValues, seoMetadataSchema } from "../../../schemas";
 import { SeoMetadataFields } from "./fields";
 import { SeoMetadataView } from "./view";
 
-interface SeoMetadataCardProps {
-  product: {
-    id: string;
-    metaTitle: string | null;
-    metaDescription: string | null;
-  };
-}
-
-export const SeoMetadataCard = ({ product }: SeoMetadataCardProps) => {
+export const SeoMetadataCard = () => {
+  const { product, refetchProduct, setProductData } = useAdminProduct();
   const [isEditing, setIsEditing] = useState(false);
+  const trpc = useTRPC();
 
   const form = useForm<SeoMetadataFormValues>({
     resolver: zodResolver(seoMetadataSchema),
@@ -38,27 +31,36 @@ export const SeoMetadataCard = ({ product }: SeoMetadataCardProps) => {
     },
   });
 
-  const { mutate: updateSeo, isPending } = useMutation({
-    mutationFn: async (values: SeoMetadataFormValues) => {
-      // TODO: Implement actual update mutation
-      console.log("Updating SEO metadata:", {
-        productId: product.id,
-        ...values,
-      });
-      return Promise.resolve();
-    },
-    onSuccess: () => {
-      toast.success("SEO metadata updated successfully!");
-      setIsEditing(false);
-      // TODO: Invalidate product query
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update SEO metadata");
-    },
-  });
+  const { mutate: updateSeoMutation, isPending } = useMutation(
+    trpc.admin.products.updateProduct.mutationOptions(),
+  );
+
+  const updateSeo = (values: Parameters<typeof updateSeoMutation>[0]) => {
+    // Optimistically update the product data
+    setProductData({
+      metaTitle: values.metaTitle,
+      metaDescription: values.metaDescription,
+    });
+    setIsEditing(false);
+
+    updateSeoMutation(values, {
+      onSuccess: () => {
+        toast.success("SEO metadata updated successfully!");
+        refetchProduct();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to update SEO metadata");
+        setIsEditing(true);
+      },
+    });
+  };
 
   const onSubmit = (values: SeoMetadataFormValues) => {
-    updateSeo(values);
+    updateSeo({
+      productId: product.id,
+      metaTitle: values.metaTitle,
+      metaDescription: values.metaDescription,
+    });
   };
 
   const handleCancel = () => {
@@ -72,7 +74,7 @@ export const SeoMetadataCard = ({ product }: SeoMetadataCardProps) => {
         <CardTitle className="font-medium">SEO & Metadata</CardTitle>
         {!isEditing && (
           <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-            <EditIcon className="mr-2 h-4 w-4" />
+            <EditIcon />
             Edit
           </Button>
         )}
@@ -89,18 +91,18 @@ export const SeoMetadataCard = ({ product }: SeoMetadataCardProps) => {
                   onClick={handleCancel}
                   disabled={isPending}
                 >
-                  <XIcon className="mr-2 h-4 w-4" />
+                  <XIcon />
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isPending}>
                   {isPending ? (
                     <>
-                      <Spinner className="mr-2 h-4 w-4" />
+                      <Spinner />
                       Saving...
                     </>
                   ) : (
                     <>
-                      <SaveIcon className="mr-2 h-4 w-4" />
+                      <SaveIcon />
                       Save Changes
                     </>
                   )}

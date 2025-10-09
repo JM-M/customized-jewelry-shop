@@ -11,8 +11,10 @@ import { Spinner } from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
+import { useTRPC } from "@/trpc/client";
 
-import { shippingSchema, ShippingFormValues } from "../../../schemas";
+import { useAdminProduct } from "../../../contexts/admin-product";
+import { ShippingFormValues, shippingSchema } from "../../../schemas";
 import { ShippingFields } from "./fields";
 import { ShippingView } from "./view";
 
@@ -23,15 +25,10 @@ const mockPackaging = [
   { value: "pkg_3", label: "Luxury Gift Box" },
 ];
 
-interface ShippingCardProps {
-  product: {
-    id: string;
-    packagingId: string | null;
-  };
-}
-
-export const ShippingCard = ({ product }: ShippingCardProps) => {
+export const ShippingCard = () => {
+  const { product, refetchProduct, setProductData } = useAdminProduct();
   const [isEditing, setIsEditing] = useState(false);
+  const trpc = useTRPC();
 
   const form = useForm<ShippingFormValues>({
     resolver: zodResolver(shippingSchema),
@@ -40,24 +37,36 @@ export const ShippingCard = ({ product }: ShippingCardProps) => {
     },
   });
 
-  const { mutate: updateShipping, isPending } = useMutation({
-    mutationFn: async (values: ShippingFormValues) => {
-      // TODO: Implement actual update mutation
-      console.log("Updating shipping:", { productId: product.id, ...values });
-      return Promise.resolve();
-    },
-    onSuccess: () => {
-      toast.success("Shipping configuration updated successfully!");
-      setIsEditing(false);
-      // TODO: Invalidate product query
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update shipping");
-    },
-  });
+  const { mutate: updateShippingMutation, isPending } = useMutation(
+    trpc.admin.products.updateProduct.mutationOptions(),
+  );
+
+  const updateShipping = (
+    values: Parameters<typeof updateShippingMutation>[0],
+  ) => {
+    // Optimistically update the product data
+    setProductData({
+      packagingId: values.packagingId,
+    });
+    setIsEditing(false);
+
+    updateShippingMutation(values, {
+      onSuccess: () => {
+        toast.success("Shipping configuration updated successfully!");
+        refetchProduct();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to update shipping");
+        setIsEditing(true);
+      },
+    });
+  };
 
   const onSubmit = (values: ShippingFormValues) => {
-    updateShipping(values);
+    updateShipping({
+      productId: product.id,
+      packagingId: values.packagingId,
+    });
   };
 
   const handleCancel = () => {
@@ -71,7 +80,7 @@ export const ShippingCard = ({ product }: ShippingCardProps) => {
         <CardTitle className="font-medium">Shipping</CardTitle>
         {!isEditing && (
           <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-            <EditIcon className="mr-2 h-4 w-4" />
+            <EditIcon />
             Edit
           </Button>
         )}
@@ -88,18 +97,18 @@ export const ShippingCard = ({ product }: ShippingCardProps) => {
                   onClick={handleCancel}
                   disabled={isPending}
                 >
-                  <XIcon className="mr-2 h-4 w-4" />
+                  <XIcon />
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isPending}>
                   {isPending ? (
                     <>
-                      <Spinner className="mr-2 h-4 w-4" />
+                      <Spinner />
                       Saving...
                     </>
                   ) : (
                     <>
-                      <SaveIcon className="mr-2 h-4 w-4" />
+                      <SaveIcon />
                       Save Changes
                     </>
                   )}
@@ -108,7 +117,7 @@ export const ShippingCard = ({ product }: ShippingCardProps) => {
             </form>
           </Form>
         ) : (
-          <ShippingView packagingId={product.packagingId} />
+          <ShippingView packaging={product.packaging} />
         )}
       </CardContent>
     </Card>

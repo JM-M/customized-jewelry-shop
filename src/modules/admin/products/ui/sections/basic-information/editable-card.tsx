@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { EditIcon, SaveIcon, XIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { useTRPC } from "@/trpc/client";
 
+import { useAdminProduct } from "../../../contexts/admin-product";
 import {
   BasicInformationFormValues,
   basicInformationSchema,
@@ -20,29 +21,13 @@ import {
 import { BasicInformationFields } from "./fields";
 import { BasicInformationView } from "./view";
 
-interface BasicInformationCardProps {
-  product: {
-    id: string;
-    name: string;
-    categoryId: string | null;
-    category?: {
-      id: string;
-      name: string;
-    } | null;
-    description: string | null;
-    sku: string | null;
-    stockQuantity: number | null;
-  };
-}
-
-export const BasicInformationCard = ({
-  product,
-}: BasicInformationCardProps) => {
+export const BasicInformationCard = () => {
+  const { product, refetchProduct, setProductData } = useAdminProduct();
   const [isEditing, setIsEditing] = useState(false);
   const trpc = useTRPC();
 
   // Fetch all categories
-  const { data: allCategories, isLoading: categoriesLoading } = useQuery(
+  const { data: allCategories } = useSuspenseQuery(
     trpc.categories.getAll.queryOptions(),
   );
 
@@ -90,24 +75,46 @@ export const BasicInformationCard = ({
     },
   });
 
-  const { mutate: updateProduct, isPending } = useMutation({
-    mutationFn: async (values: BasicInformationFormValues) => {
-      // TODO: Implement actual update mutation
-      console.log("Updating product:", { productId: product.id, ...values });
-      return Promise.resolve();
-    },
-    onSuccess: () => {
-      toast.success("Product information updated successfully!");
-      setIsEditing(false);
-      // TODO: Invalidate product query
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update product");
-    },
-  });
+  const { mutate: updateProductMutation, isPending } = useMutation(
+    trpc.admin.products.updateProduct.mutationOptions(),
+  );
+
+  const updateProduct = (
+    values: Parameters<typeof updateProductMutation>[0],
+  ) => {
+    // Optimistically update the product data
+    setProductData({
+      name: values.name,
+      categoryId: values.categoryId,
+      description: values.description,
+      sku: values.sku,
+      stockQuantity: values.stockQuantity
+        ? parseInt(values.stockQuantity)
+        : undefined,
+    });
+    setIsEditing(false);
+
+    updateProductMutation(values, {
+      onSuccess: () => {
+        toast.success("Product information updated successfully!");
+        refetchProduct();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to update product");
+        setIsEditing(true);
+      },
+    });
+  };
 
   const onSubmit = (values: BasicInformationFormValues) => {
-    updateProduct(values);
+    updateProduct({
+      productId: product.id,
+      name: values.name,
+      categoryId: values.categoryId,
+      description: values.description,
+      sku: values.sku,
+      stockQuantity: values.stockQuantity,
+    });
   };
 
   const handleCancel = () => {
@@ -120,13 +127,8 @@ export const BasicInformationCard = ({
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="font-medium">Basic Information</CardTitle>
         {!isEditing && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsEditing(true)}
-            disabled={categoriesLoading}
-          >
-            <EditIcon className="mr-2 h-4 w-4" />
+          <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+            <EditIcon />
             Edit
           </Button>
         )}
@@ -146,18 +148,18 @@ export const BasicInformationCard = ({
                   onClick={handleCancel}
                   disabled={isPending}
                 >
-                  <XIcon className="mr-2 h-4 w-4" />
+                  <XIcon />
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isPending}>
                   {isPending ? (
                     <>
-                      <Spinner className="mr-2 h-4 w-4" />
+                      <Spinner />
                       Saving...
                     </>
                   ) : (
                     <>
-                      <SaveIcon className="mr-2 h-4 w-4" />
+                      <SaveIcon />
                       Save Changes
                     </>
                   )}
@@ -168,7 +170,7 @@ export const BasicInformationCard = ({
         ) : (
           <BasicInformationView
             name={product.name}
-            category={product.category || undefined}
+            category={(product as any).category || undefined}
             description={product.description}
             sku={product.sku}
             stockQuantity={product.stockQuantity}

@@ -20,9 +20,9 @@ When using `useQuery` with tRPC, always format as:
 
 ```typescript
 const {
-	data: queryData,
-	isLoading,
-	error,
+  data: queryData,
+  isLoading,
+  error,
 } = useQuery(trpc.module.procedure.queryOptions());
 ```
 
@@ -30,7 +30,7 @@ When using `useSuspenseQuery` with tRPC, always format as:
 
 ```typescript
 const { data: queryData } = useSuspenseQuery(
-	trpc.module.procedure.queryOptions()
+  trpc.module.procedure.queryOptions(),
 );
 ```
 
@@ -38,7 +38,7 @@ When using `useMutation` with tRPC, always format as:
 
 ```typescript
 const { mutate, isPending, error } = useMutation(
-	trpc.module.procedure.mutationOptions()
+  trpc.module.procedure.mutationOptions(),
 );
 ```
 
@@ -65,6 +65,13 @@ const { mutate, isPending, error } = useMutation(
 - Use consistent prop destructuring patterns
 - Prefer arrow functions for component definitions
 
+### Button and Icon Usage
+
+- **Never** add margin classes (`mr-*`, `ml-*`, etc.) to icons inside buttons - buttons use flexbox with gap for spacing
+- **Never** manually set `h-4 w-4` on icons inside buttons - the default is `size-4` which is equivalent
+- Only use `size-n` (e.g., `size-6`, `size-8`) when you need a size different from the default `size-4`
+- Icons and spinners inside buttons should have no classes unless changing size
+
 ### Error Handling
 
 - Always provide meaningful error messages
@@ -77,9 +84,9 @@ const { mutate, isPending, error } = useMutation(
 
 ```typescript
 const {
-	data: countriesData,
-	isLoading,
-	error,
+  data: countriesData,
+  isLoading,
+  error,
 } = useQuery(trpc.terminal.getCountries.queryOptions());
 ```
 
@@ -87,7 +94,7 @@ const {
 
 ```typescript
 const { data: countriesData } = useSuspenseQuery(
-	trpc.terminal.getCountries.queryOptions()
+  trpc.terminal.getCountries.queryOptions(),
 );
 ```
 
@@ -95,9 +102,9 @@ const { data: countriesData } = useSuspenseQuery(
 
 ```typescript
 const {
-	mutate: createAddress,
-	isPending,
-	error,
+  mutate: createAddress,
+  isPending,
+  error,
 } = useMutation(trpc.terminal.createAddress.mutationOptions());
 ```
 
@@ -118,4 +125,26 @@ import { useTRPC } from "@/trpc/client";
 
 ```typescript
 const selectedCountry = countries.find((country) => country.isoCode === value);
+```
+
+### Correct Button with Icon Usage:
+
+```typescript
+// ✅ Correct - no classes on icon
+<Button variant="ghost" size="sm">
+  <EditIcon />
+  Edit
+</Button>
+
+// ✅ Correct - only size class when needed
+<Button>
+  <SaveIcon size="size-6" />
+  Save
+</Button>
+
+// ❌ Wrong - unnecessary margin and size classes
+<Button>
+  <SaveIcon className="mr-2 h-4 w-4" />
+  Save
+</Button>
 ```

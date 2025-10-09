@@ -13,6 +13,27 @@ import { and, eq, ilike, sql } from "drizzle-orm";
 import z from "zod";
 
 export const adminProductsRouter = createTRPCRouter({
+  getProductForEdit: adminProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const product = await db.query.products.findFirst({
+        where: eq(products.slug, input.slug),
+        with: {
+          category: true,
+          materials: {
+            with: {
+              material: true,
+            },
+            orderBy: (pm, { asc }) => [asc(pm.createdAt)],
+          },
+          customizationOptions: {
+            orderBy: (co, { asc }) => [asc(co.displayOrder), asc(co.createdAt)],
+          },
+        },
+      });
+
+      return product;
+    }),
   searchProducts: adminProcedure
     .input(
       z.object({
@@ -347,6 +368,171 @@ export const adminProductsRouter = createTRPCRouter({
         product: newProduct,
         materials: createdMaterials,
         customizationOptions: createdCustomizationOptions,
+      };
+    }),
+
+  updateProduct: adminProcedure
+    .input(
+      z.object({
+        productId: z.string().min(1, "Product ID is required"),
+        // Basic information
+        name: z.string().min(1, "Product name is required").optional(),
+        description: z.string().optional(),
+        categoryId: z.string().optional(),
+        sku: z.string().optional(),
+        stockQuantity: z.string().optional(),
+        price: z.string().optional(),
+        // Images
+        images: z
+          .array(z.string())
+          .min(1, "At least one image is required")
+          .max(9, "Maximum 9 images allowed")
+          .optional(),
+        // Materials
+        materials: z
+          .array(
+            z.object({
+              materialId: z.string(),
+              price: z.string().min(1, "Price is required"),
+              stockQuantity: z.string(),
+              isDefault: z.boolean(),
+            }),
+          )
+          .optional(),
+        // Customization options
+        customizationOptions: z
+          .array(
+            z.object({
+              id: z.string().optional(), // Optional for new options
+              name: z.string().min(1, "Name is required"),
+              description: z.string().optional(),
+              type: z.enum(CUSTOMIZATION_TYPES),
+              maxCharacters: z.string().optional(),
+              sampleImage: z.string().optional(),
+            }),
+          )
+          .optional(),
+        // SEO metadata
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        // Shipping
+        packagingId: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const {
+        productId,
+        name,
+        description,
+        categoryId,
+        sku,
+        stockQuantity,
+        price,
+        images,
+        materials: inputMaterials,
+        customizationOptions: inputCustomizationOptions,
+        metaTitle,
+        metaDescription,
+        packagingId,
+      } = input;
+
+      // Build update object dynamically based on provided fields
+      const updateData: Partial<typeof products.$inferInsert> = {};
+
+      if (name !== undefined) updateData.name = name;
+      if (description !== undefined) updateData.description = description;
+      if (categoryId !== undefined) updateData.categoryId = categoryId;
+      if (sku !== undefined) updateData.sku = sku || undefined;
+      if (stockQuantity !== undefined) {
+        updateData.stockQuantity = stockQuantity ? parseInt(stockQuantity) : 0;
+      }
+      if (price !== undefined) updateData.price = price;
+      if (metaTitle !== undefined)
+        updateData.metaTitle = metaTitle || undefined;
+      if (metaDescription !== undefined) {
+        updateData.metaDescription = metaDescription || undefined;
+      }
+      if (packagingId !== undefined) {
+        updateData.packagingId = packagingId || undefined;
+      }
+      if (images !== undefined) {
+        updateData.images = images;
+        updateData.primaryImage = images[0];
+      }
+
+      // Update the product if there are any fields to update
+      let updatedProduct: typeof products.$inferSelect | undefined;
+      if (Object.keys(updateData).length > 0) {
+        [updatedProduct] = await db
+          .update(products)
+          .set(updateData)
+          .where(eq(products.id, productId))
+          .returning();
+      }
+
+      // Update materials if provided
+      let updatedMaterials:
+        | (typeof productMaterials.$inferSelect)[]
+        | undefined;
+      if (inputMaterials !== undefined) {
+        // Delete all existing materials for this product
+        await db
+          .delete(productMaterials)
+          .where(eq(productMaterials.productId, productId));
+
+        // Insert new materials
+        if (inputMaterials.length > 0) {
+          updatedMaterials = await db
+            .insert(productMaterials)
+            .values(
+              inputMaterials.map((material) => ({
+                productId,
+                materialId: material.materialId,
+                price: material.price,
+                stockQuantity: parseInt(material.stockQuantity),
+                isDefault: material.isDefault,
+              })),
+            )
+            .returning();
+        }
+      }
+
+      // Update customization options if provided
+      let updatedCustomizationOptions:
+        | (typeof customizationOptions.$inferSelect)[]
+        | undefined;
+      if (inputCustomizationOptions !== undefined) {
+        // Delete all existing customization options for this product
+        await db
+          .delete(customizationOptions)
+          .where(eq(customizationOptions.productId, productId));
+
+        // Insert new customization options
+        if (inputCustomizationOptions.length > 0) {
+          updatedCustomizationOptions = await db
+            .insert(customizationOptions)
+            .values(
+              inputCustomizationOptions.map((option, index) => ({
+                productId,
+                name: option.name,
+                description: option.description || undefined,
+                type: option.type,
+                maxCharacters: option.maxCharacters
+                  ? parseInt(option.maxCharacters)
+                  : undefined,
+                sampleImage: option.sampleImage || undefined,
+                displayOrder: index,
+              })),
+            )
+            .returning();
+        }
+      }
+
+      return {
+        success: true,
+        product: updatedProduct,
+        materials: updatedMaterials,
+        customizationOptions: updatedCustomizationOptions,
       };
     }),
 });

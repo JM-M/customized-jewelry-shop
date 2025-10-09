@@ -13,9 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { useTRPC } from "@/trpc/client";
 
+import { useAdminProduct } from "../../../contexts/admin-product";
 import {
-  materialsPricingSchema,
   MaterialsPricingFormValues,
+  materialsPricingSchema,
 } from "../../../schemas";
 import { MaterialsPricingFields } from "./fields";
 import { MaterialsPricingView } from "./view";
@@ -27,26 +28,8 @@ interface MaterialWithPrice {
   isDefault: boolean;
 }
 
-interface MaterialsPricingCardProps {
-  product: {
-    id: string;
-    price: string;
-    materials?: Array<{
-      material: {
-        id: string;
-        displayName: string;
-        hexColor: string;
-      };
-      price: string;
-      stockQuantity: number | null;
-      isDefault: boolean | null;
-    }>;
-  };
-}
-
-export const MaterialsPricingCard = ({
-  product,
-}: MaterialsPricingCardProps) => {
+export const MaterialsPricingCard = () => {
+  const { product, refetchProduct, setProductData } = useAdminProduct();
   const [isEditing, setIsEditing] = useState(false);
   const [selectedMaterials, setSelectedMaterials] = useState<
     MaterialWithPrice[]
@@ -73,28 +56,58 @@ export const MaterialsPricingCard = ({
     },
   });
 
-  const { mutate: updatePricing, isPending } = useMutation({
-    mutationFn: async (values: MaterialsPricingFormValues) => {
-      // TODO: Implement actual update mutation
-      console.log("Updating pricing:", {
+  const { mutate: updatePricingMutation, isPending } = useMutation(
+    trpc.admin.products.updateProduct.mutationOptions(),
+  );
+
+  const updatePricing = (
+    values: Parameters<typeof updatePricingMutation>[0],
+  ) => {
+    // Optimistically update the product data
+    const updatedMaterials = values.materials?.map((m) => {
+      const material = materials?.find((mat) => mat.id === m.materialId);
+      return {
+        id: `temp-${m.materialId}`,
         productId: product.id,
-        ...values,
-        materials: selectedMaterials,
-      });
-      return Promise.resolve();
-    },
-    onSuccess: () => {
-      toast.success("Pricing updated successfully!");
-      setIsEditing(false);
-      // TODO: Invalidate product query
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update pricing");
-    },
-  });
+        materialId: m.materialId,
+        price: m.price,
+        stockQuantity: parseInt(m.stockQuantity),
+        isDefault: m.isDefault,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        material: material || {
+          id: m.materialId,
+          name: "Unknown",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      };
+    });
+
+    setProductData({
+      price: values.price,
+      materials: updatedMaterials,
+    });
+    setIsEditing(false);
+
+    updatePricingMutation(values, {
+      onSuccess: () => {
+        toast.success("Pricing updated successfully!");
+        refetchProduct();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to update pricing");
+        setIsEditing(true);
+      },
+    });
+  };
 
   const onSubmit = (values: MaterialsPricingFormValues) => {
-    updatePricing(values);
+    updatePricing({
+      productId: product.id,
+      price: values.price,
+      materials: selectedMaterials,
+    });
   };
 
   const handleCancel = () => {
@@ -163,7 +176,7 @@ export const MaterialsPricingCard = ({
             onClick={() => setIsEditing(true)}
             disabled={materialsLoading}
           >
-            <EditIcon className="mr-2 h-4 w-4" />
+            <EditIcon />
             Edit
           </Button>
         )}
@@ -188,18 +201,18 @@ export const MaterialsPricingCard = ({
                   onClick={handleCancel}
                   disabled={isPending}
                 >
-                  <XIcon className="mr-2 h-4 w-4" />
+                  <XIcon />
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isPending}>
                   {isPending ? (
                     <>
-                      <Spinner className="mr-2 h-4 w-4" />
+                      <Spinner />
                       Saving...
                     </>
                   ) : (
                     <>
-                      <SaveIcon className="mr-2 h-4 w-4" />
+                      <SaveIcon />
                       Save Changes
                     </>
                   )}
